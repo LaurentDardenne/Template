@@ -1,7 +1,5 @@
 ﻿#Template.psm1
 
-#<DEFINE %Log4Net%>
-
 #<DEFINE %DEBUG%>
 Import-module Log4Posh
 
@@ -16,6 +14,7 @@ $Params=@{
 }
 &$InitializeLogging @Params
 #<UNDEF %DEBUG%>
+
  #Liste des raccourcis de type
  #ATTENTION ne pas utiliser dans la déclaration d'un type de paramètre d'une fonction
 $TemplateShortCut=@{
@@ -352,7 +351,7 @@ Function Edit-Template {
     #<UNDEF %V3%>
 
     #<DEFINE %DEBUG%>
-    Write-Debug "$DebugPreference"
+     Write-Debug "$DebugPreference"
     #<UNDEF %DEBUG%>
     }
     '@ -split "`n"
@@ -554,8 +553,8 @@ param (
      $O|Add-Member ScriptMethod ToString {'{0}:{1}' -F $this.Name,$this.Line} -force -pass
    }#New-ParsingDirective
 
-   Write-Debug "PSBoundParameters:"
-   $PSBoundParameters.GetEnumerator()|% { Write-Debug "`t$($_.key)=$($_.value)"}
+   $DebugLogger.PSDebug("PSBoundParameters:") #<%REMOVE%>
+   $PSBoundParameters.GetEnumerator()|% { $DebugLogger.PSDebug( "`t$($_.key)=$($_.value)") } #<%REMOVE%>
 
    $RegexDEFINE="^\s*#<\s*DEFINE\s*%(?<DEFINE>.*[^%\s])%>"
    $RegexUNDEF="^\s*#<\s*UNDEF\s*%(?<UNDEF>.*[^%\s])%>"
@@ -567,7 +566,7 @@ param (
    $isConditionnalsKeyWord=$PSBoundParameters.ContainsKey('ConditionnalsKeyWord')
    if( $isConditionnalsKeyWord)
    {
-     Write-Debug "Traite ConditionnalsKeyWord : $ConditionnalsKeyWord"
+     $DebugLogger.PSDebug( "Traite ConditionnalsKeyWord : $ConditionnalsKeyWord") #<%REMOVE%>
      $ConditionnalsKeyWord=$ConditionnalsKeyWord|Select -Unique
      $RegexConditionnalsKeyWord="$ConditionnalsKeyWord"
 
@@ -605,29 +604,29 @@ param (
  Process {
    $LineNumber=0;
    $isDirectiveBloc=$False
-   Write-debug "InputObject.Count: $($InputObject.Count)"
+   $DebugLogger.PSDebug( "InputObject.Count: $($InputObject.Count)") #<%REMOVE%>
    $Result=$InputObject|
      Foreach-Object {
        $LineNumber++
        [string]$Line=$_
-       Write-Debug "`tLit  $Line `t  isDirectiveBloc=$isDirectiveBloc"
+       $DebugLogger.PSDebug( "`tLit  $Line `t  isDirectiveBloc=$isDirectiveBloc") #<%REMOVE%>
        switch -regex ($Line)
        {
           #Recherche le mot clé de début d'une directive, puis l'empile
          $RegexDEFINE {
                           $CurrentDirective=$Matches.DEFINE
-                          Write-Debug "DEFINE: Debut de la directive '$CurrentDirective'"
+                          $DebugLogger.PSDebug( "DEFINE: Debut de la directive '$CurrentDirective'") #<%REMOVE%>
                           if (-not $Clean.isPresent)
                           {
                             if ($RegexConditionnalsKeyWord -ne [string]::Empty)
                             { $isFilter=$CurrentDirective -match $RegexConditionnalsKeyWord}
                             else
                             { $isFilter=$false }
-                            Write-Debug "Doit-on filtrer la directive trouvée : $isFilter"
+                            $DebugLogger.PSDebug( "Doit-on filtrer la directive trouvée : $isFilter") #<%REMOVE%>
 
                             if ($Directives.Count -gt 0 )
                             {
-                              Write-Debug "Filtre du parent '$($Directives.Peek().Name)' en cours : $($Directives.Peek().isFilterParent)"
+                              $DebugLogger.PSDebug( "Filtre du parent '$($Directives.Peek().Name)' en cours : $($Directives.Peek().isFilterParent)") #<%REMOVE%>
                                #La directive parente est-elle activée ?
                               if ($isFilter -eq $false )
                               {
@@ -635,7 +634,7 @@ param (
                                  $isFilter=$Directives.Peek().isFilterParent
                               }
                             }
-                            Write-Debug "Filtre en cours : $isFilter"
+                            $DebugLogger.PSDebug( "Filtre en cours : $isFilter") #<%REMOVE%>
                               #Mémorise la directive DEFINE,
                               #le numéro de ligne du fichier courant et
                               #l'état du filtrage en cours.
@@ -645,8 +644,11 @@ param (
                             if ($isFilter)
                             { $isDirectiveBloc=$True}
                             else
-                            {Write-Debug "`tEcrit la directive : $Line";$Line}
-                            Write-debug "Demande du filtrage des lignes =$($isDirectiveBloc -eq $true)"
+                            {
+                                 $DebugLogger.PSDebug("`tEcrit la directive : $Line") #<%REMOVE%>
+                                 $Line
+                            }
+                            $DebugLogger.PSDebug( "Demande du filtrage des lignes =$($isDirectiveBloc -eq $true)") #<%REMOVE%>
                           }
                           continue
                        }#$RegexDEFINE
@@ -654,7 +656,7 @@ param (
            #Recherche le mot clé de fin de la directive courante, puis dépile
           $RegexUNDEF  {
                           $FoundDirective=$Matches.UNDEF
-                          Write-Debug "UNDEF: Fin de la directive '$FoundDirective'"
+                          $DebugLogger.PSDebug( "UNDEF: Fin de la directive '$FoundDirective'") #<%REMOVE%>
                           if (-not $Clean.isPresent)
                           {
                              #Gére le cas d'une directive UNDEF sans directive DEFINE associée
@@ -674,7 +676,7 @@ param (
                                                                                                         $Last
                                    $PSCmdlet.ThrowTerminatingError($ER)
                                }
-                               Write-Debug "Pop $LastDirective"
+                               $DebugLogger.PSDebug( "Pop $LastDirective") #<%REMOVE%>
                                [void]$Directives.Pop()
                             }
 
@@ -691,33 +693,36 @@ param (
 
                             if ($Directives.Count -eq 0)
                             {
-                              Write-Debug "Fin d'imbrication. On arrête le filtre"
+                              $DebugLogger.PSDebug( "Fin d'imbrication. On arrête le filtre") #<%REMOVE%>
                               $isDirectiveBloc=$False
                             }
                             elseif (-not $Directives.Peek().isFilterParent )
                             {
-                              Write-Debug "La directive '$($Directives.Peek().Name)' ne filtre pas. On arrête le filtre"
+                              $DebugLogger.PSDebug( "La directive '$($Directives.Peek().Name)' ne filtre pas. On arrête le filtre") #<%REMOVE%>
                               $isDirectiveBloc=$False
                             }
                              #Si le parent ne filtre pas on émet la ligne
                             if (-not $Last.isFilterParent )
-                            {Write-Debug "`tEcrit la directive : $Line";$Line }
+                            {
+                               $DebugLogger.PSDebug("`tEcrit la directive : $Line") #<%REMOVE%>
+                               $Line
+                            }
 
-                            Write-debug "Demande d'arrêt du filtre des lignes =$($isDirectiveBloc -eq $true)"
+                            $DebugLogger.PSDebug("Demande d'arrêt du filtre des lignes =$($isDirectiveBloc -eq $true)") #<%REMOVE%>
                           }
                           continue
                       }#$RegexUNDEF
 
           #Supprime la ligne
-         "#<%REMOVE%>"  {  Write-Debug "Match REMOVE"
+         "#<%REMOVE%>"  {  $DebugLogger.PSDebug("Match REMOVE") #<%REMOVE%>
                            if ($Remove.isPresent)
                            {
-                             Write-Debug "`tREMOVE Line"
+                             $DebugLogger.PSDebug("`tREMOVE Line") #<%REMOVE%>
                              continue
                            }
                            if ($Clean.isPresent)
                            {
-                             Write-Debug "`tREMOVE directive"
+                             $DebugLogger.PSDebug("`tREMOVE directive") #<%REMOVE%>
                              $Line -replace "#<%REMOVE%>",''
                            }
                            else
@@ -726,15 +731,15 @@ param (
                         }#REMOVE
 
           #Décommente la ligne
-         "#<%UNCOMMENT%>"  { Write-Debug "Match UNCOMMENT"
+         "#<%UNCOMMENT%>"  { $DebugLogger.PSDebug( "Match UNCOMMENT") #<%REMOVE%>
                              if ($UnComment.isPresent)
                              {
-                               Write-Debug "`tUNCOMMENT  Line"
+                               $DebugLogger.PSDebug( "`tUNCOMMENT  Line") #<%REMOVE%>
                                $Line -replace "^(\s*)#*<%UNCOMMENT%>(.*)",'$1$2'
                              }
                              elseif ($Clean.isPresent)
                              {
-                               Write-Debug "`tRemove UNCOMMENT directive"
+                               $DebugLogger.PSDebug( "`tRemove UNCOMMENT directive") #<%REMOVE%>
                                $Line -replace "^(\s*)#*<%UNCOMMENT%>(.*)",'$1#$2'
                              }
                              else
@@ -745,7 +750,7 @@ param (
           #Traite un fichier la fois
           #L'utilisateur à la charge de valider le nom et l'existence du fichier
          "^\s*#<INCLUDE\s{1,}%'(?<FileName>.*)'%>" {
-                             Write-Debug "Match INCLUDE"
+                             $DebugLogger.PSDebug( "Match INCLUDE") #<%REMOVE%>
                              if ($Include.isPresent)
                              {
                                $FileName=$Matches.FileName.Trim()
@@ -772,13 +777,13 @@ param (
                                     $PSCmdlet.ThrowTerminatingError($ER)
                                  }
                                }
-                               Write-Debug "Inclut le fichier '$FileName'"
+                               $DebugLogger.PSDebug( "Inclut le fichier '$FileName'") #<%REMOVE%>
                                 #Lit le fichier, le transforme à son tour, puis l'envoi dans le pipe
                                 #Imbrication d'INCLUDE possible
                                 #Exécution dans une nouvelle portée
                                if ($Clean.isPresent)
                                {
-                                  Write-Debug "Recurse Edit-Template -Clean"
+                                  $DebugLogger.PSDebug( "Recurse Edit-Template -Clean") #<%REMOVE%>
                                   $NestedResult= $IncludeContent|
                                                   Edit-Template -Clean -Remove:$Remove -Include:$Include -UnComment:$UnComment -Container:$FileName
                                   #Ici on émet le contenu du tableau et pas le tableau reçu
@@ -787,7 +792,7 @@ param (
                                }
                                else #if (-not $Clean.isPresent)
                                {
-                                  Write-Debug "Recurse Edit-Template $ConditionnalsKeyWord"
+                                  $DebugLogger.PSDebug( "Recurse Edit-Template $ConditionnalsKeyWord") #<%REMOVE%>
                                   if ($isConditionnalsKeyWord)
                                   {
                                     $NestedResult= $IncludeContent|
@@ -811,14 +816,19 @@ param (
          default {
              #Emet les lignes qui ne sont pas filtrées
            if ($isDirectiveBloc -eq $false)
-           {  Write-Debug "`tEcrit : $Line";$Line }
+           {
+               $DebugLogger.PSDebug( "`tEcrit : $Line") #<%REMOVE%>
+               $Line
+           }
+           #<DEFINE %DEBUG%>
            else
-           {  Write-Debug "`tFILTRE : $Line" }
+           {  $DebugLogger.PSDebug( "`tFILTRE : $Line") }
+           #<UNDEF %DEBUG%>
          }#default
       }#Switch
    }#Foreach
 
-   Write-Debug "Directives.Count: $($Directives.Count)"
+   $DebugLogger.PSDebug( "Directives.Count: $($Directives.Count)") #<%REMOVE%>
    if ($Directives.Count -gt 0)
    {
      $oldofs,$ofs=$ofs,','
@@ -1815,9 +1825,10 @@ rem ...
 
             $ParameterString="$($_.Key) = @{$(Convert-DictionnaryEntry $Parameters)}"
             $WrongDictionnaryEntry=-not (isParameterWellFormed $Parameters)
+            #<DEFINE %DEBUG%>
             if ($WrongDictionnaryEntry -and ($DebugPreference -eq "Continue"))
-            { $PSCmdlet.WriteDebug("[DictionaryEntry][Error]$ParameterString")}
-
+            { $DebugLogger.PSDebug("[DictionaryEntry][Error]$ParameterString")}
+            #<UNDEF %DEBUG%>
             if ($SimpleReplace)
              { $PSCmdlet.WriteWarning($TextMsgs.WarningSwitchSimpleReplace) }
           }#-is [System.Collections.IDictionary]
@@ -1879,7 +1890,7 @@ rem ...
                      )
                   )
                  )#WriteError
-                 $PSCmdlet.WriteDebug("Regex erronée, remplacement suivant.")
+                 $DebugLogger.PSDebug("Regex erronée, remplacement suivant.")#<%REMOVE%>
                  $RegExError=$True
                }
              }
@@ -1891,21 +1902,22 @@ rem ...
        }#Foreach
     }#BuildList
 
-    $PSCmdlet.WriteDebug("ParameterSetName :$($PsCmdlet.ParameterSetName)")
+    $DebugLogger.PSDebug("ParameterSetName :$($PsCmdlet.ParameterSetName)")#<%REMOVE%>
      #Manipule-t-on une chaîne ou un objet ?
     [Switch] $AsObject= $PSBoundParameters.ContainsKey('Property')
-    $PSCmdlet.WriteDebug("AsObject: $AsObject")
+    $DebugLogger.PSDebug("AsObject: $AsObject")#<%REMOVE%>
 
      #On doit explicitement rechercher
      #la présence des paramètres communs
     [Switch] $Whatif= $null
     [void]$PSBoundParameters.TryGetValue('Whatif',[REF]$Whatif)
 
-    $PSCmdlet.WriteDebug("Whatif: $WhatIf")
-    $PSCmdlet.WriteDebug("ReplaceInfo: $ReplaceInfo")
-     if ($AsObject) # Si set-strictmode -version 2.0
-      {$PSCmdlet.WriteDebug("Properties : $Property")}
-
+    #<DEFINE %DEBUG%>
+    $DebugLogger.PSDebug("Whatif: $WhatIf")#<%REMOVE%>
+    $DebugLogger.PSDebug("ReplaceInfo: $ReplaceInfo")#<%REMOVE%>
+    if ($AsObject) # Si set-strictmode -version 2.0
+    {$DebugLogger.PSDebug("Properties : $Property")}
+    #<UNDEF %DEBUG%>
       #On construit une liste afin de filtrer les éléments invalides
       #et faciliter l'usage de break/continue dans la boucle du
       #traitement principal du bloc process.
@@ -1919,7 +1931,7 @@ rem ...
            {$h=$_.value.GetEnumerator()|% {"$($_.key)=$($_.value)"}}
           else
            {$h=$_.value}
-          $PSCmdlet.WriteDebug("[DictionaryEntry]$($_.key)=$h")
+          $DebugLogger.PSDebug("[DictionaryEntry]$($_.key)=$h")#<%REMOVE%>
         }
     }
   }#begin
@@ -1969,17 +1981,19 @@ rem ...
          $CurrentListItem.PsObject.TypeNames[0] = "PSReplaceInfoItem"
        }
 
-      $PSCmdlet.WriteDebug(@"
+      #<DEFINE %DEBUG%>
+      $DebugLogger.PSDebug(@"
 [InputObject][$($InputObject.Gettype().Fullname)]$InputObject
 On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
 "@)
+      #<UNDEF %DEBUG%>
       if ($SimpleReplace)
       {  #Récupère la chaîne de remplacement
         if ($Parameters.Replace -is [ScriptBlock])
          { try {
               #$ReplaceValue contiendra la chaîne de remplacement
              $ReplaceValue=&$Parameters.Replace
-             $PSCmdlet.WriteDebug("`t[ScriptBlock] $($Parameters.Replace)`r`n$ReplaceValue")
+             $DebugLogger.PSDebug("`t[ScriptBlock] $($Parameters.Replace)`r`n$ReplaceValue")#<%REMOVE%>
            } catch {
                $PSCmdlet.WriteError(
                 (New-Object System.Management.Automation.ErrorRecord (
@@ -2007,13 +2021,13 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
               #Celui-ci doit être de type PSObject pour être modifié directement, sinon
               #seul l'objet renvoyé sera concerné.
              Foreach-object {
-                $PSCmdlet.WriteDebug("[Traitement des wildcards] $_")
+                $DebugLogger.PSDebug("[Traitement des wildcards] $_")#<%REMOVE%>
                 # Ex : Pour PS* on récupère plusieurs propriétés
                 #La liste contient toutes les propriétés ( .NET + PS).
                 #Si la propriété courante ne match pas, on itère sur les éléments de $Property
                $InputObject.PSObject.Properties.Match($_)|
                Foreach-Object {
-                  $PSCmdlet.WriteDebug("[Wildcard property]$_")
+                  $DebugLogger.PSDebug("[Wildcard property]$_")#<%REMOVE%>
                   $CurrentProperty=$_
                   $CurrentPropertyName=$CurrentProperty.Name
                   try {
@@ -2025,13 +2039,13 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                         #le détails des opérations imbriquées tout en précisant
                         #les valeurs effectives utilisées lors du remplacement.
                        Test-InputObjectProperty $CurrentProperty
-                       $PSCmdlet.WriteDebug("`t[String-Before][Object] : $InputObject.$CurrentPropertyName")
+                       $DebugLogger.PSDebug("`t[String-Before][Object] : $InputObject.$CurrentPropertyName")#<%REMOVE%>
                        $OriginalProperty=$InputObject.$CurrentPropertyName
                          $InputObject.$CurrentPropertyName=$OriginalProperty.Replace($Key,$ReplaceValue)
                          #On affecte une seule fois la valeur $true
                        if (-not $CurrentSuccessReplace)
                         {$CurrentSuccessReplace= -not ($OriginalProperty -eq $InputObject.$CurrentPropertyName) }
-                       $PSCmdlet.WriteDebug("`t[String-After][Object] : $InputObject.$CurrentPropertyName")
+                       $DebugLogger.PSDebug("`t[String-After][Object] : $InputObject.$CurrentPropertyName")#<%REMOVE%>
                      }#ShouldProcess
                   } catch {
                       #La propriété est en R/O,
@@ -2042,7 +2056,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                       (New-Object System.Management.Automation.ErrorRecord (
                            #Recrée l'exception trappée avec un message personnalisé
                  				  $_.Exception,
-                          "ReplaceStringObjectPropertyError",
+                          "EdittringObjectPropertyError",
                           "InvalidOperation",
                           $InputObject
                  				)
@@ -2059,14 +2073,14 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                $OriginalStr=$InputObject
                $InputObject=$InputObject.Replace($Key,$ReplaceValue)
                $CurrentSuccessReplace= -not ($OriginalStr -eq $InputObject)
-              $PSCmdlet.WriteDebug("`t[String] : $InputObject")
+              $DebugLogger.PSDebug("`t[String] : $InputObject")#<%REMOVE%>
             }#ShouldProcess
          }
       }#SimpleReplace
       else
       {    #Replace via RegEx
         $Expression=($TabKeyValue[$i]).Regex
-        $PSCmdlet.WriteDebug("`t[Regex] : $($expression.ToString()) $($Expression|select *)")
+        $DebugLogger.PSDebug("`t[Regex] : $($expression.ToString()) $($Expression|select *)")#<%REMOVE%>
 
          #Récupère la chaîne de remplacement
         if  (($Parameters.Replace -isnot [String]) -and ($Parameters.Replace -isnot [ScriptBlock]))
@@ -2095,7 +2109,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
              # mais celle US, car le scriptblock est exécuté dans un contexte où les conversions de chaînes de
              #caractères en dates se font en utilisant les informations de la classe .NET InvariantCulture.
              #cf. http://janel.spaces.live.com/blog/cns!9B5AA3F6FA0088C2!185.entry
-           $PSCmdlet.WriteDebug( "`t[ConverTo] $($Parameters.Replace.GetType())")
+           $DebugLogger.PSDebug( "`t[ConverTo] $($Parameters.Replace.GetType())")#<%REMOVE%>
            [string]$ReplaceValue=ConvertTo-String $Parameters.Replace
          } #Replace via RegEx
         else
@@ -2107,18 +2121,18 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
             $Property|
                # Le nom de la propriété courante ne pas doit pas être null ni vide.
               Foreach-object {
-                $PSCmdlet.WriteDebug("[Traitement des wildcards]$_")
+                $DebugLogger.PSDebug("[Traitement des wildcards]$_")#<%REMOVE%>
                 # Ex : Pour PS* on récupère plusieurs propriétés
                $InputObject.PSObject.Properties.Match($_)|
                Foreach-object {
-                  $PSCmdlet.WriteDebug("[Wildcard property]$_")
+                  $DebugLogger.PSDebug("[Wildcard property]$_")#<%REMOVE%>
                   $CurrentProperty=$_
                   $CurrentPropertyName=$CurrentProperty.Name
                    try {
                      if ($PSCmdlet.ShouldProcess(($TextMsgs.ObjectReplaceShouldProcess -F $InputObject.GetType().Name,$CurrentPropertyName)))
                       {
                         Test-InputObjectProperty $CurrentProperty
-                        $PSCmdlet.WriteDebug("`t[RegEx-Before][Object] $CurrentPropertyName : $($InputObject.$CurrentPropertyName)")
+                        $DebugLogger.PSDebug("`t[RegEx-Before][Object] $CurrentPropertyName : $($InputObject.$CurrentPropertyName)")#<%REMOVE%>
                             #On ne peut rechercher au delà de la longueur de la chaîne.
                         if (($InputObject.$CurrentPropertyName).Length -ge $Parameters.StartAt)
                          {
@@ -2126,16 +2140,16 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                            if ($isMatch)
                             {
                               $InputObject.$CurrentPropertyName=$Expression.Replace($InputObject.$CurrentPropertyName,$ReplaceValue,$Parameters.Max,$Parameters.StartAt)
-                              $PSCmdlet.WriteDebug("`t[RegEx-After][Object] $CurrentPropertyName : $($InputObject.$CurrentPropertyName)")
+                              $DebugLogger.PSDebug("`t[RegEx-After][Object] $CurrentPropertyName : $($InputObject.$CurrentPropertyName)")#<%REMOVE%>
                             }
                          }
                         else
                          {
                            $PSCmdlet.WriteWarning(($TextMsgs.ReplaceRegExStarAt -F $InputObject.$CurrentPropertyName,$Parameters.StartAt,$InputObject.$CurrentPropertyName.Length))
-                           $PSCmdlet.WriteDebug($msg)
+                           $DebugLogger.PSDebug($msg)#<%REMOVE%>
                            $isMatch=$false
                          }
-                        $PSCmdlet.WriteDebug("`t[RegEx][Object] ismatch : $ismatch")
+                        $DebugLogger.PSDebug("`t[RegEx][Object] ismatch : $ismatch")#<%REMOVE%>
                          #On ne mémorise pas les infos de remplacement (replaceInfo) pour les propriétés,
                          #seulement pour les clés (pattern)
                         if (-not $CurrentSuccessReplace)
@@ -2163,7 +2177,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
          {
             if ($PSCmdlet.ShouldProcess(($TextMsgs.StringReplaceShouldProcess -F $Key,$ReplaceValue)))
              {
-                $PSCmdlet.WriteDebug("`t[RegEx-Before] : $InputObject")
+                $DebugLogger.PSDebug("`t[RegEx-Before] : $InputObject")#<%REMOVE%>
                   #On ne peut rechercher au delà de la longueur de la chaîne.
                 if ($InputObject.Length -ge $Parameters.StartAt)
                  {
@@ -2171,7 +2185,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                    if ($isMatch)
                     { try {
                         $InputObject=$Expression.Replace($InputObject,$ReplaceValue,$Parameters.Max,$Parameters.StartAt)
-                        $PSCmdlet.WriteDebug("`t[RegEx-After] : $InputObject")
+                        $DebugLogger.PSDebug("`t[RegEx-After] : $InputObject")#<%REMOVE%>
                       } catch {
                          $isMatch=$False #l'erreur peut provenir du ScriptBlock (MachtEvaluator)
                          $PSCmdlet.WriteError(
@@ -2190,10 +2204,10 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                 else
                  {
                    $PSCmdlet.WriteWarning(($TextMsgs.ReplaceRegExStarAt -F $InputObject,$Parameters.StartAt,$InputObject.Length))
-                   $PSCmdlet.WriteDebug("`t$Msg")
+                   $DebugLogger.PSDebug("`t$Msg")#<%REMOVE%>
                    $isMatch=$false
                  }
-                $PSCmdlet.WriteDebug("`t[RegEx] ismatch : $ismatch")
+                $DebugLogger.PSDebug("`t[RegEx] ismatch : $ismatch")#<%REMOVE%>
                 $CurrentSuccessReplace=$isMatch
              }#ShouldProcess
          }
@@ -2216,14 +2230,14 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
           { $AllSuccessReplace=$CurrentSuccessReplace }
           $CurrentListItem.isSuccess=$CurrentSuccessReplace
           [void]$Resultat.Replaces.Add($CurrentListItem)
-          $PSCmdlet.WriteDebug("[ReplaceInfo] : $($CurrentListItem|Select *)")
+          $DebugLogger.PSDebug("[ReplaceInfo] : $($CurrentListItem|Select *)")#<%REMOVE%>
        }#$Whatif
      }#$ReplaceInfo
 
       #Est-ce qu'on effectue une seule opération de remplacement ?
      if ($Unique -and $CurrentSuccessReplace)
       {
-        $PSCmdlet.WriteDebug("-Unique détecté et le dernier remplacement a réussi. Break.")
+        $DebugLogger.PSDebug("-Unique détecté et le dernier remplacement a réussi. Break.")#<%REMOVE%>
         break #oui, on quitte le bloc For
       }
    }# For $TabKeyValue.Count
@@ -2252,7 +2266,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
       {$PSCmdlet.WriteObject(@($InputObject),$true)}
 
   }
-  $PSCmdlet.WriteDebug("[Pipeline] Next object.")
+  $DebugLogger.PSDebug("[Pipeline] Next object.")#<%REMOVE%>
  }#process
 }#Edit-String
 
