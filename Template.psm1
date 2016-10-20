@@ -23,7 +23,7 @@ $TemplateShortCut=@{
 $AcceleratorsType= [PSObject].Assembly.GetType("System.Management.Automation.TypeAccelerators")
 Try {
   $TemplateShortCut.GetEnumerator() |
-  Foreach {
+  Foreach-Object {
    Try {
      $AcceleratorsType::Add($_.Key,$_.Value)
    } Catch [System.Management.Automation.MethodInvocationException]{
@@ -343,7 +343,7 @@ Function Edit-Template {
 
     Filter Test {
     #<DEFINE %V2%>
-     dir | % { $_.FullName } #v2
+     dir | Foreach-Object { $_.FullName } #v2
     #<UNDEF %V2%>
 
     #<DEFINE %V3%>
@@ -377,7 +377,7 @@ Function Edit-Template {
 
       #Requires -Version 2.0
       Filter Test {
-       dir | % { $_.FullName } #v2
+       dir | Foreach-Object { $_.FullName } #v2
       }
 .
     En précisant la directive V2 on supprime le code spécifique à la version 2
@@ -515,7 +515,10 @@ Function Edit-Template {
 
 .FORWARDHELPCATEGORY <Function>
 #>
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSShouldProcess","",
+                                                   Justification="Edit-Template do not use ShouldProcess.")]
 [CmdletBinding(DefaultParameterSetName="NoKeyword")]
+[OutputType([System.Array])]
 param (
          #S'attend à traiter une collection de chaîne de caractères
         [Parameter(Mandatory=$true,ValueFromPipeline = $true)]
@@ -539,6 +542,8 @@ param (
 )
  Begin {
    function New-ParsingDirective {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions","",
+                                                       Justification="New-ParsingDirective do not change the system state.")]
     param(
          [Parameter(Mandatory=$true,position=0)]
         $Name,
@@ -554,7 +559,7 @@ param (
    }#New-ParsingDirective
 
    $DebugLogger.PSDebug("PSBoundParameters:") #<%REMOVE%>
-   $PSBoundParameters.GetEnumerator()|% { $DebugLogger.PSDebug( "`t$($_.key)=$($_.value)") } #<%REMOVE%>
+   $PSBoundParameters.GetEnumerator() | Foreach-Object { $DebugLogger.PSDebug( "`t$($_.key)=$($_.value)") } #<%REMOVE%>
 
    $RegexDEFINE="^\s*#<\s*DEFINE\s*%(?<DEFINE>.*[^%\s])%>"
    $RegexUNDEF="^\s*#<\s*UNDEF\s*%(?<UNDEF>.*[^%\s])%>"
@@ -567,7 +572,7 @@ param (
    if( $isConditionnalsKeyWord)
    {
      $DebugLogger.PSDebug( "Traite ConditionnalsKeyWord : $ConditionnalsKeyWord") #<%REMOVE%>
-     $ConditionnalsKeyWord=$ConditionnalsKeyWord|Select -Unique
+     $ConditionnalsKeyWord=$ConditionnalsKeyWord|Select-Object -Unique
      $RegexConditionnalsKeyWord="$ConditionnalsKeyWord"
 
      foreach ($Directive in $ConditionnalsKeyWord) {
@@ -584,7 +589,8 @@ param (
     }
 
      $ofs=','
-     $KeyWordsNotAllowed=@(Compare-object $ConditionnalsKeyWord $ReservedKeyWord -IncludeEqual -PassThru| Where {$_.SideIndicator -eq "=="})
+     $KeyWordsNotAllowed=@(Compare-object $ConditionnalsKeyWord $ReservedKeyWord -IncludeEqual -PassThru|
+      Where-Object {$_.SideIndicator -eq "=="})
      if ($KeyWordsNotAllowed.Count -gt 0)
      {
         $ofs=','
@@ -642,7 +648,7 @@ param (
                             $Directives.Push($O)
 
                             if ($isFilter)
-                            { $isDirectiveBloc=$True}
+                            { $isDirectiveBloc=$True }
                             else
                             {
                                  $DebugLogger.PSDebug("`tEcrit la directive : $Line") #<%REMOVE%>
@@ -1617,7 +1623,10 @@ rem ...
 
     } #TextMsgs
 
-     function New-Exception($Exception,$Message=$null) {
+     function New-Exception {
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions","",
+                                                         Justification="New-Exception do not change the system state.")]
+      param ($Exception,$Message=$null)
       #Crée et renvoi un objet exception pour l'utiliser avec $PSCmdlet.WriteError()
 
          #Le constructeur de la classe de l'exception trappée est inaccessible
@@ -1632,7 +1641,7 @@ rem ...
            $ExceptionClassName=$Exception.GetType().FullName
            $InnerException=$Null
          }
-        if ($Message -eq $null)
+        if ($null -eq $Message)
          {$Message=$Exception.Message}
 
          #Recrée l'exception trappée avec un message personnalisé
@@ -1663,10 +1672,13 @@ rem ...
 
     function Convert-DictionnaryEntry($Parameters)
     {   #Converti un DictionnaryEntry en une string "clé=valeur clé=valeur..."
-      "$($Parameters.GetEnumerator()|% {"$($_.key)=$($_.value)"})"
+      "$($Parameters.GetEnumerator()|ForEach-Object {"$($_.key)=$($_.value)"})"
     }#Convert-DictionnaryEntry
 
     function New-ObjectReplaceInfo{
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions","",
+                                                         Justification="New-Exception do not change the system state.")]
+      param()
        #Crée un objet contenant le résultat d'un remplacement
        #Permet d'émettre la chaîne modifiée et de savoir si
        # une modification a eu lieu.
@@ -1683,12 +1695,14 @@ rem ...
      $Result
     }#New-ObjectReplaceInfo
 
-    function isParameterWellFormed($Parameters) {
+    function isParameterWellFormed {
      #Renvoi true si l'entrée de hashtable $Parameters est correcte
      #la recherche préliminaire par ContainsKey est dicté par la possible
      #déclaration de set-strictmode -version 2.0
     #Replace
-      if (-not $Parameters.ContainsKey('Replace') -or ($Parameters.Replace -eq $null))
+      param($Parameters)
+
+      if (-not $Parameters.ContainsKey('Replace') -or ($null -eq $Parameters.Replace))
       {  #[string]::Empty est valide, même pour la clé
   			 $PSCmdlet.WriteError(
           (New-Object System.Management.Automation.ErrorRecord(
@@ -1705,7 +1719,7 @@ rem ...
       else
        {
          $Parameters.Replace=$Parameters.Replace -as [string]
-         if ($Parameters.Replace -eq $null)
+         if ($null -eq $Parameters.Replace)
           {
       			$PSCmdlet.WriteError(
              (New-Object System.Management.Automation.ErrorRecord(
@@ -1720,12 +1734,12 @@ rem ...
           }
        }
     #Max
-      if (-not $Parameters.ContainsKey('Max') -or ($Parameters.Max -eq $null -or $Parameters.Max -eq [String]::Empty))
+      if (-not $Parameters.ContainsKey('Max') -or ($null -eq $Parameters.Max -or $Parameters.Max -eq [String]::Empty))
        {$Parameters.Max=-1}
       else
        {
          $Parameters.Max=$Parameters.Max -as [int]
-         if ($Parameters.Max -eq $null)
+         if ($null -eq $Parameters.Max)
           {
             $PSCmdlet.WriteError(
               (New-Object System.Management.Automation.ErrorRecord(
@@ -1753,13 +1767,13 @@ rem ...
           }
        }
     #StartAt
-      if (-not $Parameters.ContainsKey('StartAt') -or ($Parameters.StartAt -eq $null))
+      if (-not $Parameters.ContainsKey('StartAt') -or ($null -eq $Parameters.StartAt))
        {$Parameters.StartAt=0}
       else
        {
          $Parameters.StartAt=$Parameters.StartAt -as [int]
           #si StartAt=[String]::Empty -> StartAt=0
-         if ($Parameters.StartAt -eq $null)
+         if ($null -eq $Parameters.StartAt)
           {
             $PSCmdlet.WriteError(
               (New-Object System.Management.Automation.ErrorRecord(
@@ -1787,13 +1801,13 @@ rem ...
           }
        }
     #Options
-      if (-not $Parameters.ContainsKey('Options') -or (($Parameters.Options -eq $null) -or ($Parameters.Options -eq [String]::Empty)))
+      if (-not $Parameters.ContainsKey('Options') -or (($null -eq $Parameters.Options) -or ($Parameters.Options -eq [String]::Empty)))
        {$Parameters.Options="IgnoreCase"}
       else
        {
           #La présence d'espaces ne gêne pas la conversion.
          $Parameters.Options=(ConvertTo-String $Parameters.Options) -as [System.Text.RegularExpressions.RegexOptions]
-         if ($Parameters.Options -eq $null)
+         if ($null -eq $Parameters.Options)
           {
             $PSCmdlet.WriteError(
               (New-Object System.Management.Automation.ErrorRecord(
@@ -1813,7 +1827,7 @@ rem ...
     function BuildList {
        #Construit une liste avec des DictionaryEntry valides
      $Hashtable.GetEnumerator()|
-       Foreach {
+       Foreach-Object {
          $Parameters=$_.Value
          $WrongDictionnaryEntry=$false
             #Analyse la valeur de l'entrée courante de $Hashtable
@@ -1835,7 +1849,7 @@ rem ...
          else
           {   #Dans tous les cas on utilise une hashtable normalisée
               #pour récupèrer les paramètres.
-             if ($Parameters -eq $null)
+             if ($null -eq $Parameters)
               {$Parameters=[String]::Empty}
              $Parameters=@{Replace=$Parameters;Max=-1;StartAt=0;Options="IgnoreCase"}
           }
@@ -1928,9 +1942,9 @@ rem ...
        $TabKeyValue|
         Foreach-Object {
           if ($_.value -is [System.Collections.IDictionary])
-           {$h=$_.value.GetEnumerator()|% {"$($_.key)=$($_.value)"}}
+           { $h=$_.value.GetEnumerator()|ForEach-Object {"$($_.key)=$($_.value)"} }
           else
-           {$h=$_.value}
+           { $h=$_.value }
           $DebugLogger.PSDebug("[DictionaryEntry]$($_.key)=$h")#<%REMOVE%>
         }
     }
@@ -2080,7 +2094,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
       else
       {    #Replace via RegEx
         $Expression=($TabKeyValue[$i]).Regex
-        $DebugLogger.PSDebug("`t[Regex] : $($expression.ToString()) $($Expression|select *)")#<%REMOVE%>
+        $DebugLogger.PSDebug("`t[Regex] : $($expression.ToString()) $($Expression|Select-Object *)")#<%REMOVE%>
 
          #Récupère la chaîne de remplacement
         if  (($Parameters.Replace -isnot [String]) -and ($Parameters.Replace -isnot [ScriptBlock]))
@@ -2230,7 +2244,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
           { $AllSuccessReplace=$CurrentSuccessReplace }
           $CurrentListItem.isSuccess=$CurrentSuccessReplace
           [void]$Resultat.Replaces.Add($CurrentListItem)
-          $DebugLogger.PSDebug("[ReplaceInfo] : $($CurrentListItem|Select *)")#<%REMOVE%>
+          $DebugLogger.PSDebug("[ReplaceInfo] : $($CurrentListItem|Select-Object *)")#<%REMOVE%>
        }#$Whatif
      }#$ReplaceInfo
 
@@ -2272,9 +2286,12 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
 
 # Suppression des objets du module
 Function OnRemoveTemplate {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSShouldProcess","",
+                                                     Justification="OnRemoveTemplate do not use ShouldProcess.")]
+  param()
   $DebugLogger.PSDebug("Remove TypeAccelerators") #<%REMOVE%>
   $TemplateShortCut.GetEnumerator()|
-   Foreach {
+   Foreach-Object {
      Try {
        [void]$AcceleratorsType::Remove($_.Key)
      } Catch {
@@ -2286,7 +2303,7 @@ Function OnRemoveTemplate {
 #<UNDEF %Log4Net%>
 }#OnRemoveTemplate
 
-$MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = { OnRemoveTemplateZip }
+$MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = { OnRemoveTemplate }
 
 #<DEFINE %DEBUG%>
 ${T4_Name}='Variable déclarée dans la portée du module'
@@ -2295,6 +2312,7 @@ $TestScope.'(?ims)(<%=)(.*?)(%>)'= {
     param($match)
     $expr = $match.groups[2].value
     $ExecutionContext.InvokeCommand.ExpandString($Expr)
+${T4_Name}=${T4_Name}
 }
 #todo changer la portée de la variable ?
 #<UNDEF %DEBUG%>
