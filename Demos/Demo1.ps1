@@ -1,26 +1,27 @@
 
 Import-Module Template
 
+Set-Location $PSScriptRoot
 $File='C:\temp\Code.T.PS1'
 @'
-Write 'avant'
+Write 'Text before the directive'
 <#%ScriptBlock%
     #<DEFINE %V5%>
-        . C:\Tools\Tutoriel-DVP\LesClassesPsV5\Convert-ObjectToClass.ps1
-        #Classe PS >= v5
+        . .\Convert-ObjectToClass.ps1
+        #Class PS >= v5
         Convert-ObjectToClass -InputObject (Get-Process|Select Name,VirtualMemorySize -First 1)
     #<UNDEF %V5%>
 
     #<DEFINE %V3%>
-        . C:\Users\Laurent\Documents\WindowsPowerShell\Scripts\New-PSCustomObjectFunctionV3.ps1
+        . .\New-PSCustomObjectFunction.ps1
         #PSCustomObject >= v3
         New-PSCustomObjectFunction -Noun ProcessLight -Parameters Name,VirtualMemorySize -File
     #<UNDEF %V3%>
 #>
-Write 'après'
+Write 'Text after the directive'
 '@ > $File
 
-#Hastable de paramètrage pour la fonction Edit-String
+#Hashtable de paramètrage pour la fonction Edit-String
 $h=@{}
 $h.'(?ism)<#%(ScriptBlock|SB)%(?<Code>.*)#>'= {
     param($match)
