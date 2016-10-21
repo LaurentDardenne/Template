@@ -1,8 +1,7 @@
 ﻿#Template.psm1
+Import-LocalizedData -BindingVariable Messages -Filename Template.Resources.psd1 -EA Stop
 
 #<DEFINE %DEBUG%>
-Import-module Log4Posh
-
 $Script:lg4n_ModuleName=$MyInvocation.MyCommand.ScriptBlock.Module.Name
 
   #This code create the following variables : $script:DebugLogger, $script:InfoLogger, $script:DefaultLogFile
@@ -498,27 +497,14 @@ Function Edit-Template {
 .OUTPUTS
     [string[]]
 
-.NOTES
-		Author:  Laurent Dardenne
-		Version:  1.3
-		Date: 27/01/2014
-
 .COMPONENT
     parsing
 
-.ROLE
-    Windows Administrator
-    Developper
-
-.FUNCTIONALITY
-    Global
-
-.FORWARDHELPCATEGORY <Function>
 #>
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSShouldProcess","",
                                                    Justification="Edit-Template do not use ShouldProcess.")]
 [CmdletBinding(DefaultParameterSetName="NoKeyword")]
-[OutputType([System.Array])]
+[OutputType([System.Array])] #PSSA, mais renvoie [String[]]
 param (
          #S'attend à traiter une collection de chaîne de caractères
         [Parameter(Mandatory=$true,ValueFromPipeline = $true)]
@@ -552,7 +538,6 @@ param (
          [Parameter(Mandatory=$true,position=2)]
         $isFilterParent
     )
-      #Les paramétres liés définissent aussi les propriétés de l'objet
      $O=New-Object PSObject -Property $PSBoundParameters
      $O.PsObject.TypeNames[0] = "ParsingDirective"
      $O|Add-Member ScriptMethod ToString {'{0}:{1}' -F $this.Name,$this.Line} -force -pass
@@ -578,8 +563,7 @@ param (
      foreach ($Directive in $ConditionnalsKeyWord) {
        if ($Directive.Contains(' '))
        {
-         $msg="Une directive contient des espaces."
-         $ex=new-object System.Exception $msg
+         $ex=new-object System.Exception ($Messages.DirectiveContainsSpace -F $Directive)
          $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $Ex,
                                                                               'InvalidDirectiveName',
                                                                               "InvalidArgument",
@@ -594,8 +578,7 @@ param (
      if ($KeyWordsNotAllowed.Count -gt 0)
      {
         $ofs=','
-        $msg="Ces noms de directive sont réservées. Utilisez le paramétre associé."
-        $ex=new-object System.Exception $msg
+        $ex=new-object System.Exception ($Messages.DirectiveNameReserved -F $KeyWordsNotAllowed)
         $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $Ex,
                                                                               'UseReservedDirectiveName',
                                                                               "InvalidArgument",
@@ -674,7 +657,7 @@ param (
 
                                if ($LastDirective -ne $FoundDirective)
                                {
-                                   $msg= "Parsing annulé.`r`n$Container`r`nLes déclarations des directives '$Last' et '${FoundDirective}:$LineNumber' ne sont pas imbriquées."
+                                   $msg=$Messages.DirectivesIncorrectlyNested -F $Container,$Last,$FoundDirective,$LineNumber
                                    $ex=new-object System.Exception $msg
                                    $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex,
                                                                                                         'DirectivesIncorrectlyNested',
@@ -688,7 +671,7 @@ param (
 
                             if ($isDirectiveOrphan)
                             {
-                                $msg="Parsing annulé.`r`n$Container`r`nLa directive #<UNDEF %${FoundDirective}%> n'est pas associée à une directive DEFINE ('${FoundDirective}:$LineNumber')"
+                                $msg=$Messages.OrphanDirective -F $Container,$FoundDirective,$LineNumber
                                 $ex=new-object System.Exception $msg
                                 $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex,
                                                                                                        'OrphanDirective',
@@ -762,8 +745,7 @@ param (
                                $FileName=$Matches.FileName.Trim()
                                if (-not (Test-Path $FileName))
                                {
-                                 $msg="Include - the file do not exist '$FileName'"
-                                 $ex=new-object System.Exception $msg
+                                 $ex=new-object System.Exception ($Messages.IncludedFileNotFound -F $FileName)
                                  $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex,
                                                                                                        'IncludedFileNotFound',
                                                                                                        "ReadError",
@@ -775,7 +757,6 @@ param (
                                  try {
                                     $IncludeContent=Get-Content $FileName -ReadCount 0 -Encoding:$Encoding
                                  } catch {
-                                    $msg="Include - impossible to read the file '$FileName'"
                                     $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $_,
                                                                                                         'UnableToReadIncludedFile',
                                                                                                         "ReadError",
@@ -785,7 +766,7 @@ param (
                                }
                                $DebugLogger.PSDebug( "Inclut le fichier '$FileName'") #<%REMOVE%>
                                 #Lit le fichier, le transforme à son tour, puis l'envoi dans le pipe
-                                #Imbrication d'INCLUDE possible
+                                #L'imbrication de directives INCLUDE est possible
                                 #Exécution dans une nouvelle portée
                                if ($Clean.isPresent)
                                {
@@ -794,6 +775,7 @@ param (
                                                   Edit-Template -Clean -Remove:$Remove -Include:$Include -UnComment:$UnComment -Container:$FileName
                                   #Ici on émet le contenu du tableau et pas le tableau reçu
                                   #Seul le résultat final est renvoyé en tant que tableau
+                                  #todo [OutputType(?)] $DebugLogger.PSDebug(  gettype
                                  $NestedResult
                                }
                                else #if (-not $Clean.isPresent)
@@ -802,12 +784,19 @@ param (
                                   if ($isConditionnalsKeyWord)
                                   {
                                     $NestedResult= $IncludeContent|
-                                                    Edit-Template -ConditionnalsKeyWord $ConditionnalsKeyWord -Remove:$Remove -Include:$Include -UnComment:$UnComment -Container:$FileName
+                                                    Edit-Template -ConditionnalsKeyWord $ConditionnalsKeyWord `
+                                                                      -Remove:$Remove `
+                                                                      -Include:$Include `
+                                                                      -UnComment:$UnComment `
+                                                                      -Container:$FileName
                                   }
                                   else
                                   {
                                     $NestedResult= $IncludeContent|
-                                                    Edit-Template -Remove:$Remove -Include:$Include -UnComment:$UnComment -Container:$FileName
+                                                    Edit-Template -Remove:$Remove `
+                                                    -Include:$Include `
+                                                    -UnComment:$UnComment `
+                                                    -Container:$FileName
                                   }
 
                                  $NestedResult
@@ -823,7 +812,7 @@ param (
              #Emet les lignes qui ne sont pas filtrées
            if ($isDirectiveBloc -eq $false)
            {
-               $DebugLogger.PSDebug( "`tEcrit : $Line") #<%REMOVE%>
+               $DebugLogger.PSDebug( "`tEmet : $Line") #<%REMOVE%>
                $Line
            }
            #<DEFINE %DEBUG%>
@@ -838,8 +827,7 @@ param (
    if ($Directives.Count -gt 0)
    {
      $oldofs,$ofs=$ofs,','
-     $msg= "Parsing annulé.`r`n$Container`r`nLes directives suivantes n'ont pas de mot clé de fin : $Directives"
-     $ex=new-object System.Exception $msg
+     $ex=new-object System.Exception ($Messages.DirectiveIncomplet -F $Container,$Directives)
      $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex,
                                                                         'IncompletDirective',
                                                                         "ParserError",
@@ -1552,25 +1540,9 @@ rem ...
      "un deux deux trois"|Edit-String @{$PSCX:RegexLib.RepeatedWord="Deux"}
      #renvoi
      #un deux trois
-.
-		Author:  Laurent Dardenne
-		Version:  1.3
-		Date: 11/10/2016
-
 
 .COMPONENT
     expression régulière
-
-.ROLE
-    Server Administrator
-    Windows Administrator
-    Power User
-    User
-
-.FUNCTIONALITY
-    Global
-
-.FORWARDHELPCATEGORY <Function>
 #>
 
   [CmdletBinding(DefaultParameterSetName = "asString",SupportsShouldProcess=$True)]
@@ -1600,38 +1572,15 @@ rem ...
 
 
   begin {
-     #Section DATA + ConvertFrom-StringData problème d'analyse avec le caractère =
-    $TextMsgs =@{
-                                         #fr-FR
-       WellFormedKeyNullOrEmptyValue  = "La clé n'existe pas ou sa valeur est `$null"
-       WellFormedInvalidCast          = "La valeur de la clé {0} ne peut pas être convertie en {1}."
-       WellFormedInvalidValueNotLower = "La valeur de la clé ne peut pas être inférieur à -1."
-       WellFormedInvalidValueNotZero  = "La valeur de la clé doit être supérieure à zéro."
-       ReplaceSimpleEmptyString       = "L'option SimpleReplace ne permet pas une chaîne de recherche vide."
-       ReplaceRegExCreate             = "[Construction de regex] {0}"
-       ReplaceRegExStarAt             = "{0}`r`nStartAt({1}) est supérieure à la longueur de la chaîne({2})"
-       ReplaceObjectPropertyNotString = "La propriété n'est pas du type string."
-       ReplaceObjectPropertyReadOnly = "La propriété est en lecture seule."
-       #ReplaceRegexObjectPropertyError  = $_.Exception.Message
-       #ReplaceStringObjectPropertyError = $_.Exception.Message
-       #StringReplaceRegexError          = $_.Exception.Message
-       ReplaceSimpleScriptBlockError  = "{0}={{{1}}}`r`n{2}"
-       ObjectReplaceShouldProcess     = "Objet [{0}] Propriété : {1}"
-       StringReplaceShouldProcess     = "{0} par {1}"
-       WarningSwitchSimpleReplace     = "Le switch SimpleReplace n'utilise pas toutes les fonctionnalités d'une hashtable de type @{Replace='X';Max=n;StartAt=n,Options='Y'}.`r`n Utilisez une simple chaîne de caractères."
-       WarningConverTo                = "La conversion, par ConverTo(), renvoi une chaîne vide.`r`n{0}"
-
-    } #TextMsgs
-
      function New-Exception {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions","",
                                                          Justification="New-Exception do not change the system state.")]
       param ($Exception,$Message=$null)
       #Crée et renvoi un objet exception pour l'utiliser avec $PSCmdlet.WriteError()
 
-         #Le constructeur de la classe de l'exception trappée est inaccessible
         if ($Exception.GetType().IsNotPublic)
          {
+            #Le constructeur de la classe de l'exception trappée est inaccessible
            $ExceptionClassName="System.Exception"
             #On mémorise l'exception courante.
            $InnerException=$Exception
@@ -1644,19 +1593,19 @@ rem ...
         if ($null -eq $Message)
          {$Message=$Exception.Message}
 
-         #Recrée l'exception trappée avec un message personnalisé
-    		New-Object $ExceptionClassName($Message,$InnerException)
+          #Recrée l'exception trappée avec un message personnalisé
+        New-Object $ExceptionClassName($Message,$InnerException)
      } #New-Exception
 
      Function Test-InputObjectProperty($CurrentProperty) {
       #Valide les prérequis d'une propriété d'objet
-      #Doit exister, être de type [String] et être en écriture.
-         #On ne traite que les propriétés de type [string]
+      #Elle doit exister, être de type [String] et être en écriture.
+
+       $PropertyName=$CurrentProperty.Name
        if ($CurrentProperty.TypeNameOfValue -ne "System.String")
-        {throw (New-Object System.ArgumentException($TextMsgs.ReplaceObjectPropertyNotString,$CurrentProperty.Name)) }
-         #On ne traite que les propriétés proposant un setter
+        {throw (New-Object System.ArgumentException(($Messages.ReplaceObjectPropertyNotString  -F $PropertyName),$PropertyName)) }
        if (-not $CurrentProperty.IsSettable)
-        {throw (New-Object System.ArgumentException($TextMsgs.ReplaceObjectPropertyReadOnly,$CurrentProperty.Name)) }
+        {throw (New-Object System.ArgumentException(($Messages.ReplaceObjectPropertyReadOnly -F $PropertyName),$PropertyName)) }
      }#Test-InputObjectProperty
 
     function ConvertTo-String($Value){
@@ -1704,15 +1653,15 @@ rem ...
 
       if (-not $Parameters.ContainsKey('Replace') -or ($null -eq $Parameters.Replace))
       {  #[string]::Empty est valide, même pour la clé
-  			 $PSCmdlet.WriteError(
-          (New-Object System.Management.Automation.ErrorRecord(
+  		 $PSCmdlet.WriteError(
+           (New-Object System.Management.Automation.ErrorRecord(
               #inverse nomParam,msg
-     				 (New-Object System.ArgumentNullException('Replace',$TextMsgs.WellFormedKeyNullOrEmptyValue)),
+     				 (New-Object System.ArgumentNullException('Replace',$Messages.WellFormedKeyNullOrEmptyValue)),
                "WellFormedKeyNullOrEmptyValue",
                "InvalidData",
                $ParameterString # Si $ErrorView="CategoryView" l'information est affichée
+            )
            )
-          )
          )#WriteError
          return $false
       }
@@ -1721,15 +1670,15 @@ rem ...
          $Parameters.Replace=$Parameters.Replace -as [string]
          if ($null -eq $Parameters.Replace)
           {
-      			$PSCmdlet.WriteError(
+      		$PSCmdlet.WriteError(
              (New-Object System.Management.Automation.ErrorRecord(
-         			 (New-Object System.InvalidCastException ($TextMsgs.WellFormedInvalidCast -F "Replace",'[String]')),
+         			 (New-Object System.InvalidCastException ($Messages.WellFormedInvalidCast -F "Replace",'[String]')),
          			   "WellFormedInvalidCast",
          			   "InvalidType",
          			   $ParameterString
-               )
               )
-             )#WriteError
+             )
+            )#WriteError
             return $false
           }
        }
@@ -1743,11 +1692,11 @@ rem ...
           {
             $PSCmdlet.WriteError(
               (New-Object System.Management.Automation.ErrorRecord(
-         				 (New-Object System.InvalidCastException ($TextMsgs.WellFormedInvalidCast -F 'Max','[int]')),
+         				 (New-Object System.InvalidCastException ($Messages.WellFormedInvalidCast -F 'Max','[int]')),
                    "WellFormedInvalidCast",
                    "InvalidData",
                    $ParameterString
-         		 	 	 )
+               )
               )
             )#WriteError
             return $false
@@ -1756,11 +1705,11 @@ rem ...
           {
             $PSCmdlet.WriteError(
              (New-Object System.Management.Automation.ErrorRecord(
-     				  (New-Object System.ArgumentException($TextMsgs.WellFormedInvalidValueNotLower,'Max')),
+     		   (New-Object System.ArgumentException($Messages.WellFormedInvalidValueNotLower,'Max')),
                 "WellFormedInvalidValueNotLower",
                 "InvalidData",
                 $ParameterString
-     				  )
+     		  )
              )
             )#WriteError
             return $false
@@ -1777,11 +1726,11 @@ rem ...
           {
             $PSCmdlet.WriteError(
               (New-Object System.Management.Automation.ErrorRecord(
-         				(New-Object System.InvalidCastException ($TextMsgs.WellFormedInvalidCast -F 'StartAt','[int]')),
-         			 	  "WellFormedInvalidCast",
-         				  "InvalidData",
-         				  $ParameterString
-         				)
+                 (New-Object System.InvalidCastException ($Messages.WellFormedInvalidCast -F 'StartAt','[int]')),
+                 "WellFormedInvalidCast",
+                 "InvalidData",
+                 $ParameterString
+                )
               )
             )#WriteError
             return $false
@@ -1790,10 +1739,10 @@ rem ...
           {
             $PSCmdlet.WriteError(
               (New-Object System.Management.Automation.ErrorRecord(
-         			 (New-Object System.ArgumentException($TextMsgs.WellFormedInvalidValueNotZero,'StartAt')),
-         				  "WellFormedInvalidValueNotZero",
-         				  "InvalidData",
-         				  $ParameterString
+                (New-Object System.ArgumentException($Messages.WellFormedInvalidValueNotZero,'StartAt')),
+                "WellFormedInvalidValueNotZero",
+                "InvalidData",
+                $ParameterString
                )
               )
             )#WriteError
@@ -1811,11 +1760,11 @@ rem ...
           {
             $PSCmdlet.WriteError(
               (New-Object System.Management.Automation.ErrorRecord(
-         			 (New-Object System.InvalidCastException ($TextMsgs.WellFormedInvalidCast -F 'Options','[System.Text.RegularExpressions.RegexOptions]')),
-                 "WellFormedInvalidCast",
-                 "InvalidData",
-                 $ParameterString
-         			 )
+         		(New-Object System.InvalidCastException ($Messages.WellFormedInvalidCast -F 'Options','[System.Text.RegularExpressions.RegexOptions]')),
+                "WellFormedInvalidCast",
+                "InvalidData",
+                $ParameterString
+               )
               )
             )#WriteError
             return $false
@@ -1833,8 +1782,8 @@ rem ...
             #Analyse la valeur de l'entrée courante de $Hashtable
             #puis la transforme en un type hashtable 'normalisée'
          if ($Parameters -is [System.Collections.IDictionary])
-          {  #On ne modifie pas la hashtable d'origine
-             #Les objets référencés ne sont pas cloné, on duplique l'adresse.
+         {  #On ne modifie pas la hashtable d'origine
+             #Les objets référencés ne sont pas clonés, on duplique l'adresse.
             $Parameters=$Parameters.Clone()
 
             $ParameterString="$($_.Key) = @{$(Convert-DictionnaryEntry $Parameters)}"
@@ -1844,50 +1793,50 @@ rem ...
             { $DebugLogger.PSDebug("[DictionaryEntry][Error]$ParameterString")}
             #<UNDEF %DEBUG%>
             if ($SimpleReplace)
-             { $PSCmdlet.WriteWarning($TextMsgs.WarningSwitchSimpleReplace) }
-          }#-is [System.Collections.IDictionary]
+            { $PSCmdlet.WriteWarning($Messages.WarningSwitchSimpleReplace) }
+         }#-is [System.Collections.IDictionary]
          else
-          {   #Dans tous les cas on utilise une hashtable normalisée
+         {   #Dans tous les cas on utilise une hashtable normalisée
               #pour récupèrer les paramètres.
              if ($null -eq $Parameters)
-              {$Parameters=[String]::Empty}
+             {$Parameters=[String]::Empty}
              $Parameters=@{Replace=$Parameters;Max=-1;StartAt=0;Options="IgnoreCase"}
-          }
+         }
 
          if  ($_.Key -isnot [String])
-          {
+         {
              #La clé peut être un objet,
              #on tente une conversion de la clé en [string].
              #On laisse la possibilité de dupliquer les clés
              #issues de cette conversion.
            [string]$Key= ConvertTo-String $_.Key
            if ($Key -eq [string]::Empty)
-            { $PSCmdlet.WriteWarning(($TextMsgs.WarningConverTo -F $_.Key))}
-          }
+            { $PSCmdlet.WriteWarning(($Messages.WarningConverTo -F $_.Key))}
+         }
          else
-          {$key=$_.Key}
+         {$key=$_.Key}
 
          if ($SimpleReplace -and ($Key -eq [String]::Empty))
-          {
+         {
             $WrongDictionnaryEntry =$true
             $PSCmdlet.WriteError(
               (New-Object System.Management.Automation.ErrorRecord(
-         				 (New-Object System.ArgumentException($TextMsgs.ReplaceSimpleEmptyString,'Replace')),
-                   "ReplaceSimpleEmptyString",
-                   "InvalidData",
-                   (Convert-DictionnaryEntry $Parameters)
-                 )
+         		(New-Object System.ArgumentException($Messages.ReplaceSimpleEmptyString,'Replace')),
+                 "ReplaceSimpleEmptyString",
+                 "InvalidData",
+                 (Convert-DictionnaryEntry $Parameters)
+                )
               )
             )#WriteError
-          }
+         }
 
          if (-not $WrongDictionnaryEntry )
-          {
+         {
             $DEntry=new-object System.Collections.DictionaryEntry($Key,$Parameters)
             $RegExError=$False
              #Construit les regex
             if (-not $SimpleReplace)
-             {
+            {
                  #Construit une expression régulière dont le pattern est
                  #le nom de la clé de l'entrée courante de $TabKeyValue
                try
@@ -1897,21 +1846,23 @@ rem ...
                }catch {
                  $PSCmdlet.WriteError(
                   (New-Object System.Management.Automation.ErrorRecord(
-             				 (New-Exception $_.Exception ($TextMsgs.ReplaceRegExCreate -F $_.Exception.Message)),
-                       "ReplaceRegExCreate",
-                       "InvalidOperation",
-                       ("[{0}]" -f $Key)
+            		 (New-Exception $_.Exception ($Messages.ReplaceRegExCreate -F $_.Exception.Message)),
+                      "ReplaceRegExCreate",
+                      "InvalidOperation",
+                      ("[{0}]" -f $Key)
                      )
                   )
                  )#WriteError
                  $DebugLogger.PSDebug("Regex erronée, remplacement suivant.")#<%REMOVE%>
                  $RegExError=$True
                }
-             }
+            }
             if (-not $RegExError)
+            {
                #Si on utilise un simple arraylist
                # les propriétés personnalisées sont perdues
-             { [void]$TabKeyValue.Add($DEntry) }
+              [void]$TabKeyValue.Add($DEntry)
+            }
           } #sinon on ne crée pas l'entrée invalide
        }#Foreach
     }#BuildList
@@ -1962,18 +1913,19 @@ rem ...
          $ObjTemp=$InputObject
          [string]$InputObject= ConvertTo-String $InputObject
          If ($InputObject -eq [String]::Empty)
-          { $PSCmdlet.WriteWarning(($TextMsgs.WarningConverTo -F $ObjTemp))}
+          { $PSCmdlet.WriteWarning(($Messages.WarningConverTo -F $ObjTemp))}
        }
     }
      #on crée l'objet contenant
      #la collection de résultats détaillés
     if ($ReplaceInfo)
-     {$Resultat=New-ObjectReplaceInfo}
+    {$Resultat=New-ObjectReplaceInfo}
 
      #Savoir si au moins une opération de remplacement a réussie.
     [Boolean] $AllSuccessReplace=$false
 
-    for ($i=0; $i -lt $TabKeyValue.Count; $i++) {
+    for ($i=0; $i -lt $TabKeyValue.Count; $i++)
+    {
        #$Key contient la chaîne à rechercher
       $Key=$TabKeyValue[$i].Key
 
@@ -2009,16 +1961,16 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
              $ReplaceValue=&$Parameters.Replace
              $DebugLogger.PSDebug("`t[ScriptBlock] $($Parameters.Replace)`r`n$ReplaceValue")#<%REMOVE%>
            } catch {
-               $PSCmdlet.WriteError(
+             $PSCmdlet.WriteError(
                 (New-Object System.Management.Automation.ErrorRecord (
-           				 (New-Exception $_.Exception ($TextMsgs.ReplaceSimpleScriptBlockError -F $Key,$Parameters.Replace.ToString(),$_)),
-                     "ReplaceSimpleScriptBlockError",
-                      "InvalidOperation",
-                      ("[{0}]" -f $Parameters.Replace)
-                   )
+           		  (New-Exception $_.Exception ($Messages.ReplaceSimpleScriptBlockError -F $Key,$Parameters.Replace.ToString(),$_)),
+                  "ReplaceSimpleScriptBlockError",
+                  "InvalidOperation",
+                  ("[{0}]" -f $Parameters.Replace)
                 )
-               )#WriteError
-              continue
+               )
+             )#WriteError
+             continue
            }#catch
          }#-is [ScriptBlock]
         else
@@ -2029,7 +1981,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
          {
             $Property|
               #prérequis: Le nom de la propriété courante ne pas doit pas être null ni vide.
-              #On recherche les propriétés à chaque fois, on laisse ainis la possibilité au
+              #On recherche les propriétés à chaque fois, on laisse ainsi la possibilité au
               # code d'un scriptblock de modifier/ajouter des propriétés dynamiquement sur
               # le paramètre $InputObject.
               #Celui-ci doit être de type PSObject pour être modifié directement, sinon
@@ -2046,7 +1998,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                   $CurrentPropertyName=$CurrentProperty.Name
                   try {
                       #Si -Whatif n'est pas précisé on exécute le traitement
-                    if ($PSCmdlet.ShouldProcess(($TextMsgs.ObjectReplaceShouldProcess -F $InputObject.GetType().Name,$CurrentPropertyName)))
+                    if ($PSCmdlet.ShouldProcess(($Messages.ObjectReplaceShouldProcess -F $InputObject.GetType().Name,$CurrentPropertyName)))
                      {
                         #Logiquement il ne devrait y avoir qu'un bloc ShouldProcess
                         #englobant tous les traitements, ici cela permet d'afficher
@@ -2069,11 +2021,11 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                      $PSCmdlet.WriteError(
                       (New-Object System.Management.Automation.ErrorRecord (
                            #Recrée l'exception trappée avec un message personnalisé
-                 				  $_.Exception,
+                 		  $_.Exception,
                           "EdittringObjectPropertyError",
                           "InvalidOperation",
                           $InputObject
-                 				)
+                 		)
                       )
                      )#WriteError
                    }#catch
@@ -2082,7 +2034,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
          } #AsObject
         else
          {
-           if ($PSCmdlet.ShouldProcess(($TextMsgs.StringReplaceShouldProcess -F $Key,$ReplaceValue)))
+           if ($PSCmdlet.ShouldProcess(($Messages.StringReplaceShouldProcess -F $Key,$ReplaceValue)))
             {
                $OriginalStr=$InputObject
                $InputObject=$InputObject.Replace($Key,$ReplaceValue)
@@ -2106,7 +2058,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
              #
              #On évite, selon le type du paramètre fourni, un possible problème
              #de cast lors de l'exécution interne de la recherche de la signature
-             #la plus adaptée (Distance Algorithm).
+             #la plus adaptée (Distance Algorithm). (A l'origine code PS V2)
              # cf. ([regex]"\d").Replace.OverloadDefinitions
              # "test 123"|Edit-String @{"\d"=get-date}
              # Error : Impossible de convertir l'argument « 1 » (valeur « 17/07/2010 13:31:56 ») de « Replace »
@@ -2143,7 +2095,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                   $CurrentProperty=$_
                   $CurrentPropertyName=$CurrentProperty.Name
                    try {
-                     if ($PSCmdlet.ShouldProcess(($TextMsgs.ObjectReplaceShouldProcess -F $InputObject.GetType().Name,$CurrentPropertyName)))
+                     if ($PSCmdlet.ShouldProcess(($Messages.ObjectReplaceShouldProcess -F $InputObject.GetType().Name,$CurrentPropertyName)))
                       {
                         Test-InputObjectProperty $CurrentProperty
                         $DebugLogger.PSDebug("`t[RegEx-Before][Object] $CurrentPropertyName : $($InputObject.$CurrentPropertyName)")#<%REMOVE%>
@@ -2153,13 +2105,18 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                            $isMatch=$Expression.isMatch($InputObject.$CurrentPropertyName,$Parameters.StartAt)
                            if ($isMatch)
                             {
-                              $InputObject.$CurrentPropertyName=$Expression.Replace($InputObject.$CurrentPropertyName,$ReplaceValue,$Parameters.Max,$Parameters.StartAt)
+                              $InputObject.$CurrentPropertyName=$Expression.Replace( $InputObject.$CurrentPropertyName,
+                                                                                     $ReplaceValue,
+                                                                                     $Parameters.Max,
+                                                                                     $Parameters.StartAt)
                               $DebugLogger.PSDebug("`t[RegEx-After][Object] $CurrentPropertyName : $($InputObject.$CurrentPropertyName)")#<%REMOVE%>
                             }
                          }
                         else
                          {
-                           $PSCmdlet.WriteWarning(($TextMsgs.ReplaceRegExStarAt -F $InputObject.$CurrentPropertyName,$Parameters.StartAt,$InputObject.$CurrentPropertyName.Length))
+                           $PSCmdlet.WriteWarning(($Messages.ReplaceRegExStarAt -F $InputObject.$CurrentPropertyName,
+                                                                                   $Parameters.StartAt,
+                                                                                   $InputObject.$CurrentPropertyName.Length))
                            $DebugLogger.PSDebug($msg)#<%REMOVE%>
                            $isMatch=$false
                          }
@@ -2176,7 +2133,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                       $PSCmdlet.WriteError(
                        (New-Object System.Management.Automation.ErrorRecord (
                             #Recrée l'exception trappée avec un message personnalisé
-                 			  	 $_.Exception,
+                           $_.Exception,
                            "ReplaceRegexObjectPropertyError",
                            "InvalidOperation",
                            $InputObject
@@ -2189,7 +2146,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
          } #AsObject
         else
          {
-            if ($PSCmdlet.ShouldProcess(($TextMsgs.StringReplaceShouldProcess -F $Key,$ReplaceValue)))
+            if ($PSCmdlet.ShouldProcess(($Messages.StringReplaceShouldProcess -F $Key,$ReplaceValue)))
              {
                 $DebugLogger.PSDebug("`t[RegEx-Before] : $InputObject")#<%REMOVE%>
                   #On ne peut rechercher au delà de la longueur de la chaîne.
@@ -2205,7 +2162,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                          $PSCmdlet.WriteError(
                           (New-Object System.Management.Automation.ErrorRecord (
                                #Recrée l'exception trappée avec un message personnalisé
-                     		  	 $_.Exception,
+                     		 $_.Exception,
                              "StringReplaceRegexError",
                              "InvalidOperation",
                              ("[{0}]" -f $InputObject)
@@ -2217,7 +2174,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                  }
                 else
                  {
-                   $PSCmdlet.WriteWarning(($TextMsgs.ReplaceRegExStarAt -F $InputObject,$Parameters.StartAt,$InputObject.Length))
+                   $PSCmdlet.WriteWarning(($Messages.ReplaceRegExStarAt -F $InputObject,$Parameters.StartAt,$InputObject.Length))
                    $DebugLogger.PSDebug("`t$Msg")#<%REMOVE%>
                    $isMatch=$false
                  }
@@ -2236,9 +2193,9 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
         if (-not $Whatif)
         {
           if (($AsObject -eq $False) -and $CurrentSuccessReplace)
-          { $CurrentListItem.New=$InputObject } #todo bug ? new n'est pas renseigné
+          { $CurrentListItem.New=$InputObject }
           elseif ($CurrentSuccessReplace)
-          { $CurrentListItem.New='Pas renseigné' } #todo bug ? new n'est pas renseigné
+          { $CurrentListItem.New='Pas renseigné' }
            #On affecte une seule fois la valeur $true
           if (-not $AllSuccessReplace)
           { $AllSuccessReplace=$CurrentSuccessReplace }
@@ -2252,7 +2209,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
      if ($Unique -and $CurrentSuccessReplace)
       {
         $DebugLogger.PSDebug("-Unique détecté et le dernier remplacement a réussi. Break.")#<%REMOVE%>
-        break #oui, on quitte le bloc For
+        break
       }
    }# For $TabKeyValue.Count
 
