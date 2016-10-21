@@ -51,7 +51,7 @@ Write 'Text before the directive'
 #>
 Write 'Text after the directive'
 ```
-The text between #<DEFINE %V5%> and #<UNDEF %V5%> is deleted.
+The text between \# <DEFINE %V5%> and \# <UNDEF %V5%> is deleted.
 The parameter _*-Clean*_ remove the remaining directives inside the text.
 
 With this script :
