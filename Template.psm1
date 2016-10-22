@@ -866,7 +866,7 @@ Function Edit-String{
     Peut référencer une valeur de type [Object], dans ce cas l'objet sera
     converti en [String] sauf si le paramètre -Property est renseigné.
 
-.PARAMETER Hashtable
+.PARAMETER Setting
     Hashtable contenant les textes à rechercher et celui de leur remplacement
     respectif  :
      $MyHashtable."TexteARechercher"="TexteDeRemplacement"
@@ -909,6 +909,8 @@ Function Edit-String{
           Note : En cas d'exception déclenchée dans le scriptblock,
           n'hésitez pas à consulter le contenu de son membre nommé
           InnerException.
+          ATTENTION : Les scriptblock sont éxécutés dans la portée où ils sont
+                      déclarés
 .
         -une hashtable, les clés reconnues sont :
            -- Replace  Contient la valeur de remplacement.
@@ -983,14 +985,14 @@ Function Edit-String{
     Indique que la fonction retourne un objet personnalisé [PSReplaceInfo].
     Celui-ci contient les membres suivants :
      -[ArrayList] Replaces  : Contient le résultat d'exécution de chaque
-                              entrée du paramètre -Hashtable.
+                              entrée du paramètre -Setting.
      -[Boolean]   isSuccess : Indique si un remplacement a eu lieu, que
                               $InputObject ait un contenu différent ou pas.
      -            Value     : Contient la valeur de retour de $InputObject,
                               qu'il y ait eu ou non de modifications .
 .
     Le membre Replaces contient une liste d'objets personnalisés de type
-    [PSReplaceInfoItem]. A chaque clé du paramètre -Hashtable correspond
+    [PSReplaceInfoItem]. A chaque clé du paramètre -Setting correspond
     un objet personnalisé.
     L'ordre d'insertion dans la liste suit celui de l'exécution.
 .
@@ -1027,7 +1029,7 @@ Function Edit-String{
     remplacement. Seules sont traités les propriétés de type [string]
     possédant un assesseur en écriture (Setter).
     Pour chaque propriété on effectue tous les remplacements précisés dans
-    le paramètre -Hashtable, tout en tenant compte de la valeur des paramètres
+    le paramètre -Setting, tout en tenant compte de la valeur des paramètres
     -Unique et -SimpleReplace.
     On réémet l'objet reçu, après avoir modifié les propriétés indiquées.
     Le paramètre -Inputobject n'est donc pas converti en type [String].
@@ -1041,7 +1043,7 @@ Function Edit-String{
     Pas de recherche/remplacement multiple.
 .
     L'exécution ne concerne qu'une seule opération de recherche et de
-    remplacement, la première qui réussit, même si le paramètre -Hashtable
+    remplacement, la première qui réussit, même si le paramètre -Setting
     contient plusieurs entrées.
     Si le paramètre -Property est précisé, l'opération unique se fera sur
     toutes les propriétés indiquées.
@@ -1060,7 +1062,7 @@ Function Edit-String{
     respectant la casse et tenant compte de la culture.
 .
     L'usage de ce switch ne permet pas d'utiliser toutes les fonctionnalités
-    du paramètre -Hashtable, ex :  @{Replace="X";Max=n;StartAt=n;Options="Compiled"}.
+    du paramètre -Setting, ex :  @{Replace="X";Max=n;StartAt=n;Options="Compiled"}.
     Si vous couplez ce paramètre avec ce type de hashtable, seule la clé
     'Replace' sera prise en compte.
     Un avertissement est généré, pour l'éviter utiliser le paramétrage
@@ -1291,7 +1293,7 @@ Function Edit-String{
     l'option 'IgnoreCase' et 'Multiline', et désactive l'option 'Singleline'.
     Ces options inlines sont prioritaires et complémentaires par rapport à
     celles définies dans la clé 'Options' d'une entrée du paramètre
-    -Hashtable.
+    -Setting.
 .
     La Here-String $S est une chaîne de caractères contenant des retours
     chariot(CR+LF), on doit donc spécifier le mode multiligne (?m) qui
@@ -1558,9 +1560,10 @@ rem ...
           [Parameter(Mandatory=$true,ValueFromPipeline = $true)]
         [System.Management.Automation.PSObject] $InputObject,
 
+#<%REMOVE%> Les scriptblock sont éxécuté dans la porté de leur déclaration
           [ValidateNotNullOrEmpty()]
           [Parameter(Position=0, Mandatory=$true)]
-        [System.Collections.IDictionary] $Hashtable,
+        [System.Collections.IDictionary] $Setting,
 
          [ValidateNotNullOrEmpty()]
          [Parameter(Position=1, ParameterSetName="asObject")]
@@ -1775,11 +1778,11 @@ rem ...
 
     function BuildList {
        #Construit une liste avec des DictionaryEntry valides
-     $Hashtable.GetEnumerator()|
+     $Setting.GetEnumerator()|
        Foreach-Object {
          $Parameters=$_.Value
          $WrongDictionnaryEntry=$false
-            #Analyse la valeur de l'entrée courante de $Hashtable
+            #Analyse la valeur de l'entrée courante de $Setting
             #puis la transforme en un type hashtable 'normalisée'
          if ($Parameters -is [System.Collections.IDictionary])
          {  #On ne modifie pas la hashtable d'origine
@@ -2262,16 +2265,6 @@ Function OnRemoveTemplate {
 
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = { OnRemoveTemplate }
 
-#<DEFINE %DEBUG%>
-${T4_Name}='Variable déclarée dans la portée du module'
-$TestScope=@{}
-$TestScope.'(?ims)(<%=)(.*?)(%>)'= {
-    param($match)
-    $expr = $match.groups[2].value
-    $ExecutionContext.InvokeCommand.ExpandString($Expr)
-${T4_Name}=${T4_Name}
-}
-#todo changer la portée de la variable ?
-#<UNDEF %DEBUG%>
+
 Export-ModuleMember -Alias * -Function Edit-String,Edit-Template -Variable TestScope
 
