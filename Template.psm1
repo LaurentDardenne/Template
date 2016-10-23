@@ -2265,6 +2265,4 @@ Function OnRemoveTemplate {
 
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = { OnRemoveTemplate }
 
-
-Export-ModuleMember -Alias * -Function Edit-String,Edit-Template -Variable TestScope
-
+Export-ModuleMember -Alias * -Function Edit-String,Edit-Template
