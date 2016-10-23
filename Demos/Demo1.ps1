@@ -1,8 +1,9 @@
 
 Import-Module Template
+#Initialize-TemplateModule.ps1 create the hashtable $TemplateDefaultSettings
 
 Set-Location $PSScriptRoot
-$File='C:\temp\Code.T.PS1'
+$File='$env:temp\Code.T.PS1'
 @'
 Write 'Text before the directive'
 <#%ScriptBlock%
@@ -21,61 +22,86 @@ Write 'Text before the directive'
 Write 'Text after the directive'
 '@ > $File
 
-#Hashtable de paramètrage pour la fonction Edit-String
-$h=@{}
-$h.'(?ism)<#%(ScriptBlock|SB)%(?<Code>.*)#>'= {
-    param($match)
-    $expr = $match.groups[2].value
-     write-warning "match : $expr"
-
-     $Result=$Expr.Split(@("`t",' ',"`r","`n"),[System.StringSplitOptions]::RemoveEmptyEntries)
-     if ($Result.Count -eq 0)
-     { Write-Error 'Aucune ligne de code dans la directive Scriptblock (todo line number)'}
-     else
-     {
-         write-warning "Invoke code"
-         $ExecutionContext.InvokeCommand.InvokeScript($Expr)
-     }
-}
-
-#génération de code pour PS v3
-#Edit-Template attend un tableau de chaînes
+#code generation for Powershell version 3
+#Edit-Template need an ARRAY of string
 [string[]]$Lines=Get-Content -Path $File  -ReadCount 0 -Encoding UTF8
  #On itère pas les obets du tableau, on passe un objet: le tableau en entier
 $Result=,$Lines|Edit-Template -ConditionnalsKeyWord  "V5"|
  Edit-Template -Clean
 
-#Attend une string:transforme un tableau en une string
+#Edit-String need a string
 $ofs="`r`n"
 "$Result"|
- Edit-String -Hashtable $h
+ Edit-String -Setting  $TemplateDefaultSettings
 
-#génération de code pour PS v5
+#code generation for Powershell version 5
 Get-Content -Path $File  -ReadCount 0 -Encoding UTF8|
  Edit-Template -ConditionnalsKeyWord  "V3"|
  Edit-Template -Clean|
- Out-string| #Transforme toutes les ignes reçues en une chaine de caractères
- Edit-String -Hashtable $h
+ Out-string|
+ Edit-String -Setting  $TemplateDefaultSettings
 
-${T4_Name}='Génération de texte à base de modèle'
-$h=@{}
-$h.'(?ims)(<%=)(.*?)(%>)'= {
-    param($match)
-    $expr = $match.groups[2].value
-    $ExecutionContext.InvokeCommand.ExpandString($Expr)
-}
 
-$S=@'
+#Substitute variable 'à la Plaster'
+$T_Name='Text Transformation'
+$Text=@'
  #comment
-Write-host "Projet : <%=${T4_Name}%>"
+Write-host "Project : <%=${T_Name}%>"
 '@
-$S| Edit-String -Hashtable $h
+$Text| Edit-String -Setting $TemplateDefaultSettings
 
 #Note:
-    #La chaîne $S référence un nom de variable
+    #La chaîne $Text référence un nom de variable
     #Le scriptblock associé à la regex est déclaré dans la portée de l'appelant (ce script)
     #La fonction Edit-String exécute, dans la portée de son module, le scriptblock en tant que
     # délégué d'une regex.
     #En interne Powershell exécute le scriptblock dans la portée où il a été déclaré.
-    #Donc ici pas de problème de portée !
-#todo a tester
+
+#Define class with interface implementation
+$Code=
+@'
+<#%ScriptBlock%
+  . .\Get-InterfaceSignature.ps1
+
+  $T=@(
+   'System.ICloneable',
+   'System.Collections.ICollection',
+   'System.Collections.IEnumerable'
+   )
+
+   " #Implement an interface`r`n"
+
+   $ofs=', '
+   "Class TodoName:$T {`r`n"
+
+   $T | Get-InterfaceSignature
+#>
+} #MyCollection
+'@
+$Code| Edit-String -Setting $TemplateDefaultSettings
+
+#Or
+. .\Get-InterfaceSignature.ps1
+
+$T=@(
+ 'System.ICloneable',
+ 'System.Collections.ICollection',
+ 'System.Collections.IEnumerable'
+)
+
+
+$Code=
+@'
+<#%ScriptBlock%
+   " #Implement an interface`r`n"
+
+   $ofs=', '
+   "Class TodoName:$T {`r`n"
+
+   $T | Get-InterfaceSignature
+#>
+} #MyCollection
+'@
+$Code| Edit-String -Setting $TemplateDefaultSettings
+
+
