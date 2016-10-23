@@ -7,7 +7,7 @@ Template : A template specifies a text template with placeholders for data to be
 The Template module offers these features:
  * text replacement, simple or by regex or regex with [MatchEvaluator](https://msdn.microsoft.com/en-us/library/system.text.regularexpressions.matchevaluator(v=vs.110).aspx) (Scriptblock)
  * file inclusion
- * directive to run embeded scripts
+ * directive to run embedded scripts
  * Conditionnal directive (#Define & #Undef)
  * Removal and uncomment directive
 
@@ -15,7 +15,10 @@ The Template module offers these features:
 A template is a file that serves as a starting point for a new document.
 With the content of these file :
 ```Powershell
-$File='C:\temp\Code.T.PS1'
+Import-Module Template
+ #Initialize-TemplateModule.ps1 create the hashtable $TemplateDefaultSettings
+
+$File='C:\temp\Code.PS1'
 @'
 Write 'Text before the directive'
 <#%ScriptBlock%
@@ -45,18 +48,13 @@ Transform the content to :
 Write 'Text before the directive'
 <#%ScriptBlock%
 
-        . New-PSCustomObjectFunction.ps1
+        . .\New-PSCustomObjectFunction.ps1
         #PSCustomObject >= v3
         New-PSCustomObjectFunction -Noun ProcessLight -Parameters Name,VirtualMemorySize -File
 #>
 Write 'Text after the directive'
 ```
-The text between theses directive is deleted :
-```Powershell
-#<DEFINE %V5%>
- text
-#<UNDEF %V5%>
-```
+The text between \#&lt;DEFINE %V5%&gt; and \#&lt;UNDEF %V5%&gt;  the directive is deleted.:
 The parameter _*-Clean*_ remove the remaining directives inside the text.
 
 With this script :
@@ -65,7 +63,7 @@ Get-Content -Path $File  -ReadCount 0 -Encoding UTF8|
  Edit-Template -ConditionnalsKeyWord  "V3"|
  Edit-Template -Clean|
  Out-string|
- Edit-String -Hashtable $h #Todo example
+ Edit-String -Hashtable $TemplateDefaultSettings
 ```
 The result text is :
 ```Powershell
