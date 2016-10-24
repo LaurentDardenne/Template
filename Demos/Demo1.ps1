@@ -104,6 +104,20 @@ $Code=
 $Code| Edit-String -Setting $TemplateDefaultSettings
 
 
+$Code=
+@'
+<#%ScriptBlock%
+$ofs=$null
+New-RecordType -ClassName 'MyClass' -Header 'string Name, string EMail, int MBSize' | Out-String
+Write-output "`r`n"
+New-RecordType -ClassName 'DiskReport' -Header 'String HostName, string Letter, int Size' | Out-String
+Write-output "`r`n"
+New-RecordType -ClassName 'ClassDefinition' -Header 'string Name, string Header' | Out-String
+Write-output "`r`n"
+#>
+'@
+$Code| Edit-String -Setting $TemplateDefaultSettings
+
 $T=@(
  New-ClassDefinition -ClassName 'MyClass' -Header 'string Name, string EMail, int MBSize'
  New-ClassDefinition -ClassName 'DiskReport' -Header 'String HostName, string Letter, int Size'
@@ -119,20 +133,6 @@ $Code=
     Foreach {
      Write-output "$_`r`n`r`n"
     }
-#>
-'@
-$Code| Edit-String -Setting $TemplateDefaultSettings
-
-$Code=
-@'
-<#%ScriptBlock%
-$ofs=$null
-New-RecordType -ClassName 'MyClass' -Header 'string Name, string EMail, int MBSize' | Out-String
-Write-output "`r`n"
-New-RecordType -ClassName 'DiskReport' -Header 'String HostName, string Letter, int Size' | Out-String
-Write-output "`r`n"
-New-RecordType -ClassName 'ClassDefinition' -Header 'string Name, string Header' | Out-String
-Write-output "`r`n"
 #>
 '@
 $Code| Edit-String -Setting $TemplateDefaultSettings
