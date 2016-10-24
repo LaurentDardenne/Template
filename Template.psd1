@@ -12,7 +12,7 @@ ModuleVersion = '0.1.0'
 GUID = '7cd7d08e-4560-479c-92f5-ae9937d9408b'
 
 # Author of this module
-Author = 'LaurentDardenne'
+Author = 'Laurent Dardenne'
 
 # Company or vendor of this module
 CompanyName = ''
@@ -67,7 +67,8 @@ ScriptsToProcess = @('Initialize-TemplateModule.ps1')
 # Functions to export from this module
 FunctionsToExport = @(
    'Edit-String',
-   'Edit-Template'
+   'Edit-Template',
+   'Out-ArrayOfString'
 )
 
 # Cmdlets to export from this module

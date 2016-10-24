@@ -33,6 +33,13 @@ Try {
    Write-Error -Exception $_.Exception
 }
 
+filter Out-ArrayOfString {
+ if ([string]::IsNullOrEmpty($_))
+ {$_}
+ else
+ { $_ -split "(`n|`r`n)" }
+}
+
 Function Edit-Template {
 <#
 .SYNOPSIS
@@ -2265,4 +2272,4 @@ Function OnRemoveTemplate {
 
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = { OnRemoveTemplate }
 
-Export-ModuleMember -Alias * -Function Edit-String,Edit-Template
+Export-ModuleMember -Alias * -Function Edit-String,Edit-Template,Out-ArrayOfString
