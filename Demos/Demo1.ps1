@@ -3,7 +3,7 @@ Import-Module Template
 #Initialize-TemplateModule.ps1 create the hashtable $TemplateDefaultSettings
 
 Set-Location $PSScriptRoot
-$File='$env:temp\Code.T.PS1'
+$File="$env:temp\Code.T.PS1"
 @'
 Write 'Text before the directive'
 <#%ScriptBlock%
@@ -16,7 +16,7 @@ Write 'Text before the directive'
     #<DEFINE %V3%>
         . .\New-PSCustomObjectFunction.ps1
         #PSCustomObject >= v3
-        New-PSCustomObjectFunction -Noun ProcessLight -Parameters Name,VirtualMemorySize -File
+        New-PSCustomObjectFunction -Noun ProcessLight -Parameters Name,VirtualMemorySize -AsFunction
     #<UNDEF %V3%>
 #>
 Write 'Text after the directive'
@@ -31,8 +31,7 @@ $Result=,$Lines|Edit-Template -ConditionnalsKeyWord  "V5"|
 
 #Edit-String need a string
 $ofs="`r`n"
-"$Result"|
- Edit-String -Setting  $TemplateDefaultSettings
+"$Result"|Edit-String -Setting  $TemplateDefaultSettings
 
 #code generation for Powershell version 5
 Get-Content -Path $File  -ReadCount 0 -Encoding UTF8|
