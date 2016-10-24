@@ -1,10 +1,8 @@
 # Template
 Code generation by using text templates.
+A template specifies a text template with placeholders for data to be extracted from models.
 
-Template : A template specifies a text template with placeholders for data to be extracted from models.
-
-
-The Template module offers these features:
+The 'Template' module offers these features:
  * text replacement, simple or by regex or regex with [MatchEvaluator](https://msdn.microsoft.com/en-us/library/system.text.regularexpressions.matchevaluator(v=vs.110).aspx) (Scriptblock)
  * file inclusion
  * directive to run embedded scripts
@@ -13,7 +11,14 @@ The Template module offers these features:
 
 ## Principle
 A template is a file that serves as a starting point for a new document.
-With the content of these file :
+The 'Template' module, allow to insert directives, as a comment, inside the source code.
+For example :
+```Powershell
+    Write-Debug 'Test' #<%REMOVE%>
+```
+In this case, the presence of this directive does not require to transform the source code.
+
+For this example, the directives require a transformation :
 ```Powershell
 Import-Module Template
  #Initialize-TemplateModule.ps1 create the hashtable $TemplateDefaultSettings
@@ -31,19 +36,21 @@ Write 'Text before the directive'
     #<DEFINE %V3%>
         . .\New-PSCustomObjectFunction.ps1
         #PSCustomObject >= v3
-        New-PSCustomObjectFunction -Noun ProcessLight -Parameters Name,VirtualMemorySize -File
+        New-PSCustomObjectFunction -Noun ProcessLight -Parameters Name,VirtualMemorySize -AsFunction
     #<UNDEF %V3%>
 #>
 Write 'Text after the directive'
 '@ > $File
 ```
-The following script :
+The following script transform the content:
 ```Powershell
 [string[]]$Lines=Get-Content -Path $File  -ReadCount 0 -Encoding UTF8
-,$Lines|Edit-Template -ConditionnalsKeyWord  "V5"|
+  #Edit-Template need an ARRAY of string
+$Result=,$Lines|Edit-Template -ConditionnalsKeyWord  "V5"|
  Edit-Template -Clean
+$Result
 ```
-Transform the content to :
+to :
 ```Powershell
 Write 'Text before the directive'
 <#%ScriptBlock%
@@ -54,8 +61,37 @@ Write 'Text before the directive'
 #>
 Write 'Text after the directive'
 ```
-The text between \#&lt;DEFINE %V5%&gt; and \#&lt;UNDEF %V5%&gt;  the directive is deleted.:
+The text between \#&lt;DEFINE %V5%&gt; and \#&lt;UNDEF %V5%&gt;  the directive is deleted.
 The parameter _*-Clean*_ remove the remaining directives inside the text.
+
+The second step, invoke the script to generate text :
+```Powershell
+ #Edit-String need a string
+$ofs="`r`n"
+"$Result"|
+ Edit-String -Setting  $TemplateDefaultSettings
+```
+The final source code :
+```Powershell
+Write 'Text before the directive'
+Function New-ProcessLight{
+param(
+         [Parameter(Mandatory=$True,position=0)]
+        $Name,
+         [Parameter(Mandatory=$True,position=1)]
+        $VirtualMemorySize
+)
+
+  [pscustomobject]@{
+    PSTypeName='ProcessLight';
+    Name=$Name;
+    VirtualMemorySize=$VirtualMemorySize;
+   }
+
+
+}# New-ProcessLight
+Write 'Text after the directive'
+```
 
 With this script :
 ```Powershell
