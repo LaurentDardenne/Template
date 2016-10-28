@@ -1,23 +1,32 @@
 ﻿if(! (Test-Path variable:TemplateVcs))
 { throw "The project configuration is required, see the 'Template_ProjectProfile.ps1' script." }
 
-$ModuleVersion=(Import-ManifestData "$TemplateVcs\Modules\Template\Template.psd1").ModuleVersion
+$ModuleVersion=(Import-ManifestData "$TemplateVcs\Template.psd1").ModuleVersion
 
 $Result=nuspec 'Template' $ModuleVersion {
    properties @{
         Authors='Dardenne Laurent'
         Owners='Dardenne Laurent'
-        Description='PSScriptAnalyzer rules to validate the param block of a function.'
+        Description=@'
+Code generation by using text templates. A template specifies a text template with placeholders for data to be extracted from models.
+
+The 'Template' module offers these features:
+
+    text replacement, simple or by regex or regex with MatchEvaluator (Scriptblock)
+    file inclusion
+    directive to run embedded scripts
+    Conditionnal directive (#Define & #Undef)
+    Removal and uncomment directive
+'@
         title='Template module'
-        summary='PSScriptAnalyzer rules to validate the param block of a function.'
+        summary='Code generation by using text templates.'
         copyright='Copyleft'
         language='fr-FR'
         licenseUrl='https://creativecommons.org/licenses/by-nc-sa/4.0/'
         projectUrl='https://github.com/LaurentDardenne/Template'
         #iconUrl='https://github.com/LaurentDardenne/Template/blob/master/icon/Template.png'
-#todo
-        releaseNotes="$(Get-Content "$TemplateVcs\Modules\Template\CHANGELOG.md" -raw)"
-        tags='Template'
+        releaseNotes="$(Get-Content "$TemplateVcs\CHANGELOG.md" -raw)"
+        tags='Template Conditionnal Directive Regex'
    }
 
    dependencies {
@@ -25,13 +34,14 @@ $Result=nuspec 'Template' $ModuleVersion {
    }
 
    files {
-        file -src "$TemplateVcs\Modules\Template\Template.psd1"
-        file -src "$TemplateVcs\Modules\Template\Template.psm1"
-        #file -src "$TemplateVcs\Modules\Template\README.md"
-        #file -src "$TemplateVcs\Modules\Template\releasenotes.md"
+        file -src "$TemplateVcs\Template.psd1"
+        file -src "$TemplateVcs\Template.psm1"
+        file -src "$TemplateVcs\Initialize-TemplateModule.ps1"
+        file -src "$TemplateVcs\README.md"
+        file -src "$TemplateVcs\Demos\" -target "Demos\"
    }
 }
 
 $Result|
-  Push-nupkg -Path $PSScriptAnalyzerRulesDelivery -Source 'https://www.myget.org/F/ottomatt/api/v2/package'
+  Push-nupkg -Path $TemplateDelivery -Source 'https://www.myget.org/F/ottomatt/api/v2/package'
 
