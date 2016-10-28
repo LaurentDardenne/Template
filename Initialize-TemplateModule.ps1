@@ -1,5 +1,6 @@
 ﻿
  # Default settings for Edit-String
+ # All regex are executed for each received string
 $TemplateDefaultSettings=@{}
 
  #Substitute a token by the variable content :
