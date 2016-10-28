@@ -16,7 +16,7 @@ For example :
 ```Powershell
     Write-Debug 'Test' #<%REMOVE%>
 ```
-In this case, the presence of this directive does not require to transform the source code.
+In this case, the presence of this directive does not require to transform the source code before to execute it.
 
 For this example, the directives require a transformation :
 ```Powershell
@@ -61,7 +61,7 @@ Write 'Text before the directive'
 #>
 Write 'Text after the directive'
 ```
-The text between \#&lt;DEFINE %V5%&gt; and \#&lt;UNDEF %V5%&gt;  the directive is deleted.
+The text between the directive \#&lt;DEFINE %V5%&gt; and \#&lt;UNDEF %V5%&gt; is deleted.
 The parameter _*-Clean*_ remove the remaining directives inside the text.
 
 The second step, invoke the script to generate text :
