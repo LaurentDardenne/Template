@@ -3,11 +3,11 @@ Code generation by using text templates.
 A template specifies a text template with placeholders for data to be extracted from models.
 
 The 'Template' module offers these features:
- * text replacement, simple or by regex or regex with [MatchEvaluator](https://msdn.microsoft.com/en-us/library/system.text.regularexpressions.matchevaluator(v=vs.110).aspx) (Scriptblock)
- * file inclusion
- * directive to run embedded scripts
- * Conditionnal directive (#Define & #Undef)
- * Removal and uncomment directive
+ * [[Text replacement|Text-replacement]], simple or by regex or regex with [MatchEvaluator](https://msdn.microsoft.com/en-us/library/system.text.regularexpressions.matchevaluator(v=vs.110).aspx) (Scriptblock)
+ * [[File inclusion|File-inclusion]]
+ * [[Directive to run embedded scripts|Directive-to-run-embedded-scripts]]
+ * [[Conditionnal directive|Conditionnal-directives]] (#Define & #Undef)
+ * [[Removal and uncomment directive|Removal-and-uncomment-directive]]
 
 ## Principle
 A template is a file that serves as a starting point for a new document.
