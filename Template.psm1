@@ -14,24 +14,8 @@ $Params=@{
 &$InitializeLogging @Params
 #<UNDEF %DEBUG%>
 
- #Liste des raccourcis de type
- #ATTENTION ne pas utiliser dans la déclaration d'un type de paramètre d'une fonction
-$TemplateShortCut=@{
-}
-
-$AcceleratorsType= [PSObject].Assembly.GetType("System.Management.Automation.TypeAccelerators")
-Try {
-  $TemplateShortCut.GetEnumerator() |
-  Foreach-Object {
-   Try {
-     $AcceleratorsType::Add($_.Key,$_.Value)
-   } Catch [System.Management.Automation.MethodInvocationException]{
-     Write-Error -Exception $_.Exception
-   }
- }
-} Catch [System.Management.Automation.RuntimeException] {
-   Write-Error -Exception $_.Exception
-}
+ # $TemplateDefaultSettings existant, la fonction devient inutile
+Remove-Item function:Initialize-TemplateModule
 
 filter Out-ArrayOfString {
  if ([string]::IsNullOrEmpty($_))
@@ -782,7 +766,7 @@ param (
                                                   Edit-Template -Clean -Remove:$Remove -Include:$Include -UnComment:$UnComment -Container:$FileName
                                   #Ici on émet le contenu du tableau et pas le tableau reçu
                                   #Seul le résultat final est renvoyé en tant que tableau
-                                  #todo [OutputType(?)] $DebugLogger.PSDebug(  gettype
+                                  #todo [OutputType(?)] $DebugLogger.PSDebug(  gettype())
                                  $NestedResult
                                }
                                else #if (-not $Clean.isPresent)
@@ -2251,25 +2235,14 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
  }#process
 }#Edit-String
 
+#<DEFINE %Log4Net%>
 # Suppression des objets du module
 Function OnRemoveTemplate {
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSShouldProcess","",
-                                                     Justification="OnRemoveTemplate do not use ShouldProcess.")]
   param()
-  $DebugLogger.PSDebug("Remove TypeAccelerators") #<%REMOVE%>
-  $TemplateShortCut.GetEnumerator()|
-   Foreach-Object {
-     Try {
-       [void]$AcceleratorsType::Remove($_.Key)
-     } Catch {
-       write-Error -Exception $_.Exception
-     }
-   }
-#<DEFINE %Log4Net%>
+
+
   Stop-Log4Net $Script:lg4n_ModuleName
-#<UNDEF %Log4Net%>
 }#OnRemoveTemplate
-
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = { OnRemoveTemplate }
-
+#<UNDEF %Log4Net%>
 Export-ModuleMember -Alias * -Function Edit-String,Edit-Template,Out-ArrayOfString
