@@ -3,11 +3,11 @@ Code generation by using text templates.
 A template specifies a text template with placeholders for data to be extracted from models.
 
 The 'Template' module offers these features:
- * [[Text replacement|https://github.com/LaurentDardenne/Template/wiki/Text-replacement]], simple or by regex or regex with [MatchEvaluator](https://msdn.microsoft.com/en-us/library/system.text.regularexpressions.matchevaluator(v=vs.110).aspx) (Scriptblock)
- * [[File inclusion|https://github.com/LaurentDardenne/Template/wiki/File-inclusion]]
- * [[Directive to run embedded scripts|https://github.com/LaurentDardenne/Template/wiki/Directive-to-run-embedded-scripts]]
- * [[Conditionnal directive|https://github.com/LaurentDardenne/Template/wiki/Conditionnal-directives]] (#Define & #Undef)
- * [[Removal and uncomment directive|https://github.com/LaurentDardenne/Template/wiki/Removal-and-uncomment-directive]]
+ * [Text replacement](https://github.com/LaurentDardenne/Template/wiki/Text-replacement), simple or by regex or regex with [MatchEvaluator](https://msdn.microsoft.com/en-us/library/system.text.regularexpressions.matchevaluator(v=vs.110).aspx) (Scriptblock)
+ * [File inclusion](https://github.com/LaurentDardenne/Template/wiki/File-inclusion)
+ * [Directive to run embedded scripts](https://github.com/LaurentDardenne/Template/wiki/Directive-to-run-embedded-scripts)
+ * [Conditionnal directive](https://github.com/LaurentDardenne/Template/wiki/Conditionnal-directives) (#Define & #Undef)
+ * [Removal and uncomment directive](https://github.com/LaurentDardenne/Template/wiki/Removal-and-uncomment-directive)
 
 ## Principle
 A template is a file that serves as a starting point for a new document.
