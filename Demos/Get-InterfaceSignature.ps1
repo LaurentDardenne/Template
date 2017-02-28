@@ -1,4 +1,6 @@
-﻿Function Get-InterfaceSignature{
+﻿#todo : https://windowsserver.uservoice.com/forums/301869-powershell/suggestions/16504732-cannot-implement-an-interface-with-properties-with
+
+Function Get-InterfaceSignature{
 #Affiche les signatures des membres d'une interface
  param (
     [Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
