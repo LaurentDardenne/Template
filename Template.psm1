@@ -1,4 +1,9 @@
 ﻿#Template.psm1
+
+#todo inverser l'analyse :
+#  pour traiter la v5 --> Edit-Template -ConditionnalsKeyWord  "V5"
+#  et pas  supprimer toutes les conditions qui ne sont pas V5
+
 Import-LocalizedData -BindingVariable Messages -Filename Template.Resources.psd1 -EA Stop
 
 #<DEFINE %DEBUG%>
@@ -14,8 +19,6 @@ $Params=@{
 &$InitializeLogging @Params
 #<UNDEF %DEBUG%>
 
- # $TemplateDefaultSettings existant, la fonction devient inutile
-Remove-Item function:Initialize-TemplateModule
 
 filter Out-ArrayOfString {
  if ([string]::IsNullOrEmpty($_))
@@ -2239,7 +2242,6 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
 # Suppression des objets du module
 Function OnRemoveTemplate {
   param()
-
 
   Stop-Log4Net $Script:lg4n_ModuleName
 }#OnRemoveTemplate
