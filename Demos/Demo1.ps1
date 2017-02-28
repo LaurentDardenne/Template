@@ -1,4 +1,4 @@
-
+﻿
 Import-Module Template
 #Initialize-TemplateModule.ps1 create the hashtable $TemplateDefaultSettings
 
@@ -24,8 +24,8 @@ Write 'Text after the directive'
 
 #code generation for Powershell version 3
 #Edit-Template need an ARRAY of string
-[string[]]$Lines=Get-Content -Path $File  -ReadCount 0 -Encoding UTF8
- #On itère pas les obets du tableau, on passe un objet: le tableau en entier
+[string[]]$Lines=Get-Content -Path $File -ReadCount 0 -Encoding UTF8
+ #Send one object, an array of string
 $Result=,$Lines|Edit-Template -ConditionnalsKeyWord  "V5"|
  Edit-Template -Clean
 
