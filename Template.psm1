@@ -1,9 +1,5 @@
 ﻿#Template.psm1
 
-#todo inverser l'analyse :
-#  pour traiter la v5 --> Edit-Template -ConditionnalsKeyWord  "V5"
-#  et pas  supprimer toutes les conditions qui ne sont pas V5
-
 Import-LocalizedData -BindingVariable Messages -Filename Template.Resources.psd1 -EA Stop
 
 #<DEFINE %DEBUG%>
