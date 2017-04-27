@@ -121,7 +121,7 @@ param (
      Foreach-Object {
        $LineNumber++
        [string]$Line=$_
-       $DebugLogger.PSDebug( "`tLit  $Line `t  isDirectiveBloc=$isDirectiveBloc") #<%REMOVE%>
+       $DebugLogger.PSDebug( "`t[$LineNumber]Lit  $Line `t  isDirectiveBloc=$isDirectiveBloc") #<%REMOVE%>
        switch -regex ($Line)
        {
           #Recherche le mot clé de début d'une directive, puis l'empile
@@ -904,7 +904,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
 
           #On traite des propriétés d'un objet
         if ($AsObject)
-         {
+        {
             $Property|
                # Le nom de la propriété courante ne pas doit pas être null ni vide.
               Foreach-object {
