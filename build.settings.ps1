@@ -61,7 +61,7 @@ function GetModulePath {
   if ($List.Count -eq 0)
   { Throw "Module '$Name' not found."} 
    #Last version
-  $Llist[0].Modulebase
+  $List[0].Modulebase
 }
 
 function New-TemporaryDirectory {
@@ -181,8 +181,8 @@ Properties {
     # Module names for additionnale custom rule
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     [String[]]$PSSACustomRules=@(
-      GetModulelePath -Name OptimizationRules
-      GetModulelePath -Name PSParameterSetRules
+      GetModulePath -Name OptimizationRules
+      GetModulePath -Name ParameterSetRules
     ) 
 
     #MeasureLocalizedData
@@ -314,6 +314,7 @@ Task RemoveConditionnal {
   
    $VerbosePreference='Continue'
    Import-Module Template
+                                
    $TempDirectory=New-TemporaryDirectory
    $ModuleOutDir="$OutDir\$ModuleName"
 
@@ -330,7 +331,7 @@ Task RemoveConditionnal {
          #On traite une directive et supprime les lignes demandées. 
          #On inclut les fichiers.       
         Get-Content -Path $Source -Encoding UTF8|
-         Edit-String -Setting  $TemplateDefaultSettings|
+         Edit-String -Setting $TemplateDefaultSettings|
          ForEach-Object { $_ -split '(?m)$' }|
          Edit-Template -ConditionnalsKeyWord 'DEBUG' -Include -Remove -Container $Source|
          Edit-Template -Clean| 

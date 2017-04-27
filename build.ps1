@@ -8,7 +8,7 @@
  )
 
  #The default repo is used.
- if ( PsCmdlet.ParameterSetName -eq 'PowershellGallery'))
+ if ($PsCmdlet.ParameterSetName -eq 'PowershellGallery')
  { $RepositoryName='PSGallery' }
 
 # Builds the module by invoking psake on the build.psake.ps1 script.
