@@ -110,10 +110,9 @@ Function Edit-Template {
 .PARAMETER ConditionnalsKeyWord
     Tableau de chaîne de caractères contenant les directives à rechercher et
     à traiter.
-    A la différence des directives conditionnelles des langages de programmation
-    cette fonction inverse le comportement, on précise les noms de directives
-    que l'on veut supprimer.
-
+    A la différence des directives conditionnelles des langages de programmation 
+    cette fonction inverse le comportement, les directives précisent le code que 
+    l'on veut supprimer.
 .
     Il n'est pas possible de combiner ce paramètre avec le paramètre -Clean.
     les noms de directive 'REMOVE','INCLUDE' et 'UNCOMMENT' sont réservées.
