@@ -36,7 +36,9 @@ The 'Template' module offers these features:
    files {
         file -src "$TemplateVcs\Template.psd1"
         file -src "$TemplateVcs\Template.psm1"
-        file -src "G:\PS\Template\Template.Resources.psd1"
+        file -src "$TemplateVcs\Template.Resources.psd1"
+        file -src "$TemplateVcs\TemplateLog4Posh.Config.xml"
+
         file -src "$TemplateVcs\Initialize-TemplateModule.ps1"
         file -src "$TemplateVcs\README.md"
         file -src "$TemplateVcs\Demos\" -target "Demos\"
