@@ -6,7 +6,7 @@ $here = $Here|Split-Path -Parent
 . "$here\$sut"
 
 $PathSource="$Env:Temp\RC"
-. "$ProjectToolsVcs\Remove-Conditionnal.ps1"
+. "$ProjectToolsVcs\Edit-Template.ps1"
 
 function normalizeEnds([string]$text)
 {
@@ -27,10 +27,10 @@ $TestCasesCombinations=@(
 )
 
 $ErrorCases=@(
- @{File="$PathSource\Test05.ps1";Key='C';FQE='IncompletDirective,Remove-Conditionnal'}
- @{File="$PathSource\Test06.ps1";Key='C';FQE='IncompletDirective,Remove-Conditionnal'}
- @{File="$PathSource\Test07.ps1";Key='C';FQE='OrphanDirective,Remove-Conditionnal'}
- @{File="$PathSource\Test09.ps1";Key='C';FQE='OrphanDirective,Remove-Conditionnal'}
+ @{File="$PathSource\Test05.ps1";Key='C';FQE='IncompletDirective,Edit-Template'}
+ @{File="$PathSource\Test06.ps1";Key='C';FQE='IncompletDirective,Edit-Template'}
+ @{File="$PathSource\Test07.ps1";Key='C';FQE='OrphanDirective,Edit-Template'}
+ @{File="$PathSource\Test09.ps1";Key='C';FQE='OrphanDirective,Edit-Template'}
 )
 
 function CompareStr{
@@ -41,12 +41,12 @@ function CompareStr{
 }
 
 
-Describe "Remove-Conditionnal" {
+Describe "Edit-Template" {
  
  Context "When there is no error" {
   
   It "basic principle -Clean directives"{
-    [string[]]$A=Get-Content -Path "$PathSource\Test0-1.ps1"  -ReadCount 0 -Encoding UTF8 | Remove-Conditionnal -Clean 
+    [string[]]$A=Get-Content -Path "$PathSource\Test0-1.ps1"  -ReadCount 0 -Encoding UTF8 | Edit-Template -Clean 
     [string[]]$B=Get-Content -Path "$PathSource\Test0-1.new.ps1" -ReadCount 0 -Encoding UTF8        
   
     CompareStr $A $B| Should Be $true
@@ -54,7 +54,7 @@ Describe "Remove-Conditionnal" {
 
 
   It "basic principle -Clean directives"{
-    [string[]]$A=Get-Content -Path "$PathSource\Combination1.ps1"  -ReadCount 0 -Encoding UTF8 | Remove-Conditionnal -Clean 
+    [string[]]$A=Get-Content -Path "$PathSource\Combination1.ps1"  -ReadCount 0 -Encoding UTF8 | Edit-Template -Clean 
     [string[]]$B=Get-Content -Path "$PathSource\Combination1-Clean.ps1" -ReadCount 0 -Encoding UTF8        
   
     CompareStr $A $B| Should Be $true
@@ -62,7 +62,7 @@ Describe "Remove-Conditionnal" {
     
   
   It "basic principle -Remove directive"{
-    [string[]]$A=Get-Content -Path "$PathSource\Test0-2.ps1"  -ReadCount 0 -Encoding UTF8 | Remove-Conditionnal -Remove 
+    [string[]]$A=Get-Content -Path "$PathSource\Test0-2.ps1"  -ReadCount 0 -Encoding UTF8 | Edit-Template -Remove 
     [string[]]$B=Get-Content -Path "$PathSource\Test0-2.new.ps1" -ReadCount 0 -Encoding UTF8        
   
     CompareStr $A $B| Should Be $true
@@ -70,14 +70,14 @@ Describe "Remove-Conditionnal" {
 
  
   It "basic principle use 'Include' directive" {
-    [string[]]$A=Get-Content -Path "$PathSource\TestInclude1.ps1"  -ReadCount 0 -Encoding UTF8 | Remove-Conditionnal -Include 
+    [string[]]$A=Get-Content -Path "$PathSource\TestInclude1.ps1"  -ReadCount 0 -Encoding UTF8 | Edit-Template -Include 
     [string[]]$B=Get-Content -Path "$PathSource\TestInclude1.new.ps1" -ReadCount 0 -Encoding UTF8        
   
     CompareStr $A $B| Should Be $true
   }   
 
   It "basic principle use 'Uncomment' directive" {
-    [string[]]$A=Get-Content -Path "$PathSource\TestUNCOMMENT.ps1"  -ReadCount 0 -Encoding UTF8 | Remove-Conditionnal -UnComment 
+    [string[]]$A=Get-Content -Path "$PathSource\TestUNCOMMENT.ps1"  -ReadCount 0 -Encoding UTF8 | Edit-Template -UnComment 
     [string[]]$B=Get-Content -Path "$PathSource\TestUNCOMMENT.new.ps1" -ReadCount 0 -Encoding UTF8        
   
     CompareStr $A $B| Should Be $true
@@ -91,8 +91,8 @@ Describe "Remove-Conditionnal" {
      )  
     Write-Host "key=$key" 
     [string[]]$A=Get-Content -Path $File -ReadCount 0 -Encoding UTF8 |
-                  Remove-Conditionnal -ConditionnalsKeyWord $Key |
-                  Remove-Conditionnal -Clean 
+                  Edit-Template -ConditionnalsKeyWord $Key |
+                  Edit-Template -Clean 
      
     [string[]]$B=Get-Content -Path $New -ReadCount 0 -Encoding UTF8        
   
@@ -107,7 +107,7 @@ Describe "Remove-Conditionnal" {
      )  
     Write-Host "key=$key" 
     [string[]]$A=Get-Content -Path $File -ReadCount 0 -Encoding UTF8 |
-                  Remove-Conditionnal -ConditionnalsKeyWord $Key
+                  Edit-Template -ConditionnalsKeyWord $Key
 
     [string[]]$B=Get-Content -Path $New -ReadCount 0 -Encoding UTF8        
   
@@ -121,12 +121,12 @@ Describe "Remove-Conditionnal" {
     try {
       $ErrorActionPreference = "Stop"
       [string[]]$A=Get-Content -Path "$PathSource\TestInclude2.ps1"  -ReadCount 0 -Encoding UTF8 | 
-        Remove-Conditionnal -Include 
+        Edit-Template -Include 
     } 
     catch
     {
-      $s="Include - the file do not exist '$PathSource\NotExist.ps1',Remove-Conditionnal"
-      $_.FullyQualifiedErrorId | Should be 'IncludedFileNotFound,Remove-Conditionnal'
+      $s="Include - the file do not exist '$PathSource\NotExist.ps1',Edit-Template"
+      $_.FullyQualifiedErrorId | Should be 'IncludedFileNotFound,Edit-Template'
     } 
   }   
   
@@ -134,11 +134,11 @@ Describe "Remove-Conditionnal" {
     try {
       $ErrorActionPreference = "Stop"
       [string[]]$A=Get-Content -Path "$PathSource\TestInclude3.ps1"  -ReadCount 0 -Encoding UTF8 | 
-        Remove-Conditionnal -Include 
+        Edit-Template -Include 
     } 
     catch
     {
-      $_.FullyQualifiedErrorId | Should be 'IncludedFileNotFound,Remove-Conditionnal'
+      $_.FullyQualifiedErrorId | Should be 'IncludedFileNotFound,Edit-Template'
     } 
   }    
 
@@ -147,11 +147,11 @@ Describe "Remove-Conditionnal" {
     try {
      $ErrorActionPreference = "Stop"
      Get-Content -Path "$PathSource\Test01.ps1"  -ReadCount 0 -Encoding UTF8 |
-      Remove-Conditionnal -ConditionnalsKeyWord 'A'
+      Edit-Template -ConditionnalsKeyWord 'A'
     } 
     catch
     {
-      $_.FullyQualifiedErrorId | Should be 'DirectivesIncorrectlyNested,Remove-Conditionnal'
+      $_.FullyQualifiedErrorId | Should be 'DirectivesIncorrectlyNested,Edit-Template'
     } 
   }
   
@@ -159,11 +159,11 @@ Describe "Remove-Conditionnal" {
    try { 
     $ErrorActionPreference = "Stop"     
     Get-Content -Path "$PathSource\Test02.ps1"  -ReadCount 0 -Encoding UTF8 |
-      Remove-Conditionnal -ConditionnalsKeyWord 'A'
+      Edit-Template -ConditionnalsKeyWord 'A'
    }
    catch
    {
-     $_.FullyQualifiedErrorId | Should be 'DirectivesIncorrectlyNested,Remove-Conditionnal'
+     $_.FullyQualifiedErrorId | Should be 'DirectivesIncorrectlyNested,Edit-Template'
    } 
    }
 
@@ -171,11 +171,11 @@ Describe "Remove-Conditionnal" {
    try { 
     $ErrorActionPreference = "Stop"
      Get-Content -Path "$PathSource\Test03.ps1"  -ReadCount 0 -Encoding UTF8 |
-      Remove-Conditionnal -ConditionnalsKeyWord 'A'
+      Edit-Template -ConditionnalsKeyWord 'A'
     }
     catch
     {
-      $_.FullyQualifiedErrorId | Should be 'DirectivesIncorrectlyNested,Remove-Conditionnal'
+      $_.FullyQualifiedErrorId | Should be 'DirectivesIncorrectlyNested,Edit-Template'
     } 
   }  
 
@@ -183,11 +183,11 @@ Describe "Remove-Conditionnal" {
    try {
     $ErrorActionPreference = "Stop"
     Get-Content -Path "$PathSource\Test031.ps1"  -ReadCount 0 -Encoding UTF8 |
-       Remove-Conditionnal -ConditionnalsKeyWord 'A'
+       Edit-Template -ConditionnalsKeyWord 'A'
    }
    catch
    {
-     $_.FullyQualifiedErrorId | Should be 'IncompletDirective,Remove-Conditionnal'
+     $_.FullyQualifiedErrorId | Should be 'IncompletDirective,Edit-Template'
    } 
   }  
 
@@ -195,11 +195,11 @@ Describe "Remove-Conditionnal" {
    try {
     $ErrorActionPreference = "Stop"
     Get-Content -Path "$PathSource\Test04.ps1"  -ReadCount 0 -Encoding UTF8 | 
-      Remove-Conditionnal -ConditionnalsKeyWord 'A' 
+      Edit-Template -ConditionnalsKeyWord 'A' 
    }
    catch
    {
-     $_.FullyQualifiedErrorId | Should be 'DirectivesIncorrectlyNested,Remove-Conditionnal'
+     $_.FullyQualifiedErrorId | Should be 'DirectivesIncorrectlyNested,Edit-Template'
    } 
   }  
 
@@ -207,11 +207,11 @@ Describe "Remove-Conditionnal" {
    try {
     $ErrorActionPreference = "Stop"
     Get-Content -Path "$PathSource\Test041.ps1"  -ReadCount 0 -Encoding UTF8 |
-      Remove-Conditionnal -ConditionnalsKeyWord 'A'
+      Edit-Template -ConditionnalsKeyWord 'A'
    }
    catch
    {
-     $_.FullyQualifiedErrorId | Should be 'OrphanDirective,Remove-Conditionnal'
+     $_.FullyQualifiedErrorId | Should be 'OrphanDirective,Edit-Template'
    } 
   } 
 
@@ -225,7 +225,7 @@ Describe "Remove-Conditionnal" {
    try { 
     $ErrorActionPreference = "Stop" 
     Get-Content -Path $File  -ReadCount 0 -Encoding UTF8 |
-      Remove-Conditionnal -ConditionnalsKeyWord $Key
+      Edit-Template -ConditionnalsKeyWord $Key
    }
    catch
    {
@@ -237,11 +237,11 @@ Describe "Remove-Conditionnal" {
    try {
     $ErrorActionPreference = "Stop" 
     Get-Content -Path "$PathSource\Test09.ps1" -ReadCount 0 -Encoding UTF8 |
-      Remove-Conditionnal -ConditionnalsKeyWord 'NotExist'
+      Edit-Template -ConditionnalsKeyWord 'NotExist'
    }
    catch
    {
-     $_.FullyQualifiedErrorId | Should be 'OrphanDirective,Remove-Conditionnal'
+     $_.FullyQualifiedErrorId | Should be 'OrphanDirective,Edit-Template'
    }         
   } 
  }
