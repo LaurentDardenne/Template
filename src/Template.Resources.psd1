@@ -7,11 +7,11 @@ WellFormedKeyNullOrEmptyValue  =The 'Replace' key do not exist or it is `$null
 WellFormedInvalidCast          =The key value {0} dot not convert to {1}.
 WellFormedInvalidValueNotLower =The key value 'Max' cant not less than -1.
 WellFormedInvalidValueNotZero  =The key value 'StartAt'must be greater to zero.
-Replace SimpleEmpty String     =The parameter -SimpleReplace does not allow an empty search string.
+ReplaceSimpleEmptyString       =The parameter -SimpleReplace does not allow an empty search string.
 ReplaceRegExCreate             =[Regex build] {0}
 ReplaceRegExStarAt             ={0}`r`nStartAt({1}) is greater the string length({2})
 ReplaceObjectPropertyNotString =The property'{0}' is not a string type.
-ReplaceObjectPropertyReadOnly = The property '{0}' is readonly.
+ReplaceObjectPropertyReadOnly  = The property '{0}' is readonly.
 ReplaceSimpleScriptBlockError  ={0}={{{1}}}`r`n{2}
 ObjectReplaceShouldProcess     =Object [{0}] property : {1}
 StringReplaceShouldProcess     ={0} by {1}
