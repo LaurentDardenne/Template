@@ -15,8 +15,8 @@ $Params=@{
 &$InitializeLogging @Params
 #<UNDEF %DEBUG%>
 
-
 filter Out-ArrayOfString {
+# .ExternalHelp Template-Help.xml
  if ([string]::IsNullOrEmpty($_))
  {$_}
  else
@@ -24,6 +24,7 @@ filter Out-ArrayOfString {
 }
 
 Function Edit-Template {
+# .ExternalHelp Template-Help.xml
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSShouldProcess","",
                                                    Justification="Edit-Template do not use ShouldProcess.")]
 [CmdletBinding(DefaultParameterSetName="NoKeyword")]
@@ -71,6 +72,10 @@ param (
 
    $RegexDEFINE="^\s*#<\s*DEFINE\s*%(?<DEFINE>.*[^%\s])%>"
    $RegexUNDEF="^\s*#<\s*UNDEF\s*%(?<UNDEF>.*[^%\s])%>"
+
+   $RegexREMOVE="#<"+"%REMOVE%>" #Avoid wrong matching, this pattern can be present inside the text of documentation
+                                 #limit : we parse string not an Ast or tokens
+   $RegexUNCOMMENT="#<"+"%UNCOMMENT%>"
      #Directives liées à un paramètre
    $ReservedKeyWord=@('Clean','Remove','Include','UnComment')
    $RegexConditionnalsKeyWord=[string]::Empty
@@ -226,7 +231,8 @@ param (
                       }#$RegexUNDEF
 
           #Supprime la ligne
-         "#<%REMOVE%>"  {  $DebugLogger.PSDebug("Match REMOVE") #<%REMOVE%>
+        $RegexREMOVE {
+                           $DebugLogger.PSDebug("Match REMOVE") #<%REMOVE%>
                            if ($Remove.isPresent)
                            {
                              $DebugLogger.PSDebug("`tREMOVE Line") #<%REMOVE%>
@@ -243,7 +249,8 @@ param (
                         }#REMOVE
 
           #Décommente la ligne
-         "#<%UNCOMMENT%>"  { $DebugLogger.PSDebug( "Match UNCOMMENT") #<%REMOVE%>
+       $RegexUNCOMMENT  {
+                             $DebugLogger.PSDebug( "Match UNCOMMENT") #<%REMOVE%>
                              if ($UnComment.isPresent)
                              {
                                $DebugLogger.PSDebug( "`tUNCOMMENT  Line") #<%REMOVE%>
@@ -365,6 +372,7 @@ param (
 } #Edit-Template
 
 Function Edit-String{
+# .ExternalHelp Template-Help.xml
   [CmdletBinding(DefaultParameterSetName = "asString",SupportsShouldProcess=$True)]
   [OutputType("asString", [String])]
   [OutputType("asReplaceInfo", [PSObject])]
@@ -470,7 +478,7 @@ Function Edit-String{
      #la recherche préliminaire par ContainsKey est dicté par la possible
      #déclaration de set-strictmode -version 2.0
     #Replace
-      param($Parameters)
+      param($Parameters, $ParameterString)
 
       if (-not $Parameters.ContainsKey('Replace') -or ($null -eq $Parameters.Replace))
       {  #[string]::Empty est valide, même pour la clé
@@ -608,7 +616,7 @@ Function Edit-String{
             $Parameters=$Parameters.Clone()
 
             $ParameterString="$($_.Key) = @{$(Convert-DictionnaryEntry $Parameters)}"
-            $WrongDictionnaryEntry=-not (isParameterWellFormed $Parameters)
+            $WrongDictionnaryEntry=-not (isParameterWellFormed $Parameters $ParameterString)
             #<DEFINE %DEBUG%>
             if ($WrongDictionnaryEntry -and ($DebugPreference -eq "Continue"))
             { $DebugLogger.PSDebug("[DictionaryEntry][Error]$ParameterString")}
@@ -1071,4 +1079,4 @@ Function OnRemoveTemplate {
 }#OnRemoveTemplate
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = { OnRemoveTemplate }
 #<UNDEF %Log4Net%>
-Export-ModuleMember -Alias * -Function Edit-String,Edit-Template,Out-ArrayOfString
+
