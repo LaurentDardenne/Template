@@ -6,7 +6,7 @@
 RootModule = 'Template.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.1'
+ModuleVersion = '0.1.2'
 
 # ID used to uniquely identify this module
 GUID = '7cd7d08e-4560-479c-92f5-ae9937d9408b'
@@ -70,15 +70,6 @@ FunctionsToExport = @(
    'Edit-Template',
    'Out-ArrayOfString'
 )
-
-# Cmdlets to export from this module
-CmdletsToExport = '*'
-
-# Variables to export from this module
-VariablesToExport = '*'
-
-# Aliases to export from this module
-AliasesToExport = '*'
 
 # List of all modules packaged with this module
 # ModuleList = @()
