@@ -36,7 +36,7 @@ param(
  $( "`r`n  [pscustomobject]@{`r`n"
     "   PSTypeName='$Noun';"
   $( $Parameters|
-     Foreach {
+     Foreach-Object {
       "`r`n    {0}=`${1};" -F $_,$_
      }
    )

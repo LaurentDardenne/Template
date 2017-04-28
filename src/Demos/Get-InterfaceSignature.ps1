@@ -24,7 +24,7 @@ Function Get-InterfaceSignature{
     return
   }
   $Members=$Type.GetMembers()
-  $isContainsEvent=@($Members|Where {$_.membertype -eq 'Event'}|Select -First 1).Count -ne 0
+  $isContainsEvent=@($Members|Where-Object {$_.membertype -eq 'Event'}|Select-Object -First 1).Count -ne 0
 
   if ((-not $isContainsEvent))
   {

@@ -129,7 +129,7 @@ $ClassDef=New-RecordType -ClassName 'MyClass' -Header 'string Name, string EMail
 #         }
 # } #MyClass
 
-iex ($ClassDef|out-string)
+Invoke-Expression ($ClassDef|out-string)
 [MyClass]::new('Name','Name@Org.com', 150)
 # Nom  EMail        MBSize
 # ---  -----        ------
