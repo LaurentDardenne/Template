@@ -753,7 +753,8 @@ Function Edit-String{
      #Savoir si au moins une opération de remplacement a réussie.
     [Boolean] $AllSuccessReplace=$false
 
-    for ($i=0; $i -lt $TabKeyValue.Count; $i++)
+    $TKVCount=$TabKeyValue.Count
+    for ($i=0; $i -lt $TKVCount; $i++)
     {
        #$Key contient la chaîne à rechercher
       $Key=$TabKeyValue[$i].Key
