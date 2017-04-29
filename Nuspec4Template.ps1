@@ -24,7 +24,7 @@ The 'Template' module offers these features:
         language='fr-FR'
         licenseUrl='https://creativecommons.org/licenses/by-nc-sa/4.0/'
         projectUrl='https://github.com/LaurentDardenne/Template'
-        #iconUrl='https://github.com/LaurentDardenne/Template/blob/master/icon/Template.png'
+        iconUrl='https://raw.githubusercontent.com/LaurentDardenne/Template/master/Assets/Template.png'
         releaseNotes="$(Get-Content "$TemplateVcs\CHANGELOG.md" -raw)"
         tags='Template Conditionnal Directive Regex'
    }
