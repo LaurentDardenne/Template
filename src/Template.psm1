@@ -1071,7 +1071,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
  }#process
 }#Edit-String
 
-#<DEFINE %Log4Net%>
+#<DEFINE %DEBUG%>
 # Suppression des objets du module
 Function OnRemoveTemplate {
   param()
@@ -1079,5 +1079,5 @@ Function OnRemoveTemplate {
   Stop-Log4Net $Script:lg4n_ModuleName
 }#OnRemoveTemplate
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = { OnRemoveTemplate }
-#<UNDEF %Log4Net%>
+#<UNDEF %DEBUG%>
 
