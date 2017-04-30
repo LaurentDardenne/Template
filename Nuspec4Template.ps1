@@ -1,7 +1,7 @@
 ﻿if(! (Test-Path variable:TemplateVcs))
 { throw "The project configuration is required, see the 'Template_ProjectProfile.ps1' script." }
 
-$ModuleVersion=(Import-ManifestData "$TemplateVcs\Template.psd1").ModuleVersion
+$ModuleVersion=(Import-ManifestData "$TemplateVcs\src\Template.psd1").ModuleVersion
 
 $Result=nuspec 'Template' $ModuleVersion {
    properties @{
@@ -34,14 +34,14 @@ The 'Template' module offers these features:
    }
 
    files {
-        file -src "$TemplateVcs\Template.psd1"
-        file -src "$TemplateVcs\Template.psm1"
-        file -src "$TemplateVcs\Template.Resources.psd1"
-        file -src "$TemplateVcs\TemplateLog4Posh.Config.xml"
+        file -src "$TemplateVcs\src\Template.psd1"
+        file -src "$TemplateVcs\src\Template.psm1"
+        file -src "$TemplateVcs\src\Template.Resources.psd1"
+        file -src "$TemplateVcs\src\TemplateLog4Posh.Config.xml"
 
-        file -src "$TemplateVcs\Initialize-TemplateModule.ps1"
+        file -src "$TemplateVcs\src\Initialize-TemplateModule.ps1"
         file -src "$TemplateVcs\README.md"
-        file -src "$TemplateVcs\Demos\" -target "Demos\"
+        file -src "$TemplateVcs\src\Demos\" -target "Demos\"
    }
 }
 
