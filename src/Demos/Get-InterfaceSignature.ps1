@@ -34,7 +34,7 @@ Function Get-InterfaceSignature{
    $Members=$Members|Group-object MemberType -AsHashTable -AsString
    $body="`t  throw 'Not implemented'"
     #Recherche les propriété indexées
-   Foreach($PropertiesGroup in $Members.Property|Group Name){
+   Foreach($PropertiesGroup in $Members.Property|Group-Object Name){
     Foreach($Property in $PropertiesGroup.Group){
        $Indexers=$Property.GetIndexParameters()
        $isIndexers=$Indexers.Count -gt 0

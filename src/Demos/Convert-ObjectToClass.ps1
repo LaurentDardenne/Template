@@ -10,22 +10,26 @@
     )
 
  function Get-ClassName {
-  ($InputObject.pstypenames[0] -split '\.')[-1]
- }
+   param()
+    ($InputObject.pstypenames[0] -split '\.')[-1]
+}
 
  function New-ClassName {
+  param()
    $n=Get-ClassName
    "${n}Light"
  }
 
  function Get-TypeName {
+  param()
    $InputObject.pstypenames[0] -Replace '^Selected\.',''
  }
 
  function New-MethodHeader {
-  $type=Get-TypeName
-  $n=Get-ClassName
-  "`r`n`t$(New-ClassName)([${type}] `$$n) {`r`n"
+  param()
+   $type=Get-TypeName
+   $n=Get-ClassName
+   "`r`n`t$(New-ClassName)([${type}] `$$n) {`r`n"
  }
 
 $ConstructorDef=[System.Collections.Arraylist]::new()

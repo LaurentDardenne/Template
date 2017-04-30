@@ -5,7 +5,7 @@ Import-Module Template
 Set-Location $PSScriptRoot
 $File="$env:temp\Code.T.PS1"
 @'
-Write 'Text before the directive'
+Write-Host 'Text before the directive'
 <#%ScriptBlock%
     #<DEFINE %V5%>
         . .\Convert-ObjectToClass.ps1
@@ -19,7 +19,7 @@ Write 'Text before the directive'
         New-PSCustomObjectFunction -Noun ProcessLight -Parameters Name,VirtualMemorySize -AsFunction
     #<UNDEF %V3%>
 #>
-Write 'Text after the directive'
+Write-Host 'Text after the directive'
 '@ > $File
 
 #code generation for Powershell version 3
