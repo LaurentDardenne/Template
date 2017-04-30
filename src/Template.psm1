@@ -241,10 +241,14 @@ param (
                            if ($Clean.isPresent)
                            {
                              $DebugLogger.PSDebug("`tREMOVE directive") #<%REMOVE%>
-                             $Line -replace "#<%REMOVE%>",''
+                             $Line -replace $RegexREMOVE,''
+                             $DebugLogger.PSDebug("`tEcrit la directive : $($Line -replace $RegexREMOVE,'')") #<%REMOVE%>
                            }
                            else
-                           { $Line }
+                           {
+                             $DebugLogger.PSDebug("`tEcrit la directive : $Line") #<%REMOVE%>
+                             $Line
+                           }
                            continue
                         }#REMOVE
 
@@ -255,6 +259,7 @@ param (
                              {
                                $DebugLogger.PSDebug( "`tUNCOMMENT  Line") #<%REMOVE%>
                                $Line -replace "^(\s*)#*<%UNCOMMENT%>(.*)",'$1$2'
+                               $DebugLogger.PSDebug("`tEcrit la directive : $($Line -replace "^(\s*)#*<%UNCOMMENT%>(.*)",'$1$2')") #<%REMOVE%>
                              }
                              elseif ($Clean.isPresent)
                              {
@@ -262,7 +267,10 @@ param (
                                $Line -replace "^(\s*)#*<%UNCOMMENT%>(.*)",'$1#$2'
                              }
                              else
-                             { $Line }
+                             {
+                               $DebugLogger.PSDebug("`tEcrit la directive : $Line") #<%REMOVE%>
+                               $Line
+                             }
                              continue
                            } #%UNCOMMENT
 
