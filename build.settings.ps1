@@ -2,6 +2,18 @@
 # Customize these properties and tasks for your module.
 ###############################################################################
 
+#TODO : log4net:ERROR Exception while rendering object of type [System.Management.Automation.PSObject] System.NullReferenceException
+#       ok sans la tâche Analyze ...
+
+
+Function Test-CIEnvironment {
+ Test-Path env:APPVEYOR
+}
+
+Function Get-ApiKeyIntoCI { $isCIEnvironment
+
+}
+
 function GetPowershellGetPath {
  #extracted from PowerShellGet/PSModule.psm1
 
@@ -61,12 +73,12 @@ function GetModulePath {
   if ($List.Count -eq 0)
   { Throw "Module '$Name' not found."}
    #Last version
-  $List[0].Modulebase
+  $List[0].Path
 }
 
 function New-TemporaryDirectory {
     $parent = [System.IO.Path]::GetTempPath()
-    [string] $name = [System.Guid]::NewGuid()
+    $name = [System.IO.Path]::GetRandomFileName()
     New-Item -ItemType Directory -Path (Join-Path $parent $name)
 }
 
@@ -157,13 +169,13 @@ Properties {
     # Typically you wouldn't put any file under the src dir unless the file was going to ship with
     # the module. However, if there are such files, add their $SrcRootDir relative paths to the exclude list.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $Exclude = @('Template.psm1','Template.psd1')
+    $Exclude = @('Template.psm1','Template.psd1','*.bak')
 
     # ------------------ Script analysis properties ---------------------------
 
     # Enable/disable use of PSScriptAnalyzer to perform script analysis.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $ScriptAnalysisEnabled = $false
+    $ScriptAnalysisEnabled = $true
 
     # When PSScriptAnalyzer is enabled, control which severity level will generate a build failure.
     # Valid values are Error, Warning, Information and None.  "None" will report errors but will not
@@ -239,7 +251,7 @@ Properties {
 
     # Enable/disable Pester code coverage reporting.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $CodeCoverageEnabled = $true
+    $CodeCoverageEnabled = $false
 
     # CodeCoverageFiles specifies the files to perform code coverage analysis on. This property
     # acts as a direct input to the Pester -CodeCoverage parameter, so will support constructions
@@ -253,11 +265,15 @@ Properties {
     # you will be prompted to enter your API key.  The build will store the key encrypted in the
     # $NuGetApiKeyPath file, so that on subsequent publishes you will no longer be prompted for the API key.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $NuGetApiKey = $null
+    $Script:NuGetApiKey = $null
 
     # Name of the repository you wish to publish to.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $PublishRepository = $RepositoryName
+
+    # Name of the repository for the development version
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $Dev_PublishRepository = 'DevOttoMatt'
 
     # Path to encrypted APIKey file.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
@@ -266,7 +282,7 @@ Properties {
     # Path to the release notes file.  Set to $null if the release notes reside in the manifest file.
     # The contents of this file are used during publishing for the ReleaseNotes parameter.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $ReleaseNotesPath = "$PSScriptRoot\ReleaseNotes.md"
+    $ReleaseNotesPath = "$PSScriptRoot\ChangeLog.md"
 
 
     # ----------------------- Misc properties ---------------------------------
@@ -298,10 +314,16 @@ Properties {
 
     # Used by Edit-Template inside the 'RemoveConditionnal' task.
     # Valid values are 'Debug' or 'Release'
-    # 'Release' : remove the debugging/trace lines, include file, expand scriptblock, clean all directives
-    # 'Debug' : do not remove
+    # 'Release' : Remove the debugging/trace lines, include file, expand scriptblock, clean all directives
+    # 'Debug' : Do not change anything
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $BuildConfiguration='Release'
+    [ValidateSet('Release','Debug')]  $BuildConfiguration='Release'
+     #todo 2 infos le type de construction et le repository associé
+     # -> si Debug alors DevOttomatt
+
+    #To manage the ApiKey differently
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $isCIEnvironment=Test-CIEnvironment
 
 }
 
@@ -309,15 +331,13 @@ Properties {
 # Customize these tasks for performing operations before and/or after file staging.
 ###############################################################################
 
-Task RemoveConditionnal {
+Task RemoveConditionnal -requiredVariables BuildConfiguration, ModuleOutDir{
 #Traite les pseudo directives de parsing conditionnelle
-
-   $VerbosePreference='Continue'
-   Import-Module Log4Posh -global
-   Import-Module Template -global
-
+   #Import-Module Log4Posh -global #todo remove une fois template livré sans les logs
+   #Import-Module Template -global
+ try {
    $TempDirectory=New-TemporaryDirectory
-   $ModuleOutDir="$OutDir\$ModuleName"
+   $ModuleOutDir="$OutDir\$ModuleName" #todo accesssible via clean ?
 
    Write-Verbose "Build with '$BuildConfiguration'"
    Get-ChildItem  "$SrcRootDir\Template.psm1","$SrcRootDir\Template.psd1"|
@@ -333,10 +353,11 @@ Task RemoveConditionnal {
          #On inclut les fichiers.
         Get-Content -Path $Source -Encoding UTF8 -ReadCount 0|
         #  Edit-String -Setting $TemplateDefaultSettings|
-        #  ForEach-Object { $_ -split '(?m)$' }|
+        #  Out-ArrayOfString
+          #todo Pb : préserver les CR/LF lors de l'écriture du fichier...
          Edit-Template -ConditionnalsKeyWord 'DEBUG' -Include -Remove -Container $Source|
          Edit-Template -Clean|
-         Set-Content -Path $TempFileName -Force -Encoding UTF8
+         Set-Content -Path $TempFileName -Force -Encoding UTF8 -verbose:($VerbosePreference -eq 'Continue')
       }
       elseif ($BuildConfiguration -eq 'Debug')
       {
@@ -346,16 +367,19 @@ Task RemoveConditionnal {
          #'NODEBUG' est une directive inexistante et on ne supprime pas les directives
          #sinon cela génére trop de différences en cas de comparaison de fichier
         Get-Content -Path $Source -ReadCount 0 -Encoding UTF8|
-         Edit-String -Setting  $TemplateDefaultSettings|
-         ForEach-Object { $_ -split '(?m)$' }|
-         Edit-Template -ConditionnalsKeyWord 'NODEBUG' -Include -Container $Source|
+        #  Edit-String -Setting  $TemplateDefaultSettings|
+        #  Out-ArrayOfString
+        Edit-Template -ConditionnalsKeyWord 'NODEBUG' -Include -Container $Source|
          Set-Content -Path $TempFileName -Force -Encoding UTF8
       }
       else
       { throw "Invalid configuration name '$BuildConfiguration'" }
-
-      Copy-Item -Path $TempDirectory\* -Destination $ModuleOutDir -Recurse -Verbose:$Verbose
+     Copy-Item -Path $TempFileName -Destination $ModuleOutDir -Recurse -Verbose:($VerbosePreference -eq 'Continue')
     }#foreach
+  } finally {
+    if (Test-Path $TempDirectory)
+    { Remove-Item $TempDirectory -Recurse -Force -Verbose:($VerbosePreference -eq 'Continue')  }
+  }
 }
 
 
@@ -364,7 +388,7 @@ Task BeforeStageFiles -Depends RemoveConditionnal{
 }
 
 #Verifying file encoding BEFORE generation
-Task TestBOM -Precondition { $isTestBom } -requiredVariables PSGetInstalledPath {
+Task TestBOM -Precondition { $isTestBom } -requiredVariables SrcRootDir {
 #La régle 'UseBOMForUnicodeEncodedFile' de PSScripAnalyzer s'assure que les fichiers qui
 # ne sont pas encodés ASCII ont un BOM (cette régle est trop 'permissive' ici).
 #On ne veut livrer que des fichiers UTF-8.
@@ -408,10 +432,10 @@ Task BeforeBuild {
 }
 
 # #Verifying file encoding AFTER generation
-Task TestBOMAfterAll -Precondition { $isTestBom } -requiredVariables PSGetInstalledPath {
+Task TestBOMAfterAll -Precondition { $isTestBom } -requiredVariables OutDir{
 #   Import-Module DTW.PS.FileSystem
 
-#   Write-Host "Validation de l'encodage des fichiers du répertoire : $OutDir""
+#   Write-Host "Validation de l'encodage des fichiers du répertoire : $OutDir"
 #   $InvalidFiles=Test-BOMFile.ps1 -path $OutDir
 #   if ($InvalidFiles.Count -ne 0)
 #   {
@@ -477,7 +501,19 @@ Task AfterInstall {
 ###############################################################################
 
 # Executes before the Publish task.
-Task BeforePublish {
+Task BeforePublish -depends GetApiKey -requiredVariables Projectname, OutDir, ModuleName, RepositoryName, Dev_PublishRepository {
+    if ( (-not [string]::IsNullOrWhiteSpace($Dev_PublishRepository)) -and ($RepositoryName -eq $Dev_PublishRepository ))
+    {
+        Import-Module BuildHelpers
+        $SourceLocation=(Get-PSRepository -Name $RepositoryName).SourceLocation
+        if (-not $SourceLocation.EndsWith('/'))
+        { $SourceLocation="$SourceLocation/"}
+        # Get the latest version for a project
+        $Version = Get-NextNugetPackageVersion -Name $ProjectName -PackageSourceUrl $SourceLocation
+
+        "Update the module metadata with the new version : $version"
+        Update-Metadata -Path "$OutDir\$ModuleName\$ModuleName.psd1"  -PropertyName ModuleVersion -Value $Version
+    }
 }
 
 # Executes after the Publish task.
@@ -487,3 +523,4 @@ Task AfterPublish {
 #todo
 #  publier les test : Update-AppveyorTest -Name "PsScriptAnalyzer" -Outcome Passed
 #  publier le résultat du build sur devOttoMatt ( Push-AppveyorArtifact $_.FullName }
+# https://github.com/GitTools/GitVersion ?

@@ -1,5 +1,5 @@
 ﻿#Requires -Modules psake
- 
+
 ##############################################################################
 # DO NOT MODIFY THIS FILE!  Modify build.settings.ps1 instead.
 ##############################################################################
@@ -56,7 +56,7 @@
 ###############################################################################
 # Dot source the user's customized properties and extension tasks.
 ###############################################################################
-. $PSScriptRoot\build.settings.ps1 
+. $PSScriptRoot\build.settings.ps1
 
 ###############################################################################
 # Private properties.
@@ -81,14 +81,14 @@ Properties {
 ###############################################################################
 Task default -depends Build
 
-Task Init -requiredVariables OutDir, ModuleOutDir {
+Task Init -requiredVariables OutDir {
     NewDirectory -Path $OutDir -TaskName $psake.context.currentTaskName
 }
 
-Task Clean -depends Init -requiredVariables OutDir {
+Task Clean -depends Init -requiredVariables OutDir, ModuleOutDir {
     # Maybe a bit paranoid but this task nuked \ on my laptop. Good thing I was not running as admin.
     if ($OutDir.Length -gt 3) {
-        Get-ChildItem $OutDir | Remove-Item -Recurse -Force -Verbose:$Verbose
+        Get-ChildItem $OutDir | Remove-Item -Recurse -Force -Verbose:($VerbosePreference -eq 'Continue')
         NewDirectory -Path $ModuleOutDir -TaskName $psake.context.currentTaskName
     }
     else {
@@ -100,7 +100,7 @@ Task StageFiles -depends Init, Clean, BeforeStageFiles, CoreStageFiles, AfterSta
 }
 
 Task CoreStageFiles -requiredVariables ModuleOutDir, SrcRootDir {
-    Copy-Item -Path $SrcRootDir\* -Destination $ModuleOutDir -Recurse -Exclude $Exclude -Verbose:$Verbose
+    Copy-Item -Path $SrcRootDir\* -Destination $ModuleOutDir -Recurse -Exclude $Exclude -Verbose:($VerbosePreference -eq 'Continue')
 }
 
 Task Build -depends Init, Clean, BeforeBuild, StageFiles, Analyze, Sign, AfterBuild {
@@ -120,8 +120,8 @@ Task Analyze -depends StageFiles `
 
     "ScriptAnalysisFailBuildOnSeverityLevel set to: $ScriptAnalysisFailBuildOnSeverityLevel"
 
-    #TODO next version PSSA https://github.com/PowerShell/PSScriptAnalyzer/issues/675 
-    $analysisResult = Invoke-ScriptAnalyzer -Path $ModuleOutDir -Settings $ScriptAnalyzerSettingsPath -CustomRulePath $PSSACustomRules  -Recurse -Verbose:$Verbose
+    #TODO next version PSSA https://github.com/PowerShell/PSScriptAnalyzer/issues/675
+    $analysisResult = Invoke-ScriptAnalyzer -Path $ModuleOutDir -Settings $ScriptAnalyzerSettingsPath -CustomRulePath $PSSACustomRules -IncludeDefaultRules -Recurse  -Verbose:($VerbosePreference -eq 'Continue')
     $analysisResult | Format-Table
     switch ($ScriptAnalysisFailBuildOnSeverityLevel) {
         'None' {
@@ -246,13 +246,13 @@ Task GenerateMarkdown -requiredVariables DefaultLocale, DocsRootDir, ModuleName,
 
         if (Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse) {
             Get-ChildItem -LiteralPath $DocsRootDir -Directory | ForEach-Object {
-                Update-MarkdownHelp -Path $_.FullName -Verbose:$Verbose > $null
+                Update-MarkdownHelp -Path $_.FullName -Verbose:($VerbosePreference -eq 'Continue') > $null
             }
         }
 
         # ErrorAction set to SilentlyContinue so this command will not overwrite an existing MD file.
         New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocsRootDir\$DefaultLocale `
-                         -WithModulePage -ErrorAction SilentlyContinue -Verbose:$Verbose > $null
+                         -WithModulePage -ErrorAction SilentlyContinue -Verbose:($VerbosePreference -eq 'Continue') > $null
     }
     finally {
         Remove-Module $ModuleName
@@ -275,7 +275,7 @@ Task GenerateHelpFiles -requiredVariables DocsRootDir, ModuleName, ModuleOutDir,
     # Generate the module's primary MAML help file.
     foreach ($locale in $helpLocales) {
         New-ExternalHelp -Path $DocsRootDir\$locale -OutputPath $ModuleOutDir\$locale -Force `
-                         -ErrorAction SilentlyContinue -Verbose:$Verbose > $null
+                         -ErrorAction SilentlyContinue -Verbose:($VerbosePreference -eq 'Continue') > $null
     }
 }
 
@@ -292,18 +292,18 @@ Task CoreBuildUpdatableHelp -requiredVariables DocsRootDir, ModuleName, Updatabl
 
     # Create updatable help output directory.
     if (!(Test-Path -LiteralPath $UpdatableHelpOutDir)) {
-        New-Item $UpdatableHelpOutDir -ItemType Directory -Verbose:$Verbose > $null
+        New-Item $UpdatableHelpOutDir -ItemType Directory -Verbose:($VerbosePreference -eq 'Continue') > $null
     }
     else {
         Write-Verbose "$($psake.context.currentTaskName) - directory already exists '$UpdatableHelpOutDir'."
-        Get-ChildItem $UpdatableHelpOutDir | Remove-Item -Recurse -Force -Verbose:$Verbose
+        Get-ChildItem $UpdatableHelpOutDir | Remove-Item -Recurse -Force -Verbose:($VerbosePreference -eq 'Continue')
     }
 
     # Generate updatable help files.  Note: this will currently update the version number in the module's MD
     # file in the metadata.
     foreach ($locale in $helpLocales) {
         New-ExternalHelpCab -CabFilesFolder $ModuleOutDir\$locale -LandingPagePath $DocsRootDir\$locale\$ModuleName.md `
-                            -OutputFolder $UpdatableHelpOutDir -Verbose:$Verbose > $null
+                            -OutputFolder $UpdatableHelpOutDir -Verbose:($VerbosePreference -eq 'Continue') > $null
     }
 }
 
@@ -364,10 +364,10 @@ Task Install -depends Build, BuildHelp, GenerateFileCatalog, BeforeInstall, Core
 Task CoreInstall -requiredVariables ModuleOutDir {
     if (!(Test-Path -LiteralPath $InstallPath)) {
         Write-Verbose 'Creating install directory'
-        New-Item -Path $InstallPath -ItemType Directory -Verbose:$Verbose > $null
+        New-Item -Path $InstallPath -ItemType Directory -Verbose:($VerbosePreference -eq 'Continue') > $null
     }
 
-    Copy-Item -Path $ModuleOutDir\* -Destination $InstallPath -Verbose:$Verbose -Recurse -Force
+    Copy-Item -Path $ModuleOutDir\* -Destination $InstallPath -Verbose:($VerbosePreference -eq 'Continue') -Recurse -Force
     "Module installed into $InstallPath"
 }
 
@@ -420,34 +420,38 @@ Task Test -depends Build -requiredVariables TestRootDir, ModuleName, CodeCoverag
     }
 }
 
+Task GetApiKey -requiredVariables isCIEnvironment,SettingsPath,NuGetApiKeyPath {
+    if ($isCIEnvironment)
+    { $Script:NuGetApiKey=Get-ApiKeyFromCI }
+    else
+    {
+        # Publishing to the PSGallery requires an API key, so get it.
+
+        if ($NuGetApiKey) {
+            "Using script embedded NuGetApiKey"
+        }
+        elseif ($Script:NuGetApiKey = GetSetting -Path $NuGetApiKeyPath -Key NuGetApiKey) {
+            "Using stored NuGetApiKey"
+        }
+        else {
+            $promptForKeyCredParams = @{
+                DestinationPath = $NuGetApiKeyPath
+                Message         = 'Enter your NuGet API key in the password field'
+                Key             = 'NuGetApiKey'
+            }
+
+            $cred = PromptUserForCredentialAndStorePassword @promptForKeyCredParams
+            $Script:NuGetApiKey = $cred.GetNetworkCredential().Password
+            "The NuGetApiKey has been stored in $NuGetApiKeyPath"
+        }
+    }
+}
+
 Task Publish -depends Build, Test, BuildHelp, GenerateFileCatalog, BeforePublish, CorePublish, AfterPublish {
 }
 
-Task CorePublish -requiredVariables SettingsPath, ModuleOutDir {
-    $publishParams = @{
-        Path        = $ModuleOutDir
-        NuGetApiKey = $NuGetApiKey
-    }
-
-    # Publishing to the PSGallery requires an API key, so get it.
-    if ($NuGetApiKey) {
-        "Using script embedded NuGetApiKey"
-    }
-    elseif ($NuGetApiKey = GetSetting -Path $NuGetApiKeyPath -Key NuGetApiKey) { 
-        "Using stored NuGetApiKey"
-    }
-    else {
-        $promptForKeyCredParams = @{
-            DestinationPath = $NuGetApiKeyPath
-            Message         = 'Enter your NuGet API key in the password field'
-            Key             = 'NuGetApiKey'
-        }
-
-        $cred = PromptUserForCredentialAndStorePassword @promptForKeyCredParams
-        $NuGetApiKey = $cred.GetNetworkCredential().Password
-        "The NuGetApiKey has been stored in $NuGetApiKeyPath"
-    }
-
+Task CorePublish -requiredVariables SettingsPath, ModuleOutDir, NuGetApiKey {
+    Write-Verbose "PublishRepository:$PublishRepository"
     $publishParams = @{
         Path        = $ModuleOutDir
         NuGetApiKey = $NuGetApiKey
@@ -477,8 +481,6 @@ Task ? -description 'Lists the available tasks' {
 }
 
 Task RemoveApiKey -requiredVariables NuGetApiKeyPath {
- #Delete the file instead ?
- #todo test du comportement avec un fichier sans cette clé
     if (GetSetting -Path $NuGetApiKeyPath -Key NuGetApiKey) {
         RemoveSetting -Path $NuGetApiKeyPath -Key NuGetApiKey
     }
@@ -690,7 +692,7 @@ function newDirectory {
       [Parameter(Mandatory,ValueFromPipeline)]
       [ValidateNotNullOrEmpty()]
       $path,
-      
+
       [Parameter(Mandatory,Position=0)]
       [ValidateNotNullOrEmpty()]
       $TaskName
@@ -702,6 +704,6 @@ function newDirectory {
     }
     else {
         Write-Verbose "$TaskName - directory already exists '$Path'."
-    }    
+    }
  }
 }
