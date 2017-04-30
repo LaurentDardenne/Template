@@ -16,7 +16,7 @@ Write-Debug "A"
 Write-Debug 'Test'#<%REMOVE%>
 Write-Debug "Suite hors define"
 #<INCLUDE %'Z:\FileInclude.ps1'%>
-'@ | Set-Content -Path "$PathSource\Test0-1.ps1" -Force -Encoding UTF8 -verbose
+'@ | Set-Content -Path "$PathSource\Test0-1.ps1" -Force -Encoding UTF8
 
 @'
 #[FunctionalType('PathFile')]
