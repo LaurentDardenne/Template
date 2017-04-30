@@ -92,10 +92,10 @@ PrivateData = @{
         ProjectUri = 'https://github.com/LaurentDardenne/Template'
 
          # A URL to an icon representing this module.
-        #IconUri = ''
+        IconUri = 'https://raw.githubusercontent.com/psake/graphics/master/png/psake-single-icon-teal-bg-256x256.png'
 
          # ReleaseNotes of this module
-        #ReleaseNotes = ''  #todo Template
+        ReleaseNotes = ''
     } # End of PSData hashtable
 
 } # End of PrivateData hashtable
