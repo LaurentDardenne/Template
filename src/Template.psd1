@@ -83,7 +83,7 @@ PrivateData = @{
     PSData = @{
 
          # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @('Template','Replace','Text','Transform','Regex','Conditionnal','Parsing')
+        Tags = @('Template','Replace','Text','Transform','Regex','Conditionnal', 'Directive','Parsing','T4')
 
          # A URL to the license for this module.
         LicenseUri = 'https://creativecommons.org/licenses/by-nc-sa/4.0'
@@ -92,7 +92,7 @@ PrivateData = @{
         ProjectUri = 'https://github.com/LaurentDardenne/Template'
 
          # A URL to an icon representing this module.
-        IconUri = 'https://raw.githubusercontent.com/psake/graphics/master/png/psake-single-icon-teal-bg-256x256.png'
+        IconUri = 'https://raw.githubusercontent.com/LaurentDardenne/Template/master/Assets/Template.png'
 
          # ReleaseNotes of this module
         ReleaseNotes = ''
