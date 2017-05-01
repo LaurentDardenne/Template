@@ -1,4 +1,4 @@
-﻿---
+---
 external help file: Template-help.xml
 online version: 
 schema: 2.0.0
@@ -16,13 +16,13 @@ chaîne de caractères de remplacement.
 ### asString (Default)
 ```
 Edit-String -InputObject <PSObject> [-Setting] <IDictionary> [-Unique] [-SimpleReplace] [-ReplaceInfo]
- [-WhatIf] [-Confirm]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### asObject
 ```
 Edit-String -InputObject <PSObject> [-Setting] <IDictionary> [[-Property] <String[]>] [-Unique]
- [-SimpleReplace] [-ReplaceInfo] [-WhatIf] [-Confirm]
+ [-SimpleReplace] [-ReplaceInfo] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -104,7 +104,6 @@ $Resultat=$Resultat.Replace("\d",'X')
 $Resultat
  \#ou
 $Resultat=$S.Replace("a",'?').Replace("\d",'X')
-
 
 ### -------------------------- EXAMPLE 3 --------------------------
 ```
@@ -492,6 +491,21 @@ Note:
 
 ## PARAMETERS
 
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -InputObject
 Chaîne à modifier.
 Peut référencer une valeur de type \[Object\], dans ce cas l'objet sera
@@ -506,6 +520,91 @@ Required: True
 Position: Named
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Property
+Spécifie le ou les noms des propriétés d'un objet concernées lors du
+remplacement.
+Seules sont traités les propriétés de type \[string\]
+possédant un assesseur en écriture (Setter).
+Pour chaque propriété on effectue tous les remplacements précisés dans
+le paramètre -Setting, tout en tenant compte de la valeur des paramètres
+-Unique et -SimpleReplace.
+On réémet l'objet reçu, après avoir modifié les propriétés indiquées.
+Le paramètre -Inputobject n'est donc pas converti en type \[String\].
+Une erreur non-bloquante sera déclenchée si l'opération ne peut aboutir.
+.
+Les jokers sont autorisés dans les noms de propriétés.
+Comme les objets reçus peuvent être de différents types, le traitement
+des propriétés inexistante ne génére pas d'erreur.
+
+```yaml
+Type: String[]
+Parameter Sets: asObject
+Aliases: 
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReplaceInfo
+Indique que la fonction retourne un objet personnalisé \[PSReplaceInfo\].
+Celui-ci contient les membres suivants :
+ -\[ArrayList\] Replaces  : Contient le résultat d'exécution de chaque
+                          entrée du paramètre -Setting.
+ -\[Boolean\]   isSuccess : Indique si un remplacement a eu lieu, que
+                          $InputObject ait un contenu différent ou pas.
+ -            Value     : Contient la valeur de retour de $InputObject,
+                          qu'il y ait eu ou non de modifications .
+.
+Le membre Replaces contient une liste d'objets personnalisés de type
+\[PSReplaceInfoItem\].
+A chaque clé du paramètre -Setting correspond
+un objet personnalisé.
+L'ordre d'insertion dans la liste suit celui de l'exécution.
+.
+PSReplaceInfoItem contient les membres suivants :
+  - \[String\]  Old       : Contient la ligne avant la modification.
+                          Si -Property est précisé, ce champ contiendra
+                          toujours $null.
+  - \[String\]  New       : Si le remplacement réussi, contient la ligne
+                          après la modification, sinon contient $null.
+                          Si -Property est précisé, ce champ contiendra
+                          toujours $null.
+  - \[String\]  Pattern   : Contient le pattern de recherche.
+  - \[Boolean\] isSuccess : Indique s'il y a eu un remplacement.
+                          Dans le cas où on remplace une occurrence 'A'
+                          par 'A', une expression régulière permet de
+                          savoir si un remplacement a eu lieu, même à
+                          l'identique.
+Si vous utilisez -SimpleReplace
+                          ce n'est plus le cas, cette propriété contiendra
+                          $false.
+Notez que si le paramètre -Property est précisé, une seule opération sera
+enregistrée dans le tableau Replaces, les noms des propriétés traitées
+ne sont pas mémorisés.
+.
+Note :
+Attention à la consommation mémoire si $InputObject est une chaîne de
+caractère de taille importante.
+Si vous mémorisez le résultat dans une variable, l'objet contenu dans
+le champ PSReplaceInfo.Value sera toujours référencé.
+Pensez à supprimer rapidement cette variable afin de ne pas retarder la
+libération automatique des objets référencés.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -631,64 +730,8 @@ Parameter Sets: (All)
 Aliases: 
 
 Required: True
-Position: 1
+Position: 0
 Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Property
-Spécifie le ou les noms des propriétés d'un objet concernées lors du
-remplacement.
-Seules sont traités les propriétés de type \[string\]
-possédant un assesseur en écriture (Setter).
-Pour chaque propriété on effectue tous les remplacements précisés dans
-le paramètre -Setting, tout en tenant compte de la valeur des paramètres
--Unique et -SimpleReplace.
-On réémet l'objet reçu, après avoir modifié les propriétés indiquées.
-Le paramètre -Inputobject n'est donc pas converti en type \[String\].
-Une erreur non-bloquante sera déclenchée si l'opération ne peut aboutir.
-.
-Les jokers sont autorisés dans les noms de propriétés.
-Comme les objets reçus peuvent être de différents types, le traitement
-des propriétés inexistante ne génére pas d'erreur.
-
-```yaml
-Type: String[]
-Parameter Sets: asObject
-Aliases: 
-
-Required: False
-Position: 2
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Unique
-Pas de recherche/remplacement multiple.
-.
-L'exécution ne concerne qu'une seule opération de recherche et de
-remplacement, la première qui réussit, même si le paramètre -Setting
-contient plusieurs entrées.
-Si le paramètre -Property est précisé, l'opération unique se fera sur
-toutes les propriétés indiquées.
-Ce paramètre ne remplace pas l'information précisée par la clé 'Max'.
-.
-Note : La présence du switch -Whatif influence le comportement du switch
--Unique.
-Puisque -Whatif n'effectue aucun traitement, on ne peut pas
-savoir si un remplacement a eu lieu, dans ce cas le traitement de
-toutes les clés sera simulé.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -723,50 +766,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReplaceInfo
-Indique que la fonction retourne un objet personnalisé \[PSReplaceInfo\].
-Celui-ci contient les membres suivants :
- -\[ArrayList\] Replaces  : Contient le résultat d'exécution de chaque
-                          entrée du paramètre -Setting.
- -\[Boolean\]   isSuccess : Indique si un remplacement a eu lieu, que
-                          $InputObject ait un contenu différent ou pas.
- -            Value     : Contient la valeur de retour de $InputObject,
-                          qu'il y ait eu ou non de modifications .
+### -Unique
+Pas de recherche/remplacement multiple.
 .
-Le membre Replaces contient une liste d'objets personnalisés de type
-\[PSReplaceInfoItem\].
-A chaque clé du paramètre -Setting correspond
-un objet personnalisé.
-L'ordre d'insertion dans la liste suit celui de l'exécution.
+L'exécution ne concerne qu'une seule opération de recherche et de
+remplacement, la première qui réussit, même si le paramètre -Setting
+contient plusieurs entrées.
+Si le paramètre -Property est précisé, l'opération unique se fera sur
+toutes les propriétés indiquées.
+Ce paramètre ne remplace pas l'information précisée par la clé 'Max'.
 .
-PSReplaceInfoItem contient les membres suivants :
-  - \[String\]  Old       : Contient la ligne avant la modification.
-                          Si -Property est précisé, ce champ contiendra
-                          toujours $null.
-  - \[String\]  New       : Si le remplacement réussi, contient la ligne
-                          après la modification, sinon contient $null.
-                          Si -Property est précisé, ce champ contiendra
-                          toujours $null.
-  - \[String\]  Pattern   : Contient le pattern de recherche.
-  - \[Boolean\] isSuccess : Indique s'il y a eu un remplacement.
-                          Dans le cas où on remplace une occurrence 'A'
-                          par 'A', une expression régulière permet de
-                          savoir si un remplacement a eu lieu, même à
-                          l'identique.
-Si vous utilisez -SimpleReplace
-                          ce n'est plus le cas, cette propriété contiendra
-                          $false.
-Notez que si le paramètre -Property est précisé, une seule opération sera
-enregistrée dans le tableau Replaces, les noms des propriétés traitées
-ne sont pas mémorisés.
-.
-Note :
-Attention à la consommation mémoire si $InputObject est une chaîne de
-caractère de taille importante.
-Si vous mémorisez le résultat dans une variable, l'objet contenu dans
-le champ PSReplaceInfo.Value sera toujours référencé.
-Pensez à supprimer rapidement cette variable afin de ne pas retarder la
-libération automatique des objets référencés.
+Note : La présence du switch -Whatif influence le comportement du switch
+-Unique.
+Puisque -Whatif n'effectue aucun traitement, on ne peut pas
+savoir si un remplacement a eu lieu, dans ce cas le traitement de
+toutes les clés sera simulé.
 
 ```yaml
 Type: SwitchParameter
@@ -796,20 +810,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

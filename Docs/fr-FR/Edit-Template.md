@@ -1,4 +1,4 @@
-﻿---
+---
 external help file: Template-help.xml
 online version: 
 schema: 2.0.0
@@ -17,19 +17,19 @@ de décommenter des lignes de commentaires ou de supprimer des lignes.
 ### NoKeyword (Default)
 ```
 Edit-Template -InputObject <Object> [-Container <String>] [-Encoding <FileSystemCmdletProviderEncoding>]
- [-Remove] [-Include] [-UnComment]
+ [-Remove] [-Include] [-UnComment] [<CommonParameters>]
 ```
 
 ### Keyword
 ```
 Edit-Template -InputObject <Object> [[-ConditionnalsKeyWord] <String[]>] [-Container <String>]
- [-Encoding <FileSystemCmdletProviderEncoding>] [-Remove] [-Include] [-UnComment]
+ [-Encoding <FileSystemCmdletProviderEncoding>] [-Remove] [-Include] [-UnComment] [<CommonParameters>]
 ```
 
 ### Clean
 ```
 Edit-Template -InputObject <Object> [-Container <String>] [-Encoding <FileSystemCmdletProviderEncoding>]
- [-Clean] [-Remove] [-Include] [-UnComment]
+ [-Clean] [-Remove] [-Include] [-UnComment] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -112,7 +112,6 @@ Ces lignes seront tranformées en :
    Write-Host 'Code avant'
    Write-Host "Insertion du contenus du fichier 'C:\Temp\Test.ps1'"
    Write-Host 'Code aprés'
-
 
 ## EXAMPLES
 
@@ -312,7 +311,6 @@ Le code transformé correspondra à ceci :
    (dir).FullName   #v3
   }
 
-
 ### -------------------------- EXAMPLE 6 --------------------------
 ```
 $PathSource="C:\Temp"
@@ -420,23 +418,27 @@ le nom du fichier en cours de traitement.
 
 ## PARAMETERS
 
-### -InputObject
-Spécifie un objet hébergeant le texte du code source à transformer.
-Cet objet doit pouvoir être énumérer en tant que collection de chaîne
-de caractères afin de traiter chaque ligne du code source.
+### -Clean
+Déclenche une opération de nettoyage des directives, ce traitement devrait
+être la dernière tâche de transformation d'un code source ou d'un ficheir texte.
+Ce paramètre filtre toutes les lignes contenant une directive.
+Cette opération supprime seulement les lignes contenant une directive et pas le texte
+entre deux directives.
+Pour la directive UNCOMMENT, la ligne reste
+commentée.
 .
-Si le texte est contenu dans une seule chaîne de caractères l'analyse des
-directives échouera, dans ce cas le code source ne sera pas transformé.
+Il est possible de combiner ce paramètre avec un ou plusieurs des
+paramètres suivant :  -Remove -UnComment -Include
 
 ```yaml
-Type: Object
-Parameter Sets: (All)
+Type: SwitchParameter
+Parameter Sets: Clean
 Aliases: 
 
-Required: True
+Required: False
 Position: Named
-Default value: None
-Accept pipeline input: True (ByValue)
+Default value: False
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -459,7 +461,7 @@ Parameter Sets: Keyword
 Aliases: 
 
 Required: False
-Position: 1
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -498,47 +500,6 @@ Accepted values: Unknown, String, Unicode, Byte, BigEndianUnicode, UTF8, UTF7, U
 Required: False
 Position: Named
 Default value: ASCII
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Clean
-Déclenche une opération de nettoyage des directives, ce traitement devrait
-être la dernière tâche de transformation d'un code source ou d'un ficheir texte.
-Ce paramètre filtre toutes les lignes contenant une directive.
-Cette opération supprime seulement les lignes contenant une directive et pas le texte
-entre deux directives.
-Pour la directive UNCOMMENT, la ligne reste
-commentée.
-.
-Il est possible de combiner ce paramètre avec un ou plusieurs des
-paramètres suivant :  -Remove -UnComment -Include
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Clean
-Aliases: 
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Remove
-Supprime les lignes de code source contenant la directive \<%REMOVE%\>.
-.
-Il est possible de combiner ce paramètre avec le paramètre -Clean.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -587,6 +548,43 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -InputObject
+Spécifie un objet hébergeant le texte du code source à transformer.
+Cet objet doit pouvoir être énumérer en tant que collection de chaîne
+de caractères afin de traiter chaque ligne du code source.
+.
+Si le texte est contenu dans une seule chaîne de caractères l'analyse des
+directives échouera, dans ce cas le code source ne sera pas transformé.
+
+```yaml
+Type: Object
+Parameter Sets: (All)
+Aliases: 
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Remove
+Supprime les lignes de code source contenant la directive \<%REMOVE%\>.
+.
+Il est possible de combiner ce paramètre avec le paramètre -Clean.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -UnComment
 Décommente les lignes de code source commentées portant la
 directive \<%UNCOMMENT%\>.
@@ -604,6 +602,9 @@ Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
