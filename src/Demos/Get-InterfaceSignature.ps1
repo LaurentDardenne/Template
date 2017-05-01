@@ -1,7 +1,5 @@
-﻿#todo : https://windowsserver.uservoice.com/forums/301869-powershell/suggestions/16504732-cannot-implement-an-interface-with-properties-with
-
-Function Get-InterfaceSignature{
-#Affiche les signatures des membres d'une interface
+﻿Function Get-InterfaceSignature{
+#Transforms the signatures of the members of an interface
  param (
     [Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
     [ValidateNotNull()]
@@ -24,51 +22,112 @@ Function Get-InterfaceSignature{
     return
   }
   $Members=$Type.GetMembers()
-  $isContainsEvent=@($Members|Where-Object {$_.membertype -eq 'Event'}|Select-Object -First 1).Count -ne 0
+  $isContainsEvent=@($Members|Where-Object {$_.MemberType -eq 'Event'}|Select-Object -First 1).Count -ne 0
 
   if ((-not $isContainsEvent))
   {
-    #Pour les propriétées d'interfaces,
-    #les méthodes suffisent à l'implémentation de la propriété
-    #todo setter R/O
    $Members=$Members|Group-object MemberType -AsHashTable -AsString
-   $body="`t  throw 'Not implemented'"
-    #Recherche les propriété indexées
-   Foreach($PropertiesGroup in $Members.Property|Group-Object Name){
-    Foreach($Property in $PropertiesGroup.Group){
+   $Script=New-Object System.Text.StringBuilder "`r`n# $TypeName`r`n"
+   
+    #Find indexed properties
+   $PropertiesGroup=$Members.Property|Group Name
+    Foreach ($Property in $PropertiesGroup.Group){
        $Indexers=$Property.GetIndexParameters()
-       $isIndexers=$Indexers.Count -gt 0
-       if ($isIndexers)
+       if ($Indexers.Count -gt 0)
        {
-          #todo Decorate the class definition
-         Write-Output "#TODO [System.Reflection.DefaultMember('$($Property.Name)')]"
          #Note: une classe VB.Net peut avoir + indexers via des propriétés
          #  test  'System.Collections.IList'
+            $Script.AppendLine(@"                   
+  #Todo Decorate the class definition with the following line :
+  [System.Reflection.DefaultMember('$($Property.Name)')]
+"@ ) >$null
          Break
        }
     }
+
+   Foreach ($Property in $Members.Property){
+    Write-debug "Add property : $($Property.Name)"
+    $Script.AppendLine( ("`t[{0}] `${1}" -F $Property.PropertyType, $Property.Name) ) >$null
    }
-   [string]$Result=''
+
    Foreach($Method in $Members.Method){
       $oldOfs,$Ofs=$ofs,",`r`n"
+      Write-Debug "Method name : $($Method.Name)"
+      if ($Method.Name -match '^(?<Accessor>G|S)et_(?<Name>.*$)')
+      {
+        if ($Matches.Accessor -eq 'G')
+        { $Body="`t  return `$this.{0}" -F $Matches.Name } 
+        else
+        { $Body="`t  `$this.{0} = `${1}" -F $Matches.Name,($Method.GetParameters())[0].Name }
+      }
+      else
+      { $Body="`t  throw 'Not implemented'" }       
+      
       $Parameters= Foreach ($Parameter in $Method.GetParameters())
         {
-          "`t`t[{0}] `${1}" -f $Parameter.ParameterType,$Parameter.Name
+           Write-debug "Add parameter method : $($Parameter.Name)"
+           "`t`t[{0}] `${1}" -f $Parameter.ParameterType,$Parameter.Name
         }
       if ($Parameters.Count -ne 0)
       {
-        $Ofs=$oldOfs
-        $result +="`r`n`t[{0}] {1}(`r`n$Parameters){{`r`n$Body`r`n`t}}`r`n" -f $Method.ReturnType,$Method.Name
-      }
+        $Script.AppendLine( ("`r`n`t[{0}] {1}(`r`n$Parameters){{`r`n$Body`r`n`t}}`r`n" -f $Method.ReturnType,$Method.Name) ) >$null
+      }  
       else
-      { $result +="`r`n`t[{0}] {1}(){{`r`n$Body`r`n`t}}`r`n" -f $Method.ReturnType,$Method.Name }
+      { $Script.AppendLine( ("`r`n`t[{0}] {1}(){{`r`n$Body`r`n`t}}`r`n" -f $Method.ReturnType,$Method.Name) ) >$null }
    }
-   [string]$Result="`r`n# $TypeName"+$Result
-   Write-Output $Result
+   Write-Output $Script.ToString()
   }
   Else
-  {
-   Write-Error "The interface [$Type] contains one or more events. Its implementation is impossible with Powershell."
-  }
+  { Write-Error "The interface [$Type] contains one or more events. Its implementation is impossible with Powershell." }
  }
 } #Get-InterfaceSignature
+
+
+Add-Type -TypeDefinition @'
+ public interface Interface2 {
+  bool Property { get;set; }
+  bool Method();
+ }
+'@
+Get-InterfaceSignature Interface2
+## Interface2
+#         [System.Boolean] $Property
+# 
+#         [System.Boolean] get_Property(){
+#           return $this.Property
+#         }
+# 
+# 
+#         [System.Void] set_Property(
+#                 [System.Boolean] $value){
+#           $this.Property = $value
+#         }
+# 
+# 
+#         [System.Boolean] Method(){
+#           throw 'Not implemented'
+#         }
+
+#Todo
+# [System.Int32] $Item -> [System.Int32[]] $Item
+#setter/gettter
+# $this.Item = $index -> $this[$Index].Item = $value
+Add-Type -TypeDefinition @'
+public interface ISomeInterface
+{
+  // Indexer declaration:
+  int this[int index]
+  {
+      get;
+      set;
+  }
+  
+  string this[string name]
+  {
+      get;
+      set;
+  }
+}
+'@
+Get-InterfaceSignature ISomeInterface
+#Todo : http://netcode.ru/dotnet/?lang=&katID=30&skatID=261&artID=6977
