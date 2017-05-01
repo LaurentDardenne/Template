@@ -228,7 +228,7 @@ Describe "Edit-Template" {
    }
   }
 
-  It "basic principle -ConditionnalsKeyWord. 'DEFINE4 and 'UNDEF' are inverted" {
+  It "basic principle -ConditionnalsKeyWord. 'DEFINE' and 'UNDEF' are inverted" {
    try {
     $ErrorActionPreference = "Stop"
     Get-Content -Path "$PathSource\Test09.ps1" -ReadCount 0 -Encoding UTF8 |
