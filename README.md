@@ -9,6 +9,14 @@ The 'Template' module offers these features:
  * [Conditionnal directive](https://github.com/LaurentDardenne/Template/wiki/Conditionnal-directives) (#Define & #Undef)
  * [Removal and uncomment directive](https://github.com/LaurentDardenne/Template/wiki/Removal-and-uncomment-directive)
 
+## Install
+```powershell
+$PSGalleryPublishUri = 'https://www.myget.org/F/ottomatt/api/v2/package'
+$PSGallerySourceUri = 'https://www.myget.org/F/ottomatt/api/v2'
+Register-PSRepository -Name OttoMatt -SourceLocation $PSGallerySourceUri -PublishLocation $PSGalleryPublishUri #-InstallationPolicy Trusted
+
+Install-Module Template -Repository OttoMatt
+```
 ## Principle
 A template is a file that serves as a starting point for a new document.
 The 'Template' module, allow to insert directives, as a comment, inside the source code.
