@@ -523,10 +523,11 @@ Task BeforePublish -depends GetApiKey -requiredVariables Projectname, OutDir, Mo
         $SourceLocation=(Get-PSRepository -Name $RepositoryName).SourceLocation
         if (-not $SourceLocation.EndsWith('/'))
         { $SourceLocation="$SourceLocation/"}
-        # Get the latest version for a project
+        "Get the latest version for '$ProjectName' in '$SourceLocation'"
         $Version = Get-NextNugetPackageVersion -Name $ProjectName -PackageSourceUrl $SourceLocation
 
-        "Update the module metadata with the new version : $version"
+        "Update the module metadata $OutDir\$ModuleName\$ModuleName.psd1"
+        "with the new version : $version"
         Update-Metadata -Path "$OutDir\$ModuleName\$ModuleName.psd1"  -PropertyName ModuleVersion -Value $Version
     }
 }
