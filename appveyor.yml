@@ -25,6 +25,7 @@ nuget:
 
 build_script:
    - ps: |
+         $profile|select *
          Install-Module Psake  -force
          Import-Module Psake
          . '.\Install.ps1'
