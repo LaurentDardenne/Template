@@ -270,7 +270,7 @@ Properties {
     # you will be prompted to enter your API key.  The build will store the key encrypted in the
     # $NuGetApiKeyPath file, so that on subsequent publishes you will no longer be prompted for the API key.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $script:NuGetApiKey = $null
+    $NuGetApiKey = $null
 
     # Name of the repository you wish to publish to.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
@@ -515,7 +515,7 @@ Task AfterInstall {
 ###############################################################################
 
 # Executes before the Publish task.
-Task BeforePublish -depends GetApiKey -requiredVariables Projectname, OutDir, ModuleName, RepositoryName, Dev_PublishRepository {
+Task BeforePublish -requiredVariables Projectname, OutDir, ModuleName, RepositoryName, Dev_PublishRepository {
     if ( (-not [string]::IsNullOrWhiteSpace($Dev_PublishRepository)) -and ($RepositoryName -eq $Dev_PublishRepository ))
     {
         #Increment  the module version for dev repository only

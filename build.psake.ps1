@@ -203,7 +203,7 @@ Task Sign -depends StageFiles -requiredVariables CertPath, SettingsPath, ScriptS
 
             $result = Microsoft.PowerShell.Security\Set-AuthenticodeSignature @setAuthSigParams
             if ($result.Status -ne 'Valid') {
-                throw "Failed to sign script: $($file.FullName)."
+                throw "Failed to sign script : $($file.FullName)."
             }
 
             "Successfully signed script: $($file.Name)"
@@ -423,12 +423,16 @@ Task Test -depends Build -requiredVariables TestRootDir, ModuleName, CodeCoverag
     }
 }
 
-Task GetApiKey -requiredVariables isCIEnvironment,SettingsPath,NuGetApiKeyPath {
+Task Publish -depends Build, Test, BuildHelp, GenerateFileCatalog, BeforePublish, CorePublish, AfterPublish {
+}
+
+Task CorePublish -requiredVariables SettingsPath, ModuleOutDir, isCIEnvironment, SettingsPath, NuGetApiKeyPath {
+    Write-Verbose "PublishRepository:$PublishRepository"
     if ($isCIEnvironment)
     {
         Write-Host "ApiKey from CI"
-        $script:NuGetApiKey= Get-ApiKeyIntoCI
-   }
+        $NuGetApiKey= Get-ApiKeyIntoCI
+    }
     else
     {
         # Publishing to the PSGallery requires an API key, so get it.
@@ -436,7 +440,7 @@ Task GetApiKey -requiredVariables isCIEnvironment,SettingsPath,NuGetApiKeyPath {
         if ($NuGetApiKey) {
             "Using script embedded NuGetApiKey"
         }
-        elseif ($script:NuGetApiKey = GetSetting -Path $NuGetApiKeyPath -Key NuGetApiKey) {
+        elseif ($NuGetApiKey = GetSetting -Path $NuGetApiKeyPath -Key NuGetApiKey) {
             "Using stored NuGetApiKey"
         }
         else {
@@ -447,20 +451,14 @@ Task GetApiKey -requiredVariables isCIEnvironment,SettingsPath,NuGetApiKeyPath {
             }
 
             $cred = PromptUserForCredentialAndStorePassword @promptForKeyCredParams
-            $script:NuGetApiKey = $cred.GetNetworkCredential().Password
+            $NuGetApiKey = $cred.GetNetworkCredential().Password
             "The NuGetApiKey has been stored in $NuGetApiKeyPath"
         }
     }
-}
 
-Task Publish -depends Build, Test, BuildHelp, GenerateFileCatalog, BeforePublish, CorePublish, AfterPublish {
-}
-
-Task CorePublish -requiredVariables SettingsPath, ModuleOutDir{
-    Write-Verbose "PublishRepository:$PublishRepository"
     $publishParams = @{
         Path        = $ModuleOutDir
-        NuGetApiKey = $script:NuGetApiKey
+        NuGetApiKey = $NuGetApiKey
     }
 
     # If an alternate repository is specified, set the appropriate parameter.
