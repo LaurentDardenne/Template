@@ -352,6 +352,15 @@ Task RemoveConditionnal -requiredVariables BuildConfiguration, ModuleOutDir{
       Write-Verbose " to  : $TempFileName"
       if ($BuildConfiguration -eq 'Release')
       {
+         #todo selon les associations de repository on peut vouloir supprimer la clé   ExternalModuleDependencies = @('PSScriptAnalyzer')
+
+         #          on ne connait pas l'association MODULE-REPOSITORY !!
+
+         #si on publie sur PSGallery, la clé  n'est pas nécessaire, c'est le même repo
+         #si on publie sur Myget, la clé est nécessaire, ce n'est pas le même repo
+         #si on publie sur DevMyget, la clé est nécessaire, ce n'est pas le même repo MAIS les dépendances sont sur Myget ....
+         # A tester, collision possible , le premier trouvé ?
+
          #Supprime les lignes de code de Debug et de test
          #On traite une directive et supprime les lignes demandées.
          #On inclut les fichiers.

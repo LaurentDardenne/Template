@@ -49,26 +49,46 @@ Task RegisterPSRepository {
 }
 
 Task Update -Precondition { $Mode -eq 'Update'}  {
-  $sbUpdate={
-      $sbUpdateOrInstall=$_
+  #todo factoriser
+  $sbUpdateOrInstallModule={
+      $ModuleName=$_
       try {
-        Write-host "Update $ModuleName"
-        Update-module -name $ModuleName -Force
+        Write-Host "Update module $ModuleName"
+        Update-Module -name $ModuleName
       }
       catch [Microsoft.PowerShell.Commands.WriteErrorException]{
         if ($_.FullyQualifiedErrorId -match ('^ModuleNotInstalledOnThisMachine'))
         {
-          Write-host "`tInstall $ModuleName"
-          install-module -Name $ModuleName -Repository $CurrentRepository -Scope AllUsers
+          Write-Host "`tInstall module $ModuleName"
+          Install-Module -Name $ModuleName -Repository $CurrentRepository -Scope AllUsers
+        }
+        else
+        { throw $_ }
+      }
+  }
+
+   $sbUpdateOrInstallScript={
+      $ScriptName=$_
+      try {
+        Write-Host "Update script $ScriptName"
+        Update-Script -name $ScriptName
+      }
+      catch [Microsoft.PowerShell.Commands.WriteErrorException]{
+        if ($_.FullyQualifiedErrorId -match ('^ScriptNotInstalledOnThisMachine'))
+        {
+          Write-Host "`tInstall script $ScriptName"
+          Install-Script -Name $ScriptName -Repository $CurrentRepository -Scope AllUsers
         }
         else
         { throw $_ }
       }
   }
   $CurrentRepository='PSGallery'
-   $PSGallery.Modules|Foreach-Object $sbUpdateOrInstall
+   $PSGallery.Modules|Foreach-Object $sbUpdateOrInstallModule
+   $PSGallery.Scripts|Foreach-Object $sbUpdateOrInstallScript
 
   $CurrentRepository='OttoMatt'
-   $MyGet.Modules|Foreach-Object $sbUpdateOrInstall
+   $MyGet.Modules|Foreach-Object $sbUpdateOrInstallModule
+   $MyGet.Scripts|Foreach-Object $sbUpdateOrInstallScript
 }
 

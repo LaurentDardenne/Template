@@ -23,11 +23,13 @@ Properties {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $PSGallery=@{
        Modules=@('Pester','PsScriptAnalyzer','BuildHelpers')
+       Scripts=@()
      }
     #Personnal modules & script (French documentation only)
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $MyGet=@{
-       Modules=@('Log4Posh','MeasureLocalizedData','DTW.PS.FileSystem','Template','OptimizationRules','PSParameterSetRules'),
+       Modules=@('Log4Posh','MeasureLocalizedData','DTW.PS.FileSystem','Template','OptimizationRules','ParameterSetRules')
+       Scripts=@('Lock-File', 'Using-Culture')
      }
 }
 

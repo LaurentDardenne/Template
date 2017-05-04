@@ -6,11 +6,9 @@ clone_depth: 0
 
 # Set-ItemProperty is a workaround :
 # A command that prompts the user failed because the host program or the command type does not support user interaction.
-#Même session PS pour Install et Build
+# Même session PS pour Install et Build
 install:
   - ps: |
-          get-module powershellget -ListAvailable
-          $pid
           Set-ItemProperty -Name DisablePromptToUpdateHelp -Value 1 -path 'HKLM:\SOFTWARE\Microsoft\PowerShell'
 
           #nouvelle session pour installer PowershellGet
@@ -27,11 +25,7 @@ nuget:
 
 build_script:
    - ps: |
-         remove-module powershellget -force
-         ipmo powershellget
-         get-module powershellget
-         #get-module powershellget -ListAvailable
-         Install-Module Psake  -force
+         #Install-Module Psake  -force
          Import-Module Psake
          . '.\Install.ps1'
                                 #todo type release/debug ?
