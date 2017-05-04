@@ -25,6 +25,7 @@ nuget:
 
 build_script:
    - ps: |
+         md "$([Environment]::GetFolderPath([Environment+SpecialFolder]::Personal))\WindowsPowerShell\modules" >$null
          $profile|select *
          Install-Module Psake  -force
          Import-Module Psake
