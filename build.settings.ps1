@@ -18,6 +18,23 @@ Function Get-ApiKeyIntoCI {
     { return $Env:MyGetApiKey }
 }
 
+
+function Import-ManifestData {
+# Requires PS version 4.0
+#Lit un manifest de module et renvoi une hashtable contenant uniquement les clés qui y sont renseignées
+#from http://stackoverflow.com/questions/25408815/how-to-read-powershell-psd1-files-safely
+#Gére les clés ModuleToProcess (v4) ou RootModule (v5)
+#
+#  Import-ManifestData -data "Mymodule.psd1"
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory = $true)]
+        [Microsoft.PowerShell.DesiredStateConfiguration.ArgumentToConfigurationDataTransformation()]
+        [hashtable] $data
+    )
+    return $data
+}#Import-ManifestData
+
 function GetPowershellGetPath {
  #extracted from PowerShellGet/PSModule.psm1
 

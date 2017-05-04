@@ -30,8 +30,16 @@ build_script:
    - ps: |
 
          $S="$([Environment]::GetFolderPath([Environment+SpecialFolder]::Personal))\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
+          #Appveyro semble utilser un runspace et pas une session PS
          $profile=New-object PSObject -argumentlist $s
          Add-member -inputObject Profile -membertype noteproperty -name CurrentUserAllHosts  -value $s
+            #Todo
+            # allUsersAllHosts = HostUtilities.GetFullProfileFileName(null, false, useTestProfile);
+            # allUsersCurrentHost = HostUtilities.GetFullProfileFileName(shellId, false, useTestProfile);
+            # currentUserAllHosts = HostUtilities.GetFullProfileFileName(null, true, useTestProfile);
+            # currentUserCurrentHost = HostUtilities.GetFullProfileFileName(shellId, true, useTestProfile);
+            # dollarProfile = HostUtilities.GetDollarProfile(allUsersAllHosts, allUsersCurrentHost, currentUserAllHosts, currentUserCurrentHost);
+
          Write-host "After create. Exist ? $(Test-Path variable:profile)"
          Install-Module Psake  -force
          Import-Module Psake
