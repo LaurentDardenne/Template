@@ -16,13 +16,13 @@ Task Install -Depends RegisterPSRepository -Precondition { $Mode -eq  'Install'}
   Write-Host "PSGallery"
   $PSGallery.Modules |% {
     Write-Host "Install module $_"
-    PowershellGet\Install-Module -Name $_ -Repository PSGallery -Scope AllUsers -AllowClobber -SkipPublisherCheck
+    PowershellGet\Install-Module -Name $_ -Repository PSGallery -Scope AllUsers -AllowClobber -SkipPublisherCheck -verbose
   }
 
   Write-Host "MyGet"
   $MyGet.Modules  |% {
     Write-Host "Install module $_"
-    PowershellGet\Install-Module -Name $_ -Repository OttoMatt -Scope AllUsers -AllowClobber
+    PowershellGet\Install-Module -Name $_ -Repository OttoMatt -Scope AllUsers -AllowClobber -verbose
   }
 
   #todo
