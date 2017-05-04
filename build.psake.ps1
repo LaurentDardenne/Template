@@ -427,7 +427,7 @@ Task GetApiKey -requiredVariables isCIEnvironment,SettingsPath,NuGetApiKeyPath {
     if ($isCIEnvironment)
     {
         Write-Host "ApiKey from CI"
-        $Script:NuGetApiKey=Get-ApiKeyFromCI
+        $Script:NuGetApiKey= Get-ApiKeyIntoCI
    }
     else
     {
