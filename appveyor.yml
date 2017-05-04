@@ -30,7 +30,7 @@ build_script:
          . '.\Install.ps1'
          Write-Host "Call Publish task"
                                 #todo type release/debug ?
-         . '.\Publish.ps1' -Dev #todo repo name ?
+         #. '.\Publish.ps1' -Dev #todo repo name ?
 
 # test_script:
 #   - ps: |
