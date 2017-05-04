@@ -13,11 +13,13 @@ Task Install -Depends RegisterPSRepository -Precondition { $Mode -eq  'Install'}
   #Suppose : PowershellGet à jour
 
    #On précise le repository car Pester est également sur Nuget
+  Write-Host "PSGallery"
   $PSGallery.Modules |% {
     Write-Host "Install module $_"
     PowershellGet\Install-Module -Name $_ -Repository PSGallery -Scope AllUsers -AllowClobber -SkipPublisherCheck
   }
 
+  Write-Host "MyGet"
   $MyGet.Modules  |% {
     Write-Host "Install module $_"
     PowershellGet\Install-Module -Name $_ -Repository OttoMatt -Scope AllUsers -AllowClobber

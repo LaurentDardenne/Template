@@ -28,6 +28,7 @@ build_script:
          Install-Module Psake  -force
          Import-Module Psake
          . '.\Install.ps1'
+         Write-Host "Call Publish task"
                                 #todo type release/debug ?
          . '.\Publish.ps1' -Dev #todo repo name ?
 
@@ -44,8 +45,8 @@ build_script:
         # }
 
 # Upload the project as a zip archive
-on_finish:
-  - ps: |
+# on_finish:
+#   - ps: |
         # Add-AppveyorTest -Name "Finish" -Outcome Running
         # $zipFile = "$env:Temp\PSScriptAnalyzerRules.zip"
         # Push-AppveyorArtifact $zipFile
