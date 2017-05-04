@@ -31,6 +31,7 @@ build_script:
          $S="$([Environment]::GetFolderPath([Environment+SpecialFolder]::Personal))\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
          $profile=New-object PSObject -argumentlist $s
          Add-member -inputObject Profile -membertype noteproperty -name CurrentUserAllHosts  -value $s
+         Write-host "After create. Exist ? $(Test-Path variable:profile)"
          Install-Module Psake  -force
          Import-Module Psake
          . '.\Install.ps1'
