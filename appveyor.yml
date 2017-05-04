@@ -10,6 +10,8 @@ clone_depth: 0
 install:
   - ps: |
 
+          Write-host "$($PSversiontable|out-string)"
+          Write-host "exist ? $(Test-Path $Env:profile)"
           Write-host "1 AllUsersAllHosts   '$($profile.AllUsersAllHosts)'"
           Write-host "1 AllUsersCurrentHost '$($profile.AllUsersCurrentHost)'"
           Write-host "1 CurrentUserAllHosts '$($profile.CurrentUserAllHosts)'"
