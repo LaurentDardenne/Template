@@ -13,8 +13,15 @@ Task Install -Depends RegisterPSRepository -Precondition { $Mode -eq  'Install'}
   #Suppose : PowershellGet à jour
 
    #On précise le repository car Pester est également sur Nuget
-  PowershellGet\Install-Module -Name $PSGallery.Modules -Repository PSGallery -Scope AllUsers -AllowClobber -SkipPublisherCheck
-  PowershellGet\Install-Module -Name $MyGet.Modules -Repository OttoMatt -Scope AllUsers -AllowClobber
+  $PSGallery.Modules |% {
+    Write-Host "Install module $_"
+    PowershellGet\Install-Module -Name $_ -Repository PSGallery -Scope AllUsers -AllowClobber -SkipPublisherCheck
+  }
+
+  $MyGet.Modules  |% {
+    Write-Host "Install module $_"
+    PowershellGet\Install-Module -Name $_ -Repository OttoMatt -Scope AllUsers -AllowClobber
+  }
 
   #todo
   # Set-location $Env:Temp
@@ -54,13 +61,13 @@ Task Update -Precondition { $Mode -eq 'Update'}  {
       $ModuleName=$_
       try {
         Write-Host "Update module $ModuleName"
-        Update-Module -name $ModuleName
+         PowershellGet\Update-Module -name $ModuleName
       }
       catch [Microsoft.PowerShell.Commands.WriteErrorException]{
         if ($_.FullyQualifiedErrorId -match ('^ModuleNotInstalledOnThisMachine'))
         {
           Write-Host "`tInstall module $ModuleName"
-          Install-Module -Name $ModuleName -Repository $CurrentRepository -Scope AllUsers
+          PowershellGet\Install-Module -Name $ModuleName -Repository $CurrentRepository -Scope AllUsers
         }
         else
         { throw $_ }
@@ -71,13 +78,13 @@ Task Update -Precondition { $Mode -eq 'Update'}  {
       $ScriptName=$_
       try {
         Write-Host "Update script $ScriptName"
-        Update-Script -name $ScriptName
+        PowershellGet\Update-Script -name $ScriptName
       }
       catch [Microsoft.PowerShell.Commands.WriteErrorException]{
         if ($_.FullyQualifiedErrorId -match ('^ScriptNotInstalledOnThisMachine'))
         {
           Write-Host "`tInstall script $ScriptName"
-          Install-Script -Name $ScriptName -Repository $CurrentRepository -Scope AllUsers
+          PowershellGet\Install-Script -Name $ScriptName -Repository $CurrentRepository -Scope AllUsers
         }
         else
         { throw $_ }
