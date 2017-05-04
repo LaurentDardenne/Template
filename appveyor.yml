@@ -1,13 +1,10 @@
-﻿#clone directory
-clone_folder: c:\projects\PSScriptAnalyzerRules
-#ParameterSetRules
-
-clone_depth: 0
-
+﻿
 # Set-ItemProperty is a workaround :
 # A command that prompts the user failed because the host program or the command type does not support user interaction.
 # Même session PS pour Install et Build
 install:
+  - ps:  Write-host "exist ? $(Test-Path variable:profile)"
+
   - ps: |
 
           Write-host "$($PSversiontable|out-string)"
