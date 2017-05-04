@@ -25,7 +25,7 @@ nuget:
 
 build_script:
    - ps: |
-         #Install-Module Psake  -force
+         Install-Module Psake  -force
          Import-Module Psake
          . '.\Install.ps1'
                                 #todo type release/debug ?
