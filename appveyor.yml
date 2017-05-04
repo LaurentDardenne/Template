@@ -32,10 +32,7 @@ build_script:
                                 #todo type release/debug ?
          . '.\Publish.ps1' -Dev #todo repo name ?
          $error|select *
-         $profile.AllUsersAllHosts
-         $profile.AllUsersCurrentHost
-         $profile.CurrentUserAllHosts
-         $profile.CurrentUserCurrentHost
+
 # test_script:
 #   - ps: |
 

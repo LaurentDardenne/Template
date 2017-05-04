@@ -162,7 +162,7 @@ Properties {
 
     # The local installation directory for the install task. Defaults to your home Modules location.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $A=Split-Path $profile.CurrentUserAllHosts -Parent
+    $A="Split-Path $($profile.CurrentUserAllHosts) -Parent"
     $b="Modules\$ModuleName\$((Test-ModuleManifest -Path $SrcRootDir\$ModuleName.psd1).Version.ToString())"
     Write-host "A='$a'"
     Write-host "B='$B'"
