@@ -7,11 +7,15 @@
 
 
 Function Test-CIEnvironment {
- Test-Path env:APPVEYOR
+  Test-Path env:APPVEYOR
 }
 
-Function Get-ApiKeyIntoCI { $isCIEnvironment
-
+Function Get-ApiKeyIntoCI {
+     #Read Appveyro environment variable (encrypted)
+    if ($BuildConfiguration -eq 'Debug')
+    { return $Env:DevMyGetApiKey }
+    else
+    { return $Env:MyGetApiKey }
 }
 
 function GetPowershellGetPath {
@@ -397,7 +401,7 @@ Task TestBOM -Precondition { $isTestBom } -requiredVariables SrcRootDir {
 
   Import-Module DTW.PS.FileSystem
 
-  $InvalidFiles=Test-BOMFile.ps1 -path $SrcRootDir
+  $InvalidFiles=Test-BOMFile -path $SrcRootDir
   if ($InvalidFiles.Count -ne 0)
   {
      $InvalidFiles |Format-List *
@@ -409,9 +413,9 @@ Task TestLocalizedData  {
     Import-module MeasureLocalizedData
 
     if ($null -eq $LocalizedDataFunctions)
-    {$Result ='en-US','fr-FR'|Measure-ImportLocalizedData -Primary $LocalizedDataModule }
+    {$Result = $CulturesLocalizedData|Measure-ImportLocalizedData -Primary $LocalizedDataModule }
     else
-    {$Result ='en-US','fr-FR'|Measure-ImportLocalizedData -Primary $LocalizedDataModule -Secondary $LocalizedDataFunctions}
+    {$Result = $CulturesLocalizedData|Measure-ImportLocalizedData -Primary $LocalizedDataModule -Secondary $LocalizedDataFunctions}
     if ($Result.Count -ne 0)
     {
       $Result
@@ -432,16 +436,16 @@ Task BeforeBuild {
 }
 
 # #Verifying file encoding AFTER generation
-Task TestBOMAfterAll -Precondition { $isTestBom } -requiredVariables OutDir{
-#   Import-Module DTW.PS.FileSystem
+Task TestBOMAfterAll -Precondition { $isTestBom } -requiredVariables OutDir {
+   Import-Module DTW.PS.FileSystem
 
-#   Write-Host "Validation de l'encodage des fichiers du répertoire : $OutDir"
-#   $InvalidFiles=Test-BOMFile.ps1 -path $OutDir
-#   if ($InvalidFiles.Count -ne 0)
-#   {
-#      $InvalidFiles |Format-List *
-#      Throw "Des fichiers ne sont pas encodés en UTF8 ou sont codés BigEndian."
-#   }
+  Write-Verbose  "Validation finale de l'encodage des fichiers du répertoire : $OutDir"
+  $InvalidFiles=Test-BOMFile -path $OutDir
+  if ($InvalidFiles.Count -ne 0)
+  {
+     $InvalidFiles |Format-List *
+     Throw "Des fichiers ne sont pas encodés en UTF8 ou sont codés BigEndian."
+  }
 }
 
 # Executes after the Build task.
@@ -504,6 +508,7 @@ Task AfterInstall {
 Task BeforePublish -depends GetApiKey -requiredVariables Projectname, OutDir, ModuleName, RepositoryName, Dev_PublishRepository {
     if ( (-not [string]::IsNullOrWhiteSpace($Dev_PublishRepository)) -and ($RepositoryName -eq $Dev_PublishRepository ))
     {
+        #Increment  the module version for dev repository only
         Import-Module BuildHelpers
         $SourceLocation=(Get-PSRepository -Name $RepositoryName).SourceLocation
         if (-not $SourceLocation.EndsWith('/'))
@@ -523,4 +528,4 @@ Task AfterPublish {
 #todo
 #  publier les test : Update-AppveyorTest -Name "PsScriptAnalyzer" -Outcome Passed
 #  publier le résultat du build sur devOttoMatt ( Push-AppveyorArtifact $_.FullName }
-# https://github.com/GitTools/GitVersion ?
+#  https://github.com/GitTools/GitVersion ?
