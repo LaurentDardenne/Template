@@ -6,6 +6,7 @@ clone_depth: 0
 
 # Set-ItemProperty is a workaround :
 # A command that prompts the user failed because the host program or the command type does not support user interaction.
+#Même session PS pour Install et Build
 install:
   - ps: |
           get-module powershellget -ListAvailable
@@ -26,8 +27,7 @@ nuget:
 
 build_script:
    - ps: |
-          #Même session PS que dans Install
-         remove-moudle powershellget -force
+         remove-module powershellget -force
          ipmo powershellget
          get-module powershellget
          #get-module powershellget -ListAvailable
