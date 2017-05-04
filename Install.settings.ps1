@@ -22,7 +22,7 @@ Properties {
     #Common modules
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $PSGallery=@{
-       Modules=@('Pester','PsScriptAnalyzer','BuildHelpers')
+       Modules=@('Pester','PsScriptAnalyzer') #,'BuildHelpers')
        Scripts=@()
      }
     #Personnal modules & script (French documentation only)
