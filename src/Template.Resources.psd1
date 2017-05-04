@@ -1,7 +1,4 @@
-﻿#TODO
-# Localized Template.Resources.psd1 : en-US
-
-ConvertFrom-StringData @'
+﻿ConvertFrom-StringData @'
 # Edit-String
 WellFormedKeyNullOrEmptyValue  =The 'Replace' key do not exist or it is `$null
 WellFormedInvalidCast          =The key value {0} dot not convert to {1}.
