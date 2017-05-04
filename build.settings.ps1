@@ -7,7 +7,7 @@
 
 
 Function Test-CIEnvironment {
-  Test-Path env:APPVEYOR
+  Test-Path $env:APPVEYOR
 }
 
 Function Get-ApiKeyIntoCI {

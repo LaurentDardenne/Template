@@ -17,7 +17,7 @@
  )
 #By default we install, otherwise we update
 #And we force the install for the CI
-if (Test-Path env:APPVEYOR)
+if (Test-Path $env:APPVEYOR)
 { Invoke-Psake ".\Install.psake.ps1" -parameters @{"Mode"="Install"} -nologo }
 else
 { Invoke-Psake ".\Install.psake.ps1" -parameters @{"Mode"="$($PsCmdlet.ParameterSetName)"} -nologo }
