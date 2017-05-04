@@ -9,6 +9,10 @@ clone_depth: 0
 # Même session PS pour Install et Build
 install:
   - ps: |
+              Write-host "1 AllUsersAllHosts   '$($profile.AllUsersAllHosts)'"
+    Write-host "1 AllUsersCurrentHost '$($profile.AllUsersCurrentHost)'"
+    Write-host "1 CurrentUserAllHosts '$($profile.CurrentUserAllHosts)'"
+    Write-host "1 CurrentUserCurrentHost '$($profile.CurrentUserCurrentHost)'"
           Set-ItemProperty -Name DisablePromptToUpdateHelp -Value 1 -path 'HKLM:\SOFTWARE\Microsoft\PowerShell'
 
           #nouvelle session pour installer PowershellGet
@@ -25,6 +29,11 @@ nuget:
 
 build_script:
    - ps: |
+    Write-host "2 AllUsersAllHosts   '$($profile.AllUsersAllHosts)'"
+    Write-host "2 AllUsersCurrentHost '$($profile.AllUsersCurrentHost)'"
+    Write-host "2 CurrentUserAllHosts '$($profile.CurrentUserAllHosts)'"
+    Write-host "2 CurrentUserCurrentHost '$($profile.CurrentUserCurrentHost)'"
+
          Install-Module Psake  -force
          Import-Module Psake
          . '.\Install.ps1'
