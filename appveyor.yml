@@ -27,7 +27,9 @@ nuget:
 build_script:
    - ps: |
           #Même session PS que dans Install
+         remove-moudle powershellget -force
          ipmo powershellget
+         get-module powershellget
          #get-module powershellget -ListAvailable
          Install-Module Psake  -force
          Import-Module Psake
