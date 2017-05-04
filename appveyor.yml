@@ -3,8 +3,6 @@
 # A command that prompts the user failed because the host program or the command type does not support user interaction.
 # Même session PS pour Install et Build
 install:
-  - ps:  Write-host "exist ? $(Test-Path variable:profile)"
-
   - ps: |
 
           Write-host "$($PSversiontable|out-string)"
@@ -30,12 +28,9 @@ nuget:
 
 build_script:
    - ps: |
-
-         Write-host "2 AllUsersAllHosts   '$($profile.AllUsersAllHosts)'"
-         Write-host "2 AllUsersCurrentHost '$($profile.AllUsersCurrentHost)'"
-         Write-host "2 CurrentUserAllHosts '$($profile.CurrentUserAllHosts)'"
-         Write-host "2 CurrentUserCurrentHost '$($profile.CurrentUserCurrentHost)'"
-
+         $S="$([Environment]::GetFolderPath([Environment+SpecialFolder]::Personal))\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
+         $profile=$s
+         Add-member -inputObject Profile -membertype noteproperty -name CurrentUserAllHosts  -value $s
          Install-Module Psake  -force
          Import-Module Psake
          . '.\Install.ps1'
