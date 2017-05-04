@@ -427,16 +427,16 @@ Task GetApiKey -requiredVariables isCIEnvironment,SettingsPath,NuGetApiKeyPath {
     if ($isCIEnvironment)
     {
         Write-Host "ApiKey from CI"
-        $Script:NuGetApiKey= Get-ApiKeyIntoCI
+        $script:NuGetApiKey= Get-ApiKeyIntoCI
    }
     else
     {
         # Publishing to the PSGallery requires an API key, so get it.
-        Write-Host "ApiKey from prompt"
+        Write-Host "ApiKey from user prompt"
         if ($NuGetApiKey) {
             "Using script embedded NuGetApiKey"
         }
-        elseif ($Script:NuGetApiKey = GetSetting -Path $NuGetApiKeyPath -Key NuGetApiKey) {
+        elseif ($script:NuGetApiKey = GetSetting -Path $NuGetApiKeyPath -Key NuGetApiKey) {
             "Using stored NuGetApiKey"
         }
         else {
@@ -447,7 +447,7 @@ Task GetApiKey -requiredVariables isCIEnvironment,SettingsPath,NuGetApiKeyPath {
             }
 
             $cred = PromptUserForCredentialAndStorePassword @promptForKeyCredParams
-            $Script:NuGetApiKey = $cred.GetNetworkCredential().Password
+            $script:NuGetApiKey = $cred.GetNetworkCredential().Password
             "The NuGetApiKey has been stored in $NuGetApiKeyPath"
         }
     }
@@ -456,11 +456,11 @@ Task GetApiKey -requiredVariables isCIEnvironment,SettingsPath,NuGetApiKeyPath {
 Task Publish -depends Build, Test, BuildHelp, GenerateFileCatalog, BeforePublish, CorePublish, AfterPublish {
 }
 
-Task CorePublish -requiredVariables SettingsPath, ModuleOutDir,NuGetApiKey {
+Task CorePublish -requiredVariables SettingsPath, ModuleOutDir{
     Write-Verbose "PublishRepository:$PublishRepository"
     $publishParams = @{
         Path        = $ModuleOutDir
-        NuGetApiKey = $NuGetApiKey
+        NuGetApiKey = $script:NuGetApiKey
     }
 
     # If an alternate repository is specified, set the appropriate parameter.

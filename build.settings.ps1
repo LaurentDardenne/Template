@@ -270,7 +270,7 @@ Properties {
     # you will be prompted to enter your API key.  The build will store the key encrypted in the
     # $NuGetApiKeyPath file, so that on subsequent publishes you will no longer be prompted for the API key.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $NuGetApiKey = $null
+    $script:NuGetApiKey = $null
 
     # Name of the repository you wish to publish to.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
