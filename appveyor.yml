@@ -28,6 +28,7 @@ nuget:
 
 build_script:
    - ps: |
+         Write-host "ic=$(Test-Path $env:APPVEYOR)"
          $S="$([Environment]::GetFolderPath([Environment+SpecialFolder]::Personal))\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
          $profile=New-object PSObject -argumentlist $s
          Add-member -inputObject Profile -membertype noteproperty -name CurrentUserAllHosts  -value $s
