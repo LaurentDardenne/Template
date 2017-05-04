@@ -24,7 +24,7 @@ nuget:
   account_feed: true
   project_feed: true
 
-build:
+build_script:
    - ps: |
          get-module powershellget -ListAvailable
          $pid
