@@ -26,8 +26,9 @@ nuget:
 
 build_script:
    - ps: |
-         get-module powershellget -ListAvailable
-         $pid
+          #Même session PS que dans Install
+         ipmo powershellget
+         #get-module powershellget -ListAvailable
          Install-Module Psake  -force
          Import-Module Psake
          . '.\Install.ps1'
