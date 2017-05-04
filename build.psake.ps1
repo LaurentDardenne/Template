@@ -425,11 +425,14 @@ Task Test -depends Build -requiredVariables TestRootDir, ModuleName, CodeCoverag
 
 Task GetApiKey -requiredVariables isCIEnvironment,SettingsPath,NuGetApiKeyPath {
     if ($isCIEnvironment)
-    { $Script:NuGetApiKey=Get-ApiKeyFromCI }
+    {
+        Write-Host "ApiKey from CI"
+        $Script:NuGetApiKey=Get-ApiKeyFromCI
+   }
     else
     {
         # Publishing to the PSGallery requires an API key, so get it.
-
+        Write-Host "ApiKey from prompt"
         if ($NuGetApiKey) {
             "Using script embedded NuGetApiKey"
         }

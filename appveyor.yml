@@ -29,7 +29,7 @@ nuget:
 build_script:
    - ps: |
          $S="$([Environment]::GetFolderPath([Environment+SpecialFolder]::Personal))\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
-         $profile=$s
+         $profile=New-object PSObject -argumentlist $s
          Add-member -inputObject Profile -membertype noteproperty -name CurrentUserAllHosts  -value $s
          Install-Module Psake  -force
          Import-Module Psake
@@ -37,7 +37,6 @@ build_script:
          Write-Host "Call Publish task"
                                 #todo type release/debug ?
          . '.\Publish.ps1' -Dev #todo repo name ?
-         $error|select *
 
 # test_script:
 #   - ps: |
