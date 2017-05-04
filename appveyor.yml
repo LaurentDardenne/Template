@@ -31,6 +31,7 @@ build_script:
          Write-Host "Call Publish task"
                                 #todo type release/debug ?
          . '.\Publish.ps1' -Dev #todo repo name ?
+         $error|select *
 
 # test_script:
 #   - ps: |
