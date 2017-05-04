@@ -456,7 +456,7 @@ Task GetApiKey -requiredVariables isCIEnvironment,SettingsPath,NuGetApiKeyPath {
 Task Publish -depends Build, Test, BuildHelp, GenerateFileCatalog, BeforePublish, CorePublish, AfterPublish {
 }
 
-Task CorePublish -requiredVariables SettingsPath, ModuleOutDir, NuGetApiKey {
+Task CorePublish -requiredVariables SettingsPath, ModuleOutDir, script:NuGetApiKey {
     Write-Verbose "PublishRepository:$PublishRepository"
     $publishParams = @{
         Path        = $ModuleOutDir
