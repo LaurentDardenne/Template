@@ -522,13 +522,20 @@ Task BeforePublish -requiredVariables Projectname, OutDir, ModuleName, Repositor
         Import-Module BuildHelpers
         $SourceLocation=(Get-PSRepository -Name $RepositoryName).SourceLocation
         if (-not $SourceLocation.EndsWith('/'))
-        { $SourceLocation="$SourceLocation/"}
+        { $SourceLocation="$SourceLocation/"} #todo next version
         "Get the latest version for '$ProjectName' in '$SourceLocation'"
         $Version = Get-NextNugetPackageVersion -Name $ProjectName -PackageSourceUrl $SourceLocation
 
-        "Update the module metadata $OutDir\$ModuleName\$ModuleName.psd1"
-        "with the new version : $version"
-        Update-Metadata -Path "$OutDir\$ModuleName\$ModuleName.psd1"  -PropertyName ModuleVersion -Value $Version
+        $Path="$OutDir\$ModuleName\$ModuleName.psd1"
+        $ModuleVersion=(Import-ManifestData $Path).ModuleVersion
+        $isGreater=$Version -gt $ModuleVersion
+        "Update the module metadata '$OutDir\$ModuleName\$ModuleName.psd1' ? $isGreater "
+        if ($isGreater)
+        {
+           "Update the module metadata $OutDir\$ModuleName\$ModuleName.psd1"
+           "with the new version : $version" #todo si aucune version prendre la version courante
+           Update-Metadata -Path "$OutDir\$ModuleName\$ModuleName.psd1"  -PropertyName ModuleVersion -Value $Version
+        }
     }
 }
 
