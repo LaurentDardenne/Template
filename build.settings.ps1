@@ -196,10 +196,10 @@ Properties {
 
     # Module names for additionnale custom rule
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    [String[]]$PSSACustomRules=@(
-      GetModulePath -Name OptimizationRules
-      GetModulePath -Name ParameterSetRules
-    )
+    [String[]]$PSSACustomRules=@()
+    #   GetModulePath -Name OptimizationRules todo remove call log4net
+    #   GetModulePath -Name ParameterSetRules
+    # )
 
     #MeasureLocalizedData
      #Full path of the module to control
