@@ -19,22 +19,6 @@ Function Get-ApiKeyIntoCI {
 }
 
 
-function Import-ManifestData {
-# Requires PS version 4.0
-#Lit un manifest de module et renvoi une hashtable contenant uniquement les clés qui y sont renseignées
-#from http://stackoverflow.com/questions/25408815/how-to-read-powershell-psd1-files-safely
-#Gére les clés ModuleToProcess (v4) ou RootModule (v5)
-#
-#  Import-ManifestData -data "Mymodule.psd1"
-    [CmdletBinding()]
-    Param (
-        [Parameter(Mandatory = $true)]
-        [Microsoft.PowerShell.DesiredStateConfiguration.ArgumentToConfigurationDataTransformation()]
-        [hashtable] $data
-    )
-    return $data
-}#Import-ManifestData
-
 function GetPowershellGetPath {
  #extracted from PowerShellGet/PSModule.psm1
 
@@ -179,9 +163,8 @@ Properties {
 
     # The local installation directory for the install task. Defaults to your home Modules location.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    # $InstallPath = Join-Path (Split-Path $profile.CurrentUserAllHosts -Parent) `
-    #                          "Modules\$ModuleName\$((Test-ModuleManifest -Path $SrcRootDir\$ModuleName.psd1).Version.ToString())"
-    $InstallPath =$null #todo bug appveyor ??
+     $InstallPath = Join-Path (Split-Path $profile.CurrentUserAllHosts -Parent) `
+                              "Modules\$ModuleName\$((Test-ModuleManifest -Path $SrcRootDir\$ModuleName.psd1).Version.ToString())"
 
     # Default Locale used for help generation, defaults to en-US.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
@@ -538,18 +521,15 @@ Task BeforePublish -requiredVariables Projectname, OutDir, ModuleName, Repositor
         #Increment  the module version for dev repository only
         Import-Module BuildHelpers
         $SourceLocation=(Get-PSRepository -Name $RepositoryName).SourceLocation
-        if (-not $SourceLocation.EndsWith('/'))
-        { $SourceLocation="$SourceLocation/"} #todo next version
         "Get the latest version for '$ProjectName' in '$SourceLocation'"
         $Version = Get-NextNugetPackageVersion -Name $ProjectName -PackageSourceUrl $SourceLocation
 
         $Path="$OutDir\$ModuleName\$ModuleName.psd1"
-        $ModuleVersion=(Import-ManifestData $Path).ModuleVersion
+        $ModuleVersion=(Test-ModuleManifest -path $Path).Version
         $isGreater=$Version -gt $ModuleVersion
-        "Update the module metadata '$OutDir\$ModuleName\$ModuleName.psd1' ? $isGreater "
+        "Update the module metadata '$OutDir\$ModuleName\$ModuleName.psd1' ? $isGreater " #todo remove debug
         if ($isGreater)
         {
-           "Update the module metadata $OutDir\$ModuleName\$ModuleName.psd1"
            "with the new version : $version" #todo si aucune version prendre la version courante
            Update-Metadata -Path "$OutDir\$ModuleName\$ModuleName.psd1"  -PropertyName ModuleVersion -Value $Version
         }
