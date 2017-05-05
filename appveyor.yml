@@ -7,11 +7,6 @@ install:
 
           Write-host "$($PSversiontable|out-string)"
           Write-host "exist ? $(Test-Path variable:profile)"
-        #   Write-host "1 AllUsersAllHosts   '$($profile.AllUsersAllHosts)'"
-        #   Write-host "1 AllUsersCurrentHost '$($profile.AllUsersCurrentHost)'"
-        #   Write-host "1 CurrentUserAllHosts '$($profile.CurrentUserAllHosts)'"
-        #   Write-host "1 CurrentUserCurrentHost '$($profile.CurrentUserCurrentHost)'"
-
           Set-ItemProperty -Name DisablePromptToUpdateHelp -Value 1 -path 'HKLM:\SOFTWARE\Microsoft\PowerShell'
 
           #nouvelle session pour installer PowershellGet
@@ -21,7 +16,7 @@ install:
             # La version livrée avec PS ne provient pas d'un repository,
             # on force l'installation à partir de PS Gallery
             Install-module PowershellGet -MinimumVersion 1.1.0.0 -Force -Scope AllUsers
-            Export-Clixml -InputObject $Profile  -Path  $env:temp\PSProfile.xml }
+            Export-Clixml -InputObject $Profile -Path  $env:temp\PSProfile.xml      }
 
 nuget:
   account_feed: true
@@ -30,12 +25,7 @@ nuget:
 build_script:
    - ps: |
 
-          #$S="$([Environment]::GetFolderPath([Environment+SpecialFolder]::Personal))\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
-          #Appveyor semble utiliser un runspace et pas une session PS
-         #$profile=New-object PSObject -argumentlist $s
-         #Add-member -inputObject Profile -membertype noteproperty -name CurrentUserAllHosts  -value $s
          $Profile=Import-Clixml $env:temp\PSProfile.xml
-
          Write-host "After create. Exist ? $(Test-Path variable:profile)"
          $Profile|select *
          Install-Module Psake  -force
@@ -45,22 +35,5 @@ build_script:
                                 #todo type release/debug ?
          . '.\Publish.ps1' -Dev #todo repo name ?
 
-# test_script:
-#   - ps: |
 
-        # $ResultsFile="$env:Temp\PSScriptAnalyzerRulesPester.xml"
-        # $Results = Invoke-Pester  -OutputFormat NUnitXml -OutputFile $ResultsFile -PassThru
-        # $ReportFile="$env:Temp\ParameterSetRules-TestsReport.html"
-        # &"$Env:Temp\ReportUnit.1.2.1\tools\ReportUnit.exe" $ResultsFile $ReportFile
-        # Push-AppveyorArtifact $ReportFile
-        # if ($Results.FailedCount -gt 0) {
-        #     throw "$($ruleTestResults.FailedCount) tests failed."
-        # }
-
-# Upload the project as a zip archive
-# on_finish:
-#   - ps: |
-        # Add-AppveyorTest -Name "Finish" -Outcome Running
-        # $zipFile = "$env:Temp\PSScriptAnalyzerRules.zip"
-        # Push-AppveyorArtifact $zipFile
 
