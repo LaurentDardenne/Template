@@ -20,7 +20,8 @@ install:
             Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
             # La version livrée avec PS ne provient pas d'un repository,
             # on force l'installation à partir de PS Gallery
-            Install-module PowershellGet -MinimumVersion 1.1.0.0 -Force -Scope AllUsers    }
+            Install-module PowershellGet -MinimumVersion 1.1.0.0 -Force -Scope AllUsers
+           $Profile|Export-Clixml $env:temp\PSProfile.xml}
 
 nuget:
   account_feed: true
@@ -29,18 +30,14 @@ nuget:
 build_script:
    - ps: |
 
-         $S="$([Environment]::GetFolderPath([Environment+SpecialFolder]::Personal))\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
-          #Appveyro semble utilser un runspace et pas une session PS
-         $profile=New-object PSObject -argumentlist $s
-         Add-member -inputObject Profile -membertype noteproperty -name CurrentUserAllHosts  -value $s
-            #Todo
-            # allUsersAllHosts = HostUtilities.GetFullProfileFileName(null, false, useTestProfile);
-            # allUsersCurrentHost = HostUtilities.GetFullProfileFileName(shellId, false, useTestProfile);
-            # currentUserAllHosts = HostUtilities.GetFullProfileFileName(null, true, useTestProfile);
-            # currentUserCurrentHost = HostUtilities.GetFullProfileFileName(shellId, true, useTestProfile);
-            # dollarProfile = HostUtilities.GetDollarProfile(allUsersAllHosts, allUsersCurrentHost, currentUserAllHosts, currentUserCurrentHost);
+          #$S="$([Environment]::GetFolderPath([Environment+SpecialFolder]::Personal))\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
+          #Appveyor semble utiliser un runspace et pas une session PS
+         #$profile=New-object PSObject -argumentlist $s
+         #Add-member -inputObject Profile -membertype noteproperty -name CurrentUserAllHosts  -value $s
+         $Profile=Import-Clixml $env:temp\PSProfile.xml
 
          Write-host "After create. Exist ? $(Test-Path variable:profile)"
+         $Profile|select *
          Install-Module Psake  -force
          Import-Module Psake
          . '.\Install.ps1'
