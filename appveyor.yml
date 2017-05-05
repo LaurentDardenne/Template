@@ -7,10 +7,10 @@ install:
 
           Write-host "$($PSversiontable|out-string)"
           Write-host "exist ? $(Test-Path variable:profile)"
-          Write-host "1 AllUsersAllHosts   '$($profile.AllUsersAllHosts)'"
-          Write-host "1 AllUsersCurrentHost '$($profile.AllUsersCurrentHost)'"
-          Write-host "1 CurrentUserAllHosts '$($profile.CurrentUserAllHosts)'"
-          Write-host "1 CurrentUserCurrentHost '$($profile.CurrentUserCurrentHost)'"
+        #   Write-host "1 AllUsersAllHosts   '$($profile.AllUsersAllHosts)'"
+        #   Write-host "1 AllUsersCurrentHost '$($profile.AllUsersCurrentHost)'"
+        #   Write-host "1 CurrentUserAllHosts '$($profile.CurrentUserAllHosts)'"
+        #   Write-host "1 CurrentUserCurrentHost '$($profile.CurrentUserCurrentHost)'"
 
           Set-ItemProperty -Name DisablePromptToUpdateHelp -Value 1 -path 'HKLM:\SOFTWARE\Microsoft\PowerShell'
 
@@ -20,8 +20,7 @@ install:
             Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
             # La version livrée avec PS ne provient pas d'un repository,
             # on force l'installation à partir de PS Gallery
-            Install-module PowershellGet -MinimumVersion 1.1.0.0 -Force -Scope AllUsers
-           $Profile|Export-Clixml $env:temp\PSProfile.xml}
+            Install-module PowershellGet -MinimumVersion 1.1.0.0 -Force -Scope AllUsers; $Profile|Export-Clixml $env:temp\PSProfile.xml }
 
 nuget:
   account_feed: true
