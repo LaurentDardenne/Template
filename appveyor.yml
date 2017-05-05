@@ -20,7 +20,8 @@ install:
             Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
             # La version livrée avec PS ne provient pas d'un repository,
             # on force l'installation à partir de PS Gallery
-            Install-module PowershellGet -MinimumVersion 1.1.0.0 -Force -Scope AllUsers; $Profile|Export-Clixml $env:temp\PSProfile.xml }
+            Install-module PowershellGet -MinimumVersion 1.1.0.0 -Force -Scope AllUsers
+            Export-Clixml -InputObject $Profile  -Path  $env:temp\PSProfile.xml }
 
 nuget:
   account_feed: true
