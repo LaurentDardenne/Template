@@ -43,9 +43,9 @@ build_script:
          Write-Host "Call Publish task. Target '$Env:MY_APPVEYOR_GalleryName'"
          $testResultsFile = Join-Path $pwd -ChildPath "$PSScriptRoot/TestResults.xml"
 
-         If ($Env:MY_APPVEYOR_GalleryName -eq 'MY_APPVEYOR_DevMyget')
+         If ($Env:MY_APPVEYOR_GalleryName -eq 'DevMyget')
          { $RepositoryName='DevOttoMatt' }
-         elseIf ($Env:MY_APPVEYOR_GalleryName -eq 'MY_APPVEYOR_MyGet')
+         elseIf ($Env:MY_APPVEYOR_GalleryName -eq 'MyGet')
          { $RepositoryName='OttoMatt' }
 
          Invoke-PSake .\build.psake.ps1 -taskList Publish -parameters @{"RepositoryName"=$RepositoryName}
