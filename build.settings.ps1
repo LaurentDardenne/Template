@@ -12,8 +12,8 @@ Function Test-CIEnvironment {
 
 Function Get-ApiKeyIntoCI {
      #Read Appveyor environment variable (encrypted)
-    Write-host "conf='$BuildConfiguration'"
-    Write-host "inner ApiKey='$Env:DevMyGetApiKey'" #todo
+    Write-host "ApiKey for the configuration : '$BuildConfiguration'"
+
     if ($BuildConfiguration -eq 'Debug')
     { return $Env:DevMyGetApiKey }
     else
@@ -528,11 +528,12 @@ Task BeforePublish -requiredVariables Projectname, OutDir, ModuleName, Repositor
 
         $Path="$OutDir\$ModuleName\$ModuleName.psd1"
         $ModuleVersion=(Test-ModuleManifest -path $Path).Version
+        # If no version exists, take the current version
         $isGreater=$Version -gt $ModuleVersion
-        "Update the module metadata '$OutDir\$ModuleName\$ModuleName.psd1' ? $isGreater " #todo remove debug
+        "Update the module metadata '$OutDir\$ModuleName\$ModuleName.psd1' ? $isGreater "
         if ($isGreater)
         {
-           "with the new version : $version" #todo si aucune version prendre la version courante
+           "with the new version : $version"
            Update-Metadata -Path "$OutDir\$ModuleName\$ModuleName.psd1"  -PropertyName ModuleVersion -Value $Version
         }
     }
