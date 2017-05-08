@@ -1,5 +1,5 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/at6ayshrya5d3fgg?svg=true)](https://ci.appveyor.com/project/LaurentDardenne/template)
-
+﻿[![Build status](https://ci.appveyor.com/api/projects/status/ll5tv37ggguiulva?svg=true)](https://ci.appveyor.com/project/LaurentDardenne/template)
+                                                                                    
 ![Logo](https://raw.githubusercontent.com/LaurentDardenne/Template/master/Assets/Template.png)
 
 # Template
