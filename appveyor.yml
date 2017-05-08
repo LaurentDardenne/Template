@@ -48,7 +48,7 @@ build_script:
          elseIf ($Env:MY_APPVEYOR_GalleryName -eq 'MyGet')
          { $RepositoryName='OttoMatt' }
 
-         Invoke-PSake .\build.psake.ps1 -taskList Publish -parameters @{{"TestOutputFile" = $testResultsFile;"RepositoryName"=$RepositoryName}
+         Invoke-PSake .\build.psake.ps1 -taskList Publish -parameters @{"TestOutputFile"=$testResultsFile;"RepositoryName"=$RepositoryName}
          if ($psake.build_success -and (Test-Path $testResultsFile)) {
             (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", $testResultsFile)
          }
