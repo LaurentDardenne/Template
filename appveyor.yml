@@ -1,15 +1,14 @@
 ﻿environment:
   DevMyGetApiKey:
     secure: irzUE0TW1t0PaM/FtieoJK1Uq/7ZXUw4qEUea1wX7LpwXRx1xeUTXEo4spxBVN6c
+  MyGetApiKey:
+    secure: irzUE0TW1t0PaM/FtieoJK1Uq/7ZXUw4qEUea1wX7LpwXRx1xeUTXEo4spxBVN6c
 
 # Set-ItemProperty is a workaround :
 # A command that prompts the user failed because the host program or the command type does not support user interaction.
 # Même session PS pour Install et Build
 install:
   - ps: |
-
-          Write-host "$($PSversiontable|out-string)"
-          Write-host "exist ? $(Test-Path variable:profile)"
           Set-ItemProperty -Name DisablePromptToUpdateHelp -Value 1 -path 'HKLM:\SOFTWARE\Microsoft\PowerShell'
 
           #nouvelle session pour installer PowershellGet
@@ -29,8 +28,6 @@ build_script:
    - ps: |
 
          $Profile=Import-Clixml $env:temp\PSProfile.xml
-         Write-host "After create. Exist ? $(Test-Path variable:profile)"
-         $Profile|select *
          Install-Module Psake  -force
          Import-Module Psake
          . '.\Install.ps1'

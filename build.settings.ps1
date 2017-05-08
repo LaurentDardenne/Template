@@ -12,6 +12,7 @@ Function Test-CIEnvironment {
 
 Function Get-ApiKeyIntoCI {
      #Read Appveyor environment variable (encrypted)
+    Write-host "conf='$BuildConfiguration'"
     Write-host "inner ApiKey='$Env:DevMyGetApiKey'" #todo
     if ($BuildConfiguration -eq 'Debug')
     { return $Env:DevMyGetApiKey }
