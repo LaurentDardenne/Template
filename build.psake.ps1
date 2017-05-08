@@ -432,6 +432,7 @@ Task CorePublish -requiredVariables SettingsPath, ModuleOutDir, isCIEnvironment,
     {
         Write-Host "ApiKey from CI"
         $NuGetApiKey= Get-ApiKeyIntoCI
+        Write-host "out ApiKey='$NuGetApiKey'" #todo
     }
     else
     {
@@ -456,6 +457,7 @@ Task CorePublish -requiredVariables SettingsPath, ModuleOutDir, isCIEnvironment,
         }
     }
 
+    Write-host "ApiKey='$NuGetApiKey'" #todo
     $publishParams = @{
         Path        = $ModuleOutDir
         NuGetApiKey = $NuGetApiKey
