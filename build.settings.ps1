@@ -2,10 +2,6 @@
 # Customize these properties and tasks for your module.
 ###############################################################################
 
-#TODO : log4net:ERROR Exception while rendering object of type [System.Management.Automation.PSObject] System.NullReferenceException
-#       ok sans la tâche Analyze ...
-
-
 Function Test-CIEnvironment {
   return (Test-Path env:APPVEYOR)
 }
@@ -15,9 +11,9 @@ Function Get-ApiKeyIntoCI {
     Write-host "ApiKey for the configuration : '$BuildConfiguration'"
 
     if ($BuildConfiguration -eq 'Debug')
-    { return $Env:DevMyGetApiKey }
+    { return $Env:MY_APPVEYOR_DevMyGetApiKey }
     else
-    { return $Env:MyGetApiKey }
+    { return $Env:MY_APPVEYOR_MyGetApiKey }
 }
 
 
@@ -325,8 +321,6 @@ Properties {
     # 'Debug' : Do not change anything
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     [ValidateSet('Release','Debug')]  $BuildConfiguration='Release'
-     #todo 2 infos le type de construction et le repository associé
-     # -> si Debug alors DevOttomatt
 
     #To manage the ApiKey differently
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]

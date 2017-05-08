@@ -24,11 +24,6 @@ Task Install -Depends RegisterPSRepository -Precondition { $Mode -eq  'Install'}
     Write-Host "Install module $_"
     PowershellGet\Install-Module -Name $_ -Repository OttoMatt -Scope AllUsers -AllowClobber
   }
-
-  #todo
-  # Set-location $Env:Temp
-  # nuget install ReportUnit
-  # #&"$Env:Temp\ReportUnit.1.2.1\tools\ReportUnit.exe"
 }
 
 Task RegisterPSRepository {
@@ -58,7 +53,7 @@ Task RegisterPSRepository {
 }
 
 Task Update -Precondition { $Mode -eq 'Update'}  {
-  #todo factoriser
+
   $sbUpdateOrInstallModule={
       $ModuleName=$_
       try {

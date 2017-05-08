@@ -22,7 +22,7 @@ Properties {
     #Common modules
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $PSGallery=@{
-       Modules=@('Pester','PsScriptAnalyzer','BuildHelpers')
+       Modules=@('Pester','PsScriptAnalyzer','BuildHelpers','platyPS')
        Scripts=@()
      }
     #Personnal modules & script (French documentation only)
@@ -31,6 +31,10 @@ Properties {
        Modules=@('Log4Posh','MeasureLocalizedData','DTW.PS.FileSystem','Template') #todo remove call log4net ,'OptimizationRules','ParameterSetRules')
        Scripts=@('Lock-File', 'Using-Culture')
      }
+  #todo : install .Zip or Nuget package
+  # Set-location $Env:Temp
+  # nuget install ReportUnit
+  # #&"$Env:Temp\ReportUnit.1.2.1\tools\ReportUnit.exe"
 }
 
 ###############################################################################
