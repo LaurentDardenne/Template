@@ -46,7 +46,7 @@ build_script:
          If ($Env:MY_APPVEYOR_GalleryName -eq 'MY_APPVEYOR_DevMyget')
          { $RepositoryName='DevOttoMatt' }
          elseIf ($Env:MY_APPVEYOR_GalleryName -eq 'MY_APPVEYOR_MyGet')
-         {  { $RepositoryName='OttoMatt' }
+         { $RepositoryName='OttoMatt' }
 
          Invoke-PSake $PSScriptRoot\build.psake.ps1 -taskList Publish -parameters @{"RepositoryName"=$RepositoryName}
          if ($psake.build_success -and (Test-Path $testResultsFile)) {
