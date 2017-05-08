@@ -32,12 +32,12 @@ build_script:
          Import-Module Psake
 
          Write-Host "Install dependencies"
-         Invoke-Psake ".\Install.psake.ps1" -parameters @{"Mode"="Install"} -nologo
+         Invoke-Psake .\Install.psake.ps1 -parameters @{"Mode"="Install"} -nologo
          if (-not $psake.build_success)
          {
             # Terminate the script to fail the build
             $Error | Format-List * -Force
-            exit 1;
+            exit 1
          }
 
          Write-Host "Call Publish task. Target '$Env:MY_APPVEYOR_GalleryName'"
@@ -48,7 +48,7 @@ build_script:
          elseIf ($Env:MY_APPVEYOR_GalleryName -eq 'MY_APPVEYOR_MyGet')
          { $RepositoryName='OttoMatt' }
 
-         Invoke-PSake $PSScriptRoot\build.psake.ps1 -taskList Publish -parameters @{"RepositoryName"=$RepositoryName}
+         Invoke-PSake .\build.psake.ps1 -taskList Publish -parameters @{"RepositoryName"=$RepositoryName}
          if ($psake.build_success -and (Test-Path $testResultsFile)) {
             (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", $testResultsFile)
          }
