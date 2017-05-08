@@ -28,6 +28,9 @@ Properties {
     #Personnal modules & script (French documentation only)
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $MyGet=@{
+       #todo :Module se validant lui même...
+       #On doit d'abord le publier sur MyGet par une exécution locale avec
+       #un numéro de version inférieure à l'existant
        Modules=@('Log4Posh','MeasureLocalizedData','DTW.PS.FileSystem','Template') #todo remove call log4net ,'OptimizationRules','ParameterSetRules')
        Scripts=@('Lock-File', 'Using-Culture')
      }
