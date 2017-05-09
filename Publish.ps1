@@ -1,4 +1,4 @@
-#Requires -Modules psake
+﻿#Requires -Modules psake
  [CmdletBinding(DefaultParameterSetName = 'Dev')]
  Param(
       #see appveyor.yml
@@ -11,12 +11,12 @@
      [Parameter(ParameterSetName='PowershellGallery')]
     [switch] $PSGallery
  )
-$Repository=@{
+$Repositories=@{
  'PowershellGallery'='PSGallery'
  'MyGet'='OttoMatt'
  'Dev'='DevOttoMatt'
 }
 
-$Repository.$($PsCmdlet.ParameterSetName)
+$Repositories.$($PsCmdlet.ParameterSetName)
 # Builds the module by invoking psake on the build.psake.ps1 script.
-Invoke-PSake $PSScriptRoot\build.psake.ps1 -taskList Publish -parameters @{"RepositoryName"=$Repository.$($PsCmdlet.ParameterSetName)}
+Invoke-PSake $PSScriptRoot\build.psake.ps1 -taskList Publish -parameters @{"RepositoryName"=$Repositories.$($PsCmdlet.ParameterSetName)}
