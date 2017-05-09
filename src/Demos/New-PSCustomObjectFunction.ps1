@@ -2,6 +2,8 @@
 #Requires -version 3.0
 
 Function New-PSCustomObjectFunction {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions","",
+                                                     Justification="Edit-Template do not use ShouldProcess.")]
     #crée une fonction génèrant un objet personnalisé simple
     #tous ses paramètres sont obligatoires et ne sont pas typé
     #

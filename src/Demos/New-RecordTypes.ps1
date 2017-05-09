@@ -1,4 +1,6 @@
 ﻿Function New-ClassDefinition{
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions","",
+                                                     Justification="Edit-Template do not use ShouldProcess.")]
 #create definitions
 # $T=@(
 #  New-ClassDefinition -ClassName 'MyClass' -Header 'string Name, string EMail, int MBSize'
@@ -22,6 +24,8 @@
 }# New-ClassDefinition
 
 Function New-RecordType{
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions","",
+                                                     Justification="Edit-Template do not use ShouldProcess.")]
  #create a basic class
  #New-RecordType -ClassName 'MyClass' -Header 'string Name, string EMail, int MBSize'
   param(
@@ -115,22 +119,23 @@ Function New-RecordType{
 }
 
 return
+
 #Exemple
-$ClassDef=New-RecordType -ClassName 'MyClass' -Header 'string Name, string EMail, int MBSize'
-# Class MyClass {
-#         [string] $Nom;
-#         [string] $EMail;
-#         [int] $MBSize
+# $ClassDef=New-RecordType -ClassName 'MyClass' -Header 'string Name, string EMail, int MBSize'
+# # Class MyClass {
+# #         [string] $Nom;
+# #         [string] $EMail;
+# #         [int] $MBSize
 
-#         MyClass([string] $Nom, [string] $EMail, [int] $MBSize){
-#                 $this.Nom = $Nom;
-#                 $this.EMail = $EMail;
-#                 $this.MBSize = $MBSize;
-#         }
-# } #MyClass
+# #         MyClass([string] $Nom, [string] $EMail, [int] $MBSize){
+# #                 $this.Nom = $Nom;
+# #                 $this.EMail = $EMail;
+# #                 $this.MBSize = $MBSize;
+# #         }
+# # } #MyClass
 
-Invoke-Expression ($ClassDef|out-string)
-[MyClass]::new('Name','Name@Org.com', 150)
-# Nom  EMail        MBSize
-# ---  -----        ------
-# Name Name@Org.com    150
+# Invoke-Expression ($ClassDef|out-string)
+# [MyClass]::new('Name','Name@Org.com', 150)
+# # Nom  EMail        MBSize
+# # ---  -----        ------
+# # Name Name@Org.com    150

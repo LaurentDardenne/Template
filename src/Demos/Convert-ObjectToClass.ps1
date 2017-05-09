@@ -15,19 +15,23 @@
 }
 
  function New-ClassName {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions","",
+                                                     Justification="Edit-Template do not use ShouldProcess.")]
   param()
    $n=Get-ClassName
    "${n}Light"
  }
-
- function Get-TypeName {
+ #bug PSSA : https://github.com/PowerShell/PSScriptAnalyzer/issues/755
+ function Get-PSTypeName {
   param()
    $InputObject.pstypenames[0] -Replace '^Selected\.',''
  }
 
  function New-MethodHeader {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions","",
+                                                     Justification="Edit-Template do not use ShouldProcess.")]
   param()
-   $type=Get-TypeName
+   $type=Get-PSTypeName
    $n=Get-ClassName
    "`r`n`t$(New-ClassName)([${type}] `$$n) {`r`n"
  }

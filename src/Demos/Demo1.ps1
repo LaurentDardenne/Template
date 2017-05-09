@@ -42,6 +42,7 @@ Get-Content -Path $File  -ReadCount 0 -Encoding UTF8|
 
 
 #Substitute variable 'à la Plaster'
+[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $T_Name='Text Transformation'
 $Text=@'
  #comment
