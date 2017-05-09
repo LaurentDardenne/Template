@@ -427,7 +427,7 @@ Task Publish -depends Build, Test, BuildHelp, GenerateFileCatalog, BeforePublish
 }
 
 Task CorePublish -requiredVariables SettingsPath, ModuleOutDir, isCIEnvironment, SettingsPath, NuGetApiKeyPath {
-    Write-Verbose "PublishRepository:$PublishRepository"
+    Write-Host "Published on the repository  : '$PublishRepository'"
     if ($isCIEnvironment)
     {
         Write-Host "ApiKey from CI"
