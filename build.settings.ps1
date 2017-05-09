@@ -199,8 +199,8 @@ Properties {
 
     # Module names for additionnale custom rule
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    [String[]]$PSSACustomRules=@( 
-      (GetModulePath -Name OptimizationRules) 
+    [String[]]$PSSACustomRules=@(
+      (GetModulePath -Name OptimizationRules)
       (GetModulePath -Name ParameterSetRules)
     )
 
@@ -524,15 +524,6 @@ Task BeforePublish -requiredVariables Projectname, OutDir, ModuleName, PublishRe
            "with the new version : $version"
            Update-Metadata -Path $ManifestPath  -PropertyName ModuleVersion -Value $Version
         }
-    }
-    #si on publie sur :
-    #     PSGallery, la clé n'est pas nécessaire, c'est le même repository
-    #     Myget, la clé est nécessaire, car ce n'est pas le même repository
-    if ($PublishRepository -ne 'PSGallery')
-    { 
-       #todo bug:
-       #https://windowsserver.uservoice.com/forums/301869-powershell/suggestions/19210978-update-modulemanifest-externalmoduledependencies
-       Update-ModuleManifest -path $ManifestPath -ExternalModuleDependencies 'PSScriptAnalyzer','PSScriptAnalyzer' 
     }
 }
 
