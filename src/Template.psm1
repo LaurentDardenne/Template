@@ -313,7 +313,6 @@ param (
                                                   Edit-Template -Clean -Remove:$Remove -Include:$Include -UnComment:$UnComment -Container:$FileName
                                   #Ici on émet le contenu du tableau et pas le tableau reçu
                                   #Seul le résultat final est renvoyé en tant que tableau
-                                  #todo [OutputType(?)] $DebugLogger.PSDebug(  gettype())
                                  $NestedResult
                                }
                                else #if (-not $Clean.isPresent)
@@ -394,7 +393,7 @@ Function Edit-String{
           [Parameter(Mandatory=$true,ValueFromPipeline = $true)]
         [System.Management.Automation.PSObject] $InputObject,
 
-#<%REMOVE%> Les scriptblock sont éxécuté dans la porté de leur déclaration
+#<%REMOVE%> Les scriptblock sont éxécuté dans la portée de leur déclaration
           [ValidateNotNullOrEmpty()]
           [Parameter(Position=0, Mandatory=$true)]
         [System.Collections.IDictionary] $Setting,
@@ -450,7 +449,6 @@ Function Edit-String{
        #Par exemple converti $T=@("un","Deux") en "un deux"
        # ce qui est équivalent à "$T"
        #Au lieu de System.Object[] si on utilise $InputObject.ToString()
-       #De plus un PSObject peut ne pas avoir de méthode ToString()
      [System.Management.Automation.LanguagePrimitives]::ConvertTo($Value,
                                                                    [string],
                                                                    [System.Globalization.CultureInfo]::InvariantCulture)
