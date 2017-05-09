@@ -199,15 +199,15 @@ Properties {
 
     # Module names for additionnale custom rule
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    [String[]]$PSSACustomRules=@()
-    #    GetModulePath -Name OptimizationRules #todo remove call log4net
-    #    GetModulePath -Name ParameterSetRules
-    #  )
+    [String[]]$PSSACustomRules=@( 
+      (GetModulePath -Name OptimizationRules) 
+      (GetModulePath -Name ParameterSetRules)
+    )
 
     #MeasureLocalizedData
      #Full path of the module to control
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $LocalizedDataModule="$SrcRootDir\Template.psm1"
+    $LocalizedDataModule="$SrcRootDir\$ModuleName.psm1"
 
      #Full path of the function to control. If $null is specified only the primary module is analyzed.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
@@ -344,7 +344,7 @@ Task RemoveConditionnal -requiredVariables BuildConfiguration, ModuleOutDir{
    $ModuleOutDir="$OutDir\$ModuleName"
 
    Write-Verbose "Build with '$BuildConfiguration'"
-   Get-ChildItem  "$SrcRootDir\Template.psm1","$SrcRootDir\Template.psd1"|
+   Get-ChildItem  "$SrcRootDir\$ModuleName.psm1","$SrcRootDir\$ModuleName.psd1"|
     Foreach-Object {
       $Source=$_
       $TempFileName="$TempDirectory\$($Source.Name)"
@@ -505,27 +505,36 @@ Task AfterInstall {
 ###############################################################################
 
 # Executes before the Publish task.
-Task BeforePublish -requiredVariables Projectname, OutDir, ModuleName, RepositoryName, Dev_PublishRepository {
-    if ( (-not [string]::IsNullOrWhiteSpace($Dev_PublishRepository)) -and ($RepositoryName -eq $Dev_PublishRepository ))
+Task BeforePublish -requiredVariables Projectname, OutDir, ModuleName, PublishRepository, Dev_PublishRepository {
+    $ManifestPath="$OutDir\$ModuleName\$ModuleName.psd1"
+    if ( (-not [string]::IsNullOrWhiteSpace($Dev_PublishRepository)) -and ($PublishRepository -eq $Dev_PublishRepository ))
     {
         #Increment  the module version for dev repository only
         Import-Module BuildHelpers
-        $SourceLocation=(Get-PSRepository -Name $RepositoryName).SourceLocation
+        $SourceLocation=(Get-PSRepository -Name $PublishRepository).SourceLocation
         "Get the latest version for '$ProjectName' in '$SourceLocation'"
         $Version = Get-NextNugetPackageVersion -Name $ProjectName -PackageSourceUrl $SourceLocation
 
-        $Path="$OutDir\$ModuleName\$ModuleName.psd1"
-        $ModuleVersion=(Test-ModuleManifest -path $Path).Version
+        $ModuleVersion=(Test-ModuleManifest -path $ManifestPath).Version
         # If no version exists, take the current version
         $isGreater=$Version -gt $ModuleVersion
-        "Update the module metadata '$OutDir\$ModuleName\$ModuleName.psd1' ? $isGreater "
+        "Update the module metadata '$ManifestPath' [$ModuleVersion] ? $isGreater "
         if ($isGreater)
         {
            "with the new version : $version"
-           Update-Metadata -Path "$OutDir\$ModuleName\$ModuleName.psd1"  -PropertyName ModuleVersion -Value $Version
+           Update-Metadata -Path $ManifestPath  -PropertyName ModuleVersion -Value $Version
         }
     }
-}
+    #si on publie sur :
+    #     PSGallery, la clé n'est pas nécessaire, c'est le même repository
+    #     Myget, la clé est nécessaire, car ce n'est pas le même repository
+    if ($PublishRepository -ne 'PSGallery')
+    { 
+       #todo bug:
+       #https://windowsserver.uservoice.com/forums/301869-powershell/suggestions/19210978-update-modulemanifest-externalmoduledependencies
+       Update-ModuleManifest -path $ManifestPath -ExternalModuleDependencies 'PSScriptAnalyzer','PSScriptAnalyzer' 
+    }
+}}
 
 # Executes after the Publish task.
 Task AfterPublish {
