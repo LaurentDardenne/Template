@@ -534,7 +534,7 @@ Task BeforePublish -requiredVariables Projectname, OutDir, ModuleName, PublishRe
        #https://windowsserver.uservoice.com/forums/301869-powershell/suggestions/19210978-update-modulemanifest-externalmoduledependencies
        Update-ModuleManifest -path $ManifestPath -ExternalModuleDependencies 'PSScriptAnalyzer','PSScriptAnalyzer' 
     }
-}}
+}
 
 # Executes after the Publish task.
 Task AfterPublish {
