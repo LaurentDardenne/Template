@@ -7,7 +7,6 @@
 
 Task default -Depends Install,Update
 
-#todo traitement lié à la config personelle
 Task Install -Depends RegisterPSRepository -Precondition { $Mode -eq  'Install'}  {
 
   #Suppose : PowershellGet à jour

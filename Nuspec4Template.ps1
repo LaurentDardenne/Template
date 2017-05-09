@@ -1,7 +1,5 @@
-﻿if(! (Test-Path variable:TemplateVcs))
-{ throw "The project configuration is required, see the 'Template_ProjectProfile.ps1' script." }
-
-$ModuleVersion=(Import-ManifestData "$TemplateVcs\src\Template.psd1").ModuleVersion
+﻿
+$ModuleVersion=(Import-ManifestData "$PSScriptRoot\Release\Template\Template.psd1").ModuleVersion
 
 $Result=nuspec 'Template' $ModuleVersion {
    properties @{
@@ -25,23 +23,12 @@ The 'Template' module offers these features:
         licenseUrl='https://creativecommons.org/licenses/by-nc-sa/4.0/'
         projectUrl='https://github.com/LaurentDardenne/Template'
         iconUrl='https://raw.githubusercontent.com/LaurentDardenne/Template/master/Assets/Template.png'
-        releaseNotes="$(Get-Content "$TemplateVcs\CHANGELOG.md" -raw)"
+        releaseNotes="$(Get-Content "$PSScriptRoot\CHANGELOG.md" -raw)"
         tags='Template Conditionnal Directive Regex'
    }
 
-   dependencies {
-        dependency Log4Posh 2.0.0
-   }
-
    files {
-        file -src "$TemplateVcs\src\Template.psd1"
-        file -src "$TemplateVcs\src\Template.psm1"
-        file -src "$TemplateVcs\src\Template.Resources.psd1"
-        file -src "$TemplateVcs\src\TemplateLog4Posh.Config.xml"
-
-        file -src "$TemplateVcs\src\Initialize-TemplateModule.ps1"
-        file -src "$TemplateVcs\README.md"
-        file -src "$TemplateVcs\src\Demos\" -target "Demos\"
+        file -src "$PSScriptRoot\Release\Template\*"
    }
 }
 

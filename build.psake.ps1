@@ -223,7 +223,7 @@ Task Sign -depends StageFiles -requiredVariables CertPath, SettingsPath, ScriptS
     }
 }
 
-Task BuildHelp -depends Build, BeforeBuildHelp, GenerateMarkdown, GenerateHelpFiles, AfterBuildHelp {
+Task BuildHelp -Precondition { $IsHelpGeneration } -depends Build, BeforeBuildHelp, GenerateMarkdown, GenerateHelpFiles, AfterBuildHelp {
 }
 
 Task GenerateMarkdown -requiredVariables DefaultLocale, DocsRootDir, ModuleName, ModuleOutDir {

@@ -161,8 +161,12 @@ Properties {
 
     # The local installation directory for the install task. Defaults to your home Modules location.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-     $InstallPath = Join-Path (Split-Path $profile.CurrentUserAllHosts -Parent) `
-                              "Modules\$ModuleName\$((Test-ModuleManifest -Path $SrcRootDir\$ModuleName.psd1).Version.ToString())"
+    $InstallPath = Join-Path (Split-Path $profile.CurrentUserAllHosts -Parent) `
+                             "Modules\$ModuleName\$((Test-ModuleManifest -Path $SrcRootDir\$ModuleName.psd1).Version.ToString())"
+
+    #PSSA rules have no function to document
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $IsHelpGeneration=$true
 
     # Default Locale used for help generation, defaults to en-US.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
@@ -196,9 +200,9 @@ Properties {
     # Module names for additionnale custom rule
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     [String[]]$PSSACustomRules=@()
-    #   GetModulePath -Name OptimizationRules todo remove call log4net
-    #   GetModulePath -Name ParameterSetRules
-    # )
+    #    GetModulePath -Name OptimizationRules #todo remove call log4net
+    #    GetModulePath -Name ParameterSetRules
+    #  )
 
     #MeasureLocalizedData
      #Full path of the module to control
@@ -334,11 +338,10 @@ Properties {
 
 Task RemoveConditionnal -requiredVariables BuildConfiguration, ModuleOutDir{
 #Traite les pseudo directives de parsing conditionnelle
-   #Import-Module Log4Posh -global #todo remove une fois template livré sans les logs
-   #Import-Module Template -global
+
  try {
    $TempDirectory=New-TemporaryDirectory
-   $ModuleOutDir="$OutDir\$ModuleName" #todo accesssible via clean ?
+   $ModuleOutDir="$OutDir\$ModuleName"
 
    Write-Verbose "Build with '$BuildConfiguration'"
    Get-ChildItem  "$SrcRootDir\Template.psm1","$SrcRootDir\Template.psd1"|
@@ -349,15 +352,6 @@ Task RemoveConditionnal -requiredVariables BuildConfiguration, ModuleOutDir{
       Write-Verbose " to  : $TempFileName"
       if ($BuildConfiguration -eq 'Release')
       {
-         #todo selon les associations de repository on peut vouloir supprimer la clé   ExternalModuleDependencies = @('PSScriptAnalyzer')
-
-         #          on ne connait pas l'association MODULE-REPOSITORY !!
-
-         #si on publie sur PSGallery, la clé  n'est pas nécessaire, c'est le même repo
-         #si on publie sur Myget, la clé est nécessaire, ce n'est pas le même repo
-         #si on publie sur DevMyget, la clé est nécessaire, ce n'est pas le même repo MAIS les dépendances sont sur Myget ....
-         # A tester, collision possible , le premier trouvé ?
-
          #Supprime les lignes de code de Debug et de test
          #On traite une directive et supprime les lignes demandées.
          #On inclut les fichiers.
@@ -536,8 +530,3 @@ Task BeforePublish -requiredVariables Projectname, OutDir, ModuleName, Repositor
 # Executes after the Publish task.
 Task AfterPublish {
 }
-
-#todo
-#  publier les test : Update-AppveyorTest -Name "PsScriptAnalyzer" -Outcome Passed
-#  publier le résultat du build sur devOttoMatt ( Push-AppveyorArtifact $_.FullName }
-#  https://github.com/GitTools/GitVersion ?
