@@ -28,7 +28,7 @@ Properties {
     #Personnal modules & script (French documentation only)
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $MyGet=@{
-       Modules=@('Log4Posh','MeasureLocalizedData','DTW.PS.FileSystem','Template') #todo remove call log4net ,'OptimizationRules','ParameterSetRules')
+       Modules=@('Log4Posh','MeasureLocalizedData','DTW.PS.FileSystem','Template','OptimizationRules','ParameterSetRules')
        Scripts=@('Lock-File', 'Using-Culture')
      }
   #todo : install .Zip or Nuget package
