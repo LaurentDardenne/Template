@@ -36,7 +36,6 @@ PowerShellVersion = '2.0'
 # DotNetFrameworkVersion = ''
 
 # Minimum version of the common language runtime (CLR) required by this module
- #<Remove%> Log4Posh use clr 2.0
 CLRVersion = '2.0'
 
 # Processor architecture (None, X86, Amd64) required by this module
