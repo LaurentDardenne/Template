@@ -2,6 +2,10 @@
 
 Import-LocalizedData -BindingVariable Messages -Filename Template.Resources.psd1 -EA Stop
 
+function ExpandString{
+   param ($Text)
+  $ExecutionContext.InvokeCommand.ExpandString($Text)
+}
 #<DEFINE %DEBUG%>
 $Script:lg4n_ModuleName=$MyInvocation.MyCommand.ScriptBlock.Module.Name
 
@@ -20,7 +24,7 @@ filter Out-ArrayOfString {
  if ([string]::IsNullOrEmpty($_))
  {$_}
  else
- { $_ -split "(`n|`r`n)" }
+ { $_.Split(@("`r`n", "`n"),'None') }
 }
 
 Function Edit-Template {
@@ -185,7 +189,7 @@ param (
 
                                if ($LastDirective -ne $FoundDirective)
                                {
-                                   $msg=$Messages.DirectivesIncorrectlyNested -F $Container,$Last,$FoundDirective,$LineNumber
+                                   $msg=(ExpandString $Messages.DirectivesIncorrectlyNested) -F $Container,$Last,$FoundDirective,$LineNumber
                                    $ex=new-object System.Exception $msg
                                    $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex,
                                                                                                         'DirectivesIncorrectlyNested',
@@ -199,7 +203,7 @@ param (
 
                             if ($isDirectiveOrphan)
                             {
-                                $msg=$Messages.OrphanDirective -F $Container,$FoundDirective,$LineNumber
+                                $msg=(ExpandString $Messages.OrphanDirective) -F $Container,$FoundDirective,$LineNumber
                                 $ex=new-object System.Exception $msg
                                 $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex,
                                                                                                        'OrphanDirective',
@@ -364,7 +368,7 @@ param (
    if ($Directives.Count -gt 0)
    {
      $oldofs,$ofs=$ofs,','
-     $ex=new-object System.Exception ($Messages.DirectiveIncomplet -F $Container,$Directives)
+     $ex=new-object System.Exception ((ExpandString $Messages.DirectiveIncomplet) -F $Container,$Directives)
      $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex,
                                                                         'IncompletDirective',
                                                                         "ParserError",
@@ -646,7 +650,7 @@ Function Edit-String{
              #issues de cette conversion.
            [string]$Key= ConvertTo-String $_.Key
            if ($Key -eq [string]::Empty)
-            { $PSCmdlet.WriteWarning(($Messages.WarningConverTo -F $_.Key))}
+            { $PSCmdlet.WriteWarning(((ExpandString $Messages.WarningConverTo) -F $_.Key))}
          }
          else
          {$key=$_.Key}
@@ -799,7 +803,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
            } catch {
              $PSCmdlet.WriteError(
                 (New-Object System.Management.Automation.ErrorRecord (
-           		  (New-Exception $_.Exception ($Messages.ReplaceSimpleScriptBlockError -F $Key,$Parameters.Replace.ToString(),$_)),
+           		  (New-Exception $_.Exception ( (ExpandString $Messages.ReplaceSimpleScriptBlockError) -F $Key,$Parameters.Replace.ToString(),$_)),
                   "ReplaceSimpleScriptBlockError",
                   "InvalidOperation",
                   ("[{0}]" -f $Parameters.Replace)
@@ -950,7 +954,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                          }
                         else
                          {
-                           $PSCmdlet.WriteWarning(($Messages.ReplaceRegExStarAt -F $InputObject.$CurrentPropertyName,
+                           $PSCmdlet.WriteWarning(((ExpandString $Messages.ReplaceRegExStarAt) -F $InputObject.$CurrentPropertyName,
                                                                                    $Parameters.StartAt,
                                                                                    $InputObject.$CurrentPropertyName.Length))
                            $DebugLogger.PSDebug($msg)#<%REMOVE%>
@@ -1076,7 +1080,6 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
   $DebugLogger.PSDebug("[Pipeline] Next object.")#<%REMOVE%>
  }#process
 }#Edit-String
-
 #<DEFINE %DEBUG%>
 # Suppression des objets du module
 Function OnRemoveTemplate {
@@ -1086,4 +1089,3 @@ Function OnRemoveTemplate {
 }#OnRemoveTemplate
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = { OnRemoveTemplate }
 #<UNDEF %DEBUG%>
-
