@@ -31,10 +31,6 @@ Properties {
        Modules=@('Log4Posh','MeasureLocalizedData','DTW.PS.FileSystem','Template','OptimizationRules','ParameterSetRules')
        Scripts=@('Lock-File', 'Using-Culture')
      }
-  #todo : install .Zip or Nuget package
-  # Set-location $Env:Temp
-  # nuget install ReportUnit
-  # #&"$Env:Temp\ReportUnit.1.2.1\tools\ReportUnit.exe"
 }
 
 ###############################################################################
