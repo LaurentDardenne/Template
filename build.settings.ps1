@@ -82,7 +82,7 @@ function GetModulePath {
 function New-TemporaryDirectory {
     $parent = [System.IO.Path]::GetTempPath()
     $name = [System.IO.Path]::GetRandomFileName()
-    New-Item -ItemType Directory -Path (Join-Path $parent $name)
+    New-Item -ItemType Directory -Path (Join-Path $parent $name) -verbose:($VerbosePreference -eq 'Continue') -EA Stop
 }
 
 function Test-BOMFile{
@@ -135,6 +135,23 @@ function Test-BOMFile{
 }
 
 Properties {
+    # ----------------------- Misc configuration properties ---------------------------------
+
+    # Specifies the paths of the installed scripts
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $PSGetInstalledPath=GetPowershellGetPath
+
+    # Used by Edit-Template inside the 'RemoveConditionnal' task.
+    # Valid values are 'Debug' or 'Release'
+    # 'Release' : Remove the debugging/trace lines, include file, expand scriptblock, clean all directives
+    # 'Debug' : Do not change anything
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    [ValidateSet('Release','Debug')]  $BuildConfiguration='Release'
+
+    #To manage the ApiKey differently
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $isCIEnvironment=Test-CIEnvironment
+
     # ----------------------- Basic properties --------------------------------
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $ProjectName= 'Template'
@@ -176,7 +193,9 @@ Properties {
     # Typically you wouldn't put any file under the src dir unless the file was going to ship with
     # the module. However, if there are such files, add their $SrcRootDir relative paths to the exclude list.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $Exclude = @('Template.psm1','Template.psd1','*.bak')
+    $Exclude = @("$ModuleName.psm1","$ModuleName.psd1",'*.bak')
+    if ($BuildConfiguration -eq 'Release')
+    { $Exclude +="${ModuleName}Log4Posh.Config.xml"}
 
     # ------------------ Script analysis properties ---------------------------
 
@@ -311,25 +330,9 @@ Properties {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $TestOutputFormat = "NUnitXml"
 
-    # Specifies the paths of the installed scripts
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $PSGetInstalledPath=GetPowershellGetPath
-
     # Execute or nor 'TestBOM' task
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $isTestBom=$true
-
-    # Used by Edit-Template inside the 'RemoveConditionnal' task.
-    # Valid values are 'Debug' or 'Release'
-    # 'Release' : Remove the debugging/trace lines, include file, expand scriptblock, clean all directives
-    # 'Debug' : Do not change anything
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    [ValidateSet('Release','Debug')]  $BuildConfiguration='Release'
-
-    #To manage the ApiKey differently
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $isCIEnvironment=Test-CIEnvironment
-
 }
 
 ###############################################################################
@@ -338,6 +341,11 @@ Properties {
 
 Task RemoveConditionnal -requiredVariables BuildConfiguration, ModuleOutDir{
 #Traite les pseudo directives de parsing conditionnelle
+
+ #bug scope/limit PSake ?
+ # The first call works, but not the followings
+ #-Force reload the ScriptToProcess
+ Import-Module Template -Force #todo $TemplateDefaultSettings -> PSSake Properties ?
 
  try {
    $TempDirectory=New-TemporaryDirectory
@@ -352,16 +360,21 @@ Task RemoveConditionnal -requiredVariables BuildConfiguration, ModuleOutDir{
       Write-Verbose " to  : $TempFileName"
       if ($BuildConfiguration -eq 'Release')
       {
-         #Supprime les lignes de code de Debug et de test
-         #On traite une directive et supprime les lignes demandées.
-         #On inclut les fichiers.
-        Get-Content -Path $Source -Encoding UTF8 -ReadCount 0|
-        #  Edit-String -Setting $TemplateDefaultSettings|
-        #  Out-ArrayOfString
-          #todo Pb : préserver les CR/LF lors de l'écriture du fichier...
-         Edit-Template -ConditionnalsKeyWord 'DEBUG' -Include -Remove -Container $Source|
-         Edit-Template -Clean|
-         Set-Content -Path $TempFileName -Force -Encoding UTF8 -verbose:($VerbosePreference -eq 'Continue')
+
+         #Transforme les directives %Scriptblock%
+         $Lines=Get-Content -Path $Source -Encoding UTF8|
+                 Edit-String -Setting $TemplateDefaultSettings|
+                 Out-ArrayOfString
+
+         #On supprime les lignes de code de Debug,
+         #   supprime les lignes demandées,
+         #   inclut les fichiers,
+         #   nettoie toutes les directives restantes.
+
+         ,$Lines|
+           Edit-Template -ConditionnalsKeyWord 'DEBUG' -Include -Remove -Container $Source|
+           Edit-Template -Clean|
+           Set-Content -Path $TempFileName -Force -Encoding UTF8 -verbose:($VerbosePreference -eq 'Continue')
       }
       elseif ($BuildConfiguration -eq 'Debug')
       {
@@ -370,15 +383,17 @@ Task RemoveConditionnal -requiredVariables BuildConfiguration, ModuleOutDir{
 
          #'NODEBUG' est une directive inexistante et on ne supprime pas les directives
          #sinon cela génére trop de différences en cas de comparaison de fichier
-        Get-Content -Path $Source -ReadCount 0 -Encoding UTF8|
-        #  Edit-String -Setting  $TemplateDefaultSettings|
-        #  Out-ArrayOfString
-        Edit-Template -ConditionnalsKeyWord 'NODEBUG' -Include -Container $Source|
-         Set-Content -Path $TempFileName -Force -Encoding UTF8
+         $Lines=Get-Content -Path $Source -Encoding UTF8|
+                  Edit-String -Setting  $TemplateDefaultSettings|
+                  Out-ArrayOfString
+
+         ,$Lines|
+           Edit-Template -ConditionnalsKeyWord 'NODEBUG' -Include -Container $Source|
+           Set-Content -Path $TempFileName -Force -Encoding UTF8 -verbose:($VerbosePreference -eq 'Continue')
       }
       else
       { throw "Invalid configuration name '$BuildConfiguration'" }
-     Copy-Item -Path $TempFileName -Destination $ModuleOutDir -Recurse -Verbose:($VerbosePreference -eq 'Continue')
+     Copy-Item -Path $TempFileName -Destination $ModuleOutDir -Recurse -Verbose:($VerbosePreference -eq 'Continue') -EA Stop
     }#foreach
   } finally {
     if (Test-Path $TempDirectory)
