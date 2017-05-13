@@ -21,5 +21,5 @@ DirectiveNameReserved           =These names are reserved directives : {0}. Use 
 DirectivesIncorrectlyNested     =Parsing canceled.`r`n{0}`r`nThe directives declarations '{1}' et '{2}:{3}' are not nested.
 OrphanDirective                 =Parsing canceled.`r`n{0}`r`nThe  directive #<UNDEF %{1}%> is not associated with a DEFINE directive ('{1}:{2}')
 IncludedFileNotFound            =A file to include does not exist'{0}'
-DirectiveIncomplet              =Parsing canceled.`r`n{0}`r`n the following directives have no end keyword : {1}
+DirectiveIncomplet              =Parsing canceled.`r`n{0}`r`n the following directives have no end keyword : {1}`r`nVerify that -InputObject is an array of string.
 '@

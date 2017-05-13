@@ -23,5 +23,5 @@ DirectiveNameReserved           =Ces noms de directive sont réservées : {0}. U
 DirectivesIncorrectlyNested     =Parsing annulé.`r`n{0}`r`nLes déclarations des directives '{1}' et '{2}:{3}' ne sont pas imbriquées.
 OrphanDirective                 =Parsing annulé.`r`n{0}`r`nLa directive #<UNDEF %{1}%> n'est pas associée à une directive DEFINE ('{1}:{2}')
 IncludedFileNotFound            =Un fichier à inclure n'existe pas '{0}'
-DirectiveIncomplet              =Parsing annulé.`r`n{0}`r`nLes directives suivantes n'ont pas de mot clé de fin : {1}
+DirectiveIncomplet              =Parsing annulé.`r`n{0}`r`nLes directives suivantes n'ont pas de mot clé de fin : {1}`r`nVérifiez que -InputObject est bien un tableau de string.
 '@
