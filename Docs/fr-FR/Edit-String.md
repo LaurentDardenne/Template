@@ -7,9 +7,7 @@ schema: 2.0.0
 # Edit-String
 
 ## SYNOPSIS
-Remplace toutes les occurrences d'un modèle de caractère, défini par
-une chaîne de caractère simple ou par une expression régulière, par une
-chaîne de caractères de remplacement.
+Remplace toutes les occurrences d'un modèle de caractère, défini par une chaîne de caractère simple ou par une expression régulière, par une chaîne de caractères de remplacement.
 
 ## SYNTAX
 
@@ -26,19 +24,13 @@ Edit-String -InputObject <PSObject> [-Setting] <IDictionary> [[-Property] <Strin
 ```
 
 ## DESCRIPTION
-La fonction Edit-String remplace dans une chaîne de caractères toutes
-les occurrences d'une chaîne de caractères par une autre chaîne de caractères.
-Le contenu de la chaîne recherchée peut-être soit une chaîne de caractère
-simple soit une expression régulière.
-.
-Le paramétrage du modèle de caractère et de la chaîne de caractères de
-remplacement se fait via une hashtable.
-Celle-ci permet un remplacement
-multiple sur une même chaîne de caractères.
-Ces multiples remplacements se
-font les uns à la suite des autres et pas en une seule fois.
-Chaque opération de remplacement reçoit la chaîne résultante du
-remplacement précédent.
+La fonction Edit-String remplace dans une chaîne de caractères toutes les occurrences d'une chaîne de caractères par une autre chaîne de caractères.
+Le contenu de la chaîne recherchée peut-être soit une chaîne de caractère simple soit une expression régulière.
+
+Le paramétrage du modèle de caractère et de la chaîne de caractères de remplacement se fait via une hashtable.
+Celle-ci permet un remplacement multiple sur une même chaîne de caractères.
+Ces multiples remplacements se font les uns à la suite des autres et pas en une seule fois.
+Chaque opération de remplacement reçoit la chaîne résultante duremplacement précédent.
 
 ## EXAMPLES
 
@@ -51,24 +43,18 @@ $h."\d"='X'
 Edit-String -i $s $h
 ```
 
-Ces commandes effectuent un remplacement multiple dans la chaîne $S,
-elles remplacent toutes les lettres 'a' par le caractère '?' et tous
-les chiffres par la lettre 'X'.
+Ces commandes effectuent un remplacement multiple dans la chaîne $S, elles remplacent toutes les lettres 'a' par le caractère '?' et tous les chiffres par la lettre 'X'.
 
-La hashtable $h contient deux entrées, chaque clé est utilisée comme
-étant la chaîne à rechercher et la valeur de cette clé est utilisée
-comme chaîne de remplacement.
-Dans ce cas on effectue deux opérations de remplacement sur chaque chaîne 
-de caractères reçu.
+La hashtable $h contient deux entrées, chaque clé est utilisée comme étant la chaîne à rechercher et la valeur de cette clé est utilisée comme chaîne de remplacement.
+Dans ce cas on effectue deux opérations de remplacement sur chaque chaîne de caractères reçu.
 
-Le résultat, de type chaîne de caractères, est égal à 
+Le résultat, de type chaîne de caractères, est égal à
  C?r?ctères : XX \d\d
 
 
-La hashtable $H contenant deux entrées, Edit-String effectuera deux
-opérations de remplacement sur la chaîne $S.
+La hashtable $H contenant deux entrées, Edit-String effectuera deux opérations de remplacement sur la chaîne $S.
 
-Ces deux opérations sont équivalentes à la suite d'instructions suivantes 
+Ces deux opérations sont équivalentes à la suite d'instructions suivantes
 
 $Resultat=$S -replace "a",'?'
 $Resultat=$Resultat -replace "\d",'X'
@@ -83,21 +69,16 @@ $h."\d"='X'
 Edit-String -i $s $h -SimpleReplace
 ```
 
-Ces commandes effectuent un remplacement multiple dans la chaîne $S,
-elles remplacent toutes les lettres 'a' par le caractère '?', tous les
-chiffres ne seront pas remplacés par la lettre 'X', mais toutes les
-combinaisons de caractères "\d" le seront, car le switch SimpleReplace
-est précisé.
-Dans ce cas, la valeur de la clé est considérée comme une
-simple chaîne de caractères et pas comme une expression régulière.
+Ces commandes effectuent un remplacement multiple dans la chaîne $S, elles remplacent toutes les lettres 'a' par le caractère '?', tous les chiffres ne seront pas remplacés par la lettre 'X', mais toutes les combinaisons de caractères "\d" le seront, car le switch SimpleReplace est précisé.
+
+Dans ce cas, la valeur de la clé est considérée comme une simple chaîne de caractères et pas comme une expression régulière.
 
 Le résultat, de type chaîne de caractères, est égal à :
 C?r?ctères : 33 XX
 
-La hashtable $H contenant deux entrées, Edit-String effectuera deux
-opérations de remplacement sur la chaîne $S.
+La hashtable $H contenant deux entrées, Edit-String effectuera deux opérations de remplacement sur la chaîne $S.
 
-Ces deux opérations sont équivalentes à la suite d'instructions suivantes : 
+Ces deux opérations sont équivalentes à la suite d'instructions suivantes :
 
 $Resultat=$S.Replace("a",'?')
 $Resultat=$Resultat.Replace("\d",'X')
@@ -114,11 +95,9 @@ $h."\d"='X'
 Edit-String -i $s $h -Unique
 ```
 
-Ces commandes effectuent un seul remplacement dans la chaîne $S, elles
-remplacent toutes les lettres 'a' par le caractère '?'.
+Ces commandes effectuent un seul remplacement dans la chaîne $S, elles remplacent toutes les lettres 'a' par le caractère '?'.
 
-L'usage du paramètre -Unique arrête le traitement, pour l'objet en cours,
-dés qu'une opération de recherche et remplacement réussit.
+L'usage du paramètre -Unique arrête le traitement, pour l'objet en cours, dés qu'une opération de recherche et remplacement réussit.
 
 Le résultat, de type chaîne de caractères, est égal à :
 C?r?ctères : 33
@@ -133,19 +112,14 @@ $h."(?\<Chiffre\>\d)"='${Chiffre}X'
 $S|Edit-String $h
 ```
 
-Ces commandes effectuent un remplacement multiple dans la chaîne $S,
-elles remplacent toutes les lettres 'a' par le caractère '?' et tous
-les chiffres par la sous-chaîne trouvée, correspondant au groupe
-(?\<Chiffre\>\d), suivie de la lettre 'X'.
+Ces commandes effectuent un remplacement multiple dans la chaîne $S, elles remplacent toutes les lettres 'a' par le caractère '?' et tous les chiffres par la sous-chaîne trouvée, correspondant au groupe (?\<Chiffre\>\d), suivie de la lettre 'X'.
 
 Le résultat, de type chaîne de caractères, est égal à :
 C?r?ctères : 3X3X
 
 L'utilisation d'une capture nommée, en lieu et place d'un numéro de
-groupe, comme $h."\d"='$1 X', évite de séparer le texte du nom de groupe
-par au moins un caractère espace.
-Le parsing par le moteur des expressions régulières reconnait $1, mais
-pas $1X.
+groupe, comme $h."\d"='$1 X', évite de séparer le texte du nom de groupe par au moins un caractère espace.
+Le parsing par le moteur des expressions régulières reconnait $1, mais pas $1X.
 
 ### -------------------------- EXAMPLE 5 --------------------------
 ```
@@ -284,7 +258,7 @@ Le résultat, de type chaîne de caractères, est égal à :
 \# Version : 1.2.1
 \#
 \# Date    : NomDeJour xx NomDeMois Année
- 
+
 Note :
 Sous PS v2, un bug fait qu'une nouvelle ligne dans une Here-String est
 représentée par l'unique caractère "\`n" et pas par la suite de caractères
@@ -401,7 +375,7 @@ On remplace dans l'entête de chaque fichier le numéro de version et la
 date.
 Avant le traitement, chaque fichier .ps1 est recopié en .bak dans
 le même répertoire.
-Une fois le traitement d'un fichier effectué, on peut visualiser les 
+Une fois le traitement d'un fichier effectué, on peut visualiser les
 différences à l'aide de l'utilitaire WinMerge.
 
 ### -------------------------- EXAMPLE 12 --------------------------
@@ -422,7 +396,7 @@ La première expression régulière recherche les objets dont la propriété
 'Description', de type \[string\], n'est pas renseignée.
 La seconde modifie celles contenant en début de chaîne un des trois mots
 précisés dans une alternative.
-La chaîne de remplacement reconstruit le contenu en insérant le mot 'PowerShell' 
+La chaîne de remplacement reconstruit le contenu en insérant le mot 'PowerShell'
 en début de chaîne.
 
 Le contenu de la propriété 'Description' d'un objet de type
@@ -524,20 +498,19 @@ Accept wildcard characters: False
 ```
 
 ### -Property
-Spécifie le ou les noms des propriétés d'un objet concernées lors du
-remplacement.
-Seules sont traités les propriétés de type \[string\]
-possédant un assesseur en écriture (Setter).
-Pour chaque propriété on effectue tous les remplacements précisés dans
-le paramètre -Setting, tout en tenant compte de la valeur des paramètres
--Unique et -SimpleReplace.
+Spécifie le ou les noms des propriétés d'un objet concernées lors du remplacement.
+
+Seules sont traités les propriétés de type \[string\] possédant un assesseur en écriture (Setter).
+
+Pour chaque propriété on effectue tous les remplacements précisés dans le paramètre -Setting, tout en tenant compte de la valeur des paramètres -Unique et -SimpleReplace.
+
 On réémet l'objet reçu, après avoir modifié les propriétés indiquées.
 Le paramètre -Inputobject n'est donc pas converti en type \[String\].
 Une erreur non-bloquante sera déclenchée si l'opération ne peut aboutir.
-.
+
+
 Les jokers sont autorisés dans les noms de propriétés.
-Comme les objets reçus peuvent être de différents types, le traitement
-des propriétés inexistante ne génére pas d'erreur.
+Comme les objets reçus peuvent être de différents types, le traitement des propriétés inexistante ne génére pas d'erreur.
 
 ```yaml
 Type: String[]
@@ -553,48 +526,60 @@ Accept wildcard characters: False
 
 ### -ReplaceInfo
 Indique que la fonction retourne un objet personnalisé \[PSReplaceInfo\].
+
 Celui-ci contient les membres suivants :
- -\[ArrayList\] Replaces  : Contient le résultat d'exécution de chaque
-                          entrée du paramètre -Setting.
- -\[Boolean\]   isSuccess : Indique si un remplacement a eu lieu, que
-                          $InputObject ait un contenu différent ou pas.
- -            Value     : Contient la valeur de retour de $InputObject,
-                          qu'il y ait eu ou non de modifications .
-.
-Le membre Replaces contient une liste d'objets personnalisés de type
-\[PSReplaceInfoItem\].
-A chaque clé du paramètre -Setting correspond
-un objet personnalisé.
+
+ -\[ArrayList\] Replaces  :
+
+  Contient le résultat d'exécution de chaque entrée du paramètre -Setting.
+
+
+ -\[Boolean\]   isSuccess :
+
+  Indique si un remplacement a eu lieu, que $InputObject ait un contenu différent ou pas.
+
+
+ - Value     :
+
+  Contient la valeur de retour de $InputObject, qu'il y ait eu ou non des modifications.
+
+Le membre Replaces contient une liste d'objets personnalisés de type \[PSReplaceInfoItem\].
+A chaque clé du paramètre -Setting correspond un objet personnalisé.
 L'ordre d'insertion dans la liste suit celui de l'exécution.
-.
+
 PSReplaceInfoItem contient les membres suivants :
-  - \[String\]  Old       : Contient la ligne avant la modification.
-                          Si -Property est précisé, ce champ contiendra
-                          toujours $null.
-  - \[String\]  New       : Si le remplacement réussi, contient la ligne
-                          après la modification, sinon contient $null.
-                          Si -Property est précisé, ce champ contiendra
-                          toujours $null.
-  - \[String\]  Pattern   : Contient le pattern de recherche.
-  - \[Boolean\] isSuccess : Indique s'il y a eu un remplacement.
-                          Dans le cas où on remplace une occurrence 'A'
-                          par 'A', une expression régulière permet de
-                          savoir si un remplacement a eu lieu, même à
-                          l'identique.
-Si vous utilisez -SimpleReplace
-                          ce n'est plus le cas, cette propriété contiendra
-                          $false.
-Notez que si le paramètre -Property est précisé, une seule opération sera
-enregistrée dans le tableau Replaces, les noms des propriétés traitées
-ne sont pas mémorisés.
-.
+
+  - \[String\]  Old       :
+
+   Contient la ligne avant la modification.
+   Si -Property est précisé, ce champ contiendra toujours $null.
+
+
+  - \[String\]  New       :
+
+   Si le remplacement réussi, contient la ligne après la modification, sinon contient $null.
+   Si -Property est précisé, ce champ contiendra toujours $null.
+
+  - \[String\]  Pattern   :
+
+   Contient le pattern de recherche.
+
+
+  - \[Boolean\] isSuccess :
+
+  Indique s'il y a eu un remplacement.
+  Dans le cas où on remplace une occurrence 'A' par 'A', une expression régulière permet de savoir si un remplacement a eu lieu, même à l'identique.
+
+
+Si vous utilisez -SimpleReplace  ce n'est plus le cas, cette propriété contiendra $false.
+Notez que si le paramètre -Property est précisé, une seule opération sera enregistrée dans le tableau Replaces, les noms des propriétés traitées ne sont pas mémorisés.
+
 Note :
-Attention à la consommation mémoire si $InputObject est une chaîne de
-caractère de taille importante.
-Si vous mémorisez le résultat dans une variable, l'objet contenu dans
-le champ PSReplaceInfo.Value sera toujours référencé.
-Pensez à supprimer rapidement cette variable afin de ne pas retarder la
-libération automatique des objets référencés.
+Attention à la consommation mémoire si $InputObject est une chaîne de caractère de taille importante.
+
+Si vous mémorisez le résultat dans une variable, l'objet contenu dans le champ PSReplaceInfo.Value sera toujours référencé.
+
+Pensez à supprimer rapidement cette variable afin de ne pas retarder la libération automatique des objets référencés.
 
 ```yaml
 Type: SwitchParameter
@@ -609,120 +594,144 @@ Accept wildcard characters: False
 ```
 
 ### -Setting
-Hashtable contenant les textes à rechercher et celui de leur remplacement
-respectif  :
+Hashtable contenant les textes à rechercher et celui de leur remplacement respectif  :
+
  $MyHashtable."TexteARechercher"="TexteDeRemplacement"
  $MyHashtable."AncienTexte"="NouveauTexte"
-Sont autorisées toutes les instances de classe implémentant l'interface
-\[System.Collections.IDictionary\].
-.
-.
+
+Sont autorisées toutes les instances de classe implémentant l'interface \[System.Collections.IDictionary\].
+
+
 Chaque entrée de la hashtable est une paire nom-valeur :
- ° Le nom contient la chaîne à rechercher, c'est une simple chaîne de
-   caractères qui peut contenir une expression régulière.
-   Il peut être de type \[Object\], dans ce cas l'objet sera
-   converti en \[String\], même si c'est une collection d'objets.
-   Si la variable $OFS est déclarée elle sera utilisée lors de cette
-   conversion.
- ° La valeur contient la chaîne de remplacement et peut référencer :
-    - une simple chaîne de caractères qui peut contenir une capture
-      nommée, exemple :
+
+ - Le nom contient la chaîne à rechercher, c'est une simple chaîne de  caractères qui peut contenir une expression régulière.
+
+   Il peut être de type \[Object\], dans ce cas l'objet sera converti en \[String\], même si c'est une collection d'objets.
+
+   Si la variable $OFS est déclarée elle sera utilisée lors de cette conversion.
+
+
+ - La valeur contient la chaîne de remplacement et peut référencer :
+
+    - une simple chaîne de caractères qui peut contenir une capture nommée, exemple :
+
        $HT."(Texte)"='$1 AjoutTexteSéparéParUnEspace'
+
        $HT."(Groupe1Capturé)=(Groupe2Capturé)"='$2=$1'
+
        $HT."(?\<NomCapture\>Texte)"='${NomCapture}AjoutTexteSansEspace'
+
       Cette valeur peut être $null ou contenir une chaîne vide.
-.
-      Note : Pour utiliser '$1" comme chaîne ce remplacement et non pas
-      comme référence à une capture nommée, vous devez échapper le signe
-      dollar ainsi '$$1'.
-.
+
+
+      Note : Pour utiliser '$1" comme chaîne ce remplacement et non pas comme référence à une capture nommée, vous devez échapper le signe dollar ainsi '$$1'.
+
+
     - un Scriptblock, implicitement de type \[System.Text.RegularExpressions.MatchEvaluator\] :
+
         #Remplace le caractère ':' par '\<:\>'
-       $h.":"={"\<$($args\[0\])\>"}
-.
-      Dans ce cas, pour chaque occurrence de remplacement trouvée, on
-      évalue le remplacement en exécutant le Scriptblock qui reçoit dans
-      $args\[0\] l'occurence trouvée et renvoie comme résultat une chaîne
-      de caractères.
-      Les conversions de chaînes de caractères en dates, contenues dans
-      le scriptblock, se font en utilisant les informations de la
-      classe .NET InvariantCulture (US).
-.
-      Note : En cas d'exception déclenchée dans le scriptblock,
-      n'hésitez pas à consulter le contenu de son membre nommé
-      InnerException.
-      ATTENTION : Les scriptblock sont éxécutés dans la portée où ils sont
-                  déclarés
-.
-    -une hashtable, les clés reconnues sont :
-       -- Replace  Contient la valeur de remplacement.
-                   Une chaîne vide est autorisée, mais pas la valeur
-                   $null.
-                   Cette clé est obligatoire.
-                   Son type est \[String\] ou \[ScriptBlock\].
-.
-       -- Max      Nombre maximal de fois où le remplacement aura lieu.
-                   Sa valeur par défaut est -1 (on remplace toutes les
-                   occurrences trouvées) et ne doit pas être inférieure
-                   à -1.
-                   Pour une valeur $null ou une chaîne vide on affecte
-                   la valeur par défaut.
-.
-                   Cette clé est optionnelle et s'applique uniquement
-                   aux expressions régulières.
-                   Son type est \[Integer\], sinon une tentative de
-                   conversion est effectuée.
-.
-       -- StartAt  Position du caractère, dans la chaîne d'entrée, où
-                   la recherche débutera.
-                   Sa valeur par défaut est zéro (début de chaîne) et
-                   doit être supérieure à zéro.
-                   Pour une valeur $null ou une chaîne vide on affecte
-                   la valeur par défaut.
-.
-                   Cette clé est optionnelle et s'applique uniquement
-                   aux expressions régulières.
-                   Son type est \[Integer\], sinon une tentative de
-                   conversion est effectuée.
-.
-       -- Options  L'expression régulière est créée avec les options
-                   spécifiées.
-                   Sa valeur par défaut est "IgnoreCase" (la correspondance
-                   ne respecte pas la casse).
-                   Si vous spécifiez cette clé, l'option "IgnoreCase"
-                   est écrasée par la nouvelle valeur.
-                   Pour une valeur $null ou une chaîne vide on affecte
-                   la valeur par défaut.
-                   Peut contenir une valeur de type \[Object\], dans ce
-                   cas l'objet sera converti en \[String\].
-Si la variable
-                   $OFS est déclarée elle sera utilisée lors de cette
-                   conversion.
-.
-                   Cette clé est optionnelle et s'applique uniquement
-                   aux expressions régulières.
-                   Son type est \[System.Text.RegularExpressions.RegexOptions\].
-.
-                   Note: En lieu et place de cette clé/valeur, il est
-                   possible d'utiliser une construction d'options inline
-                   dans le corps de l'expression régulière (voir un des
-                   exemples).
-                   Ces options inlines sont prioritaires et
-                   complémentaires par rapport à celles définies par
-                   cette clé.
-.
-     Si la hashtable ne contient pas de clé nommée 'Replace', la fonction
-     émet une erreur non-bloquante.
-     Si une des clés 'Max','StartAt' et 'Options' est absente, elle est
-     insérée avec sa valeur par défaut.
+
+      $h.":"={"\<$($args\[0\])\>"}
+
+
+      Dans ce cas, pour chaque occurrence de remplacement trouvée, on évalue le remplacement en exécutant le Scriptblock qui reçoit dans $args\[0\] l'occurence trouvée et renvoie comme résultat une chaîne de caractères.
+
+      Les conversions de chaînes de caractères en dates, contenues dans le scriptblock, se font en utilisant les informations de la classe .NET InvariantCulture (US).
+
+
+      Note :
+
+
+      En cas d'exception déclenchée dans le scriptblock, n'hésitez pas à consulter le contenu de son membre nommé  InnerException.
+
+      ATTENTION : Les scriptblock sont éxécutés dans la portée où ils sont déclarés
+
+
+    * une hashtable, les clés reconnues sont :
+
+       - Replace
+
+       Contient la valeur de remplacement.
+
+       Une chaîne vide est autorisée, mais pas la valeur $null.
+
+       Cette clé est obligatoire.
+
+       Son type est \[String\] ou \[ScriptBlock\].
+
+
+       - Max
+
+        Nombre maximal de fois où le remplacement aura lieu.
+
+        Sa valeur par défaut est -1 (on remplace toutes les occurrences trouvées) et ne doit pas être inférieure à -1.
+
+        Pour une valeur $null ou une chaîne vide on affecte la valeur par défaut.
+
+
+
+        Cette clé est optionnelle et s'applique uniquement aux expressions régulières.
+
+        Son type est \[Integer\], sinon une tentative de conversion est effectuée.
+
+
+       - StartAt
+
+        Position du caractère, dans la chaîne d'entrée, où la recherche débutera.
+
+        Sa valeur par défaut est zéro (début de chaîne) et doit être supérieure à zéro.
+
+        Pour une valeur $null ou une chaîne vide on affecte la valeur par défaut.
+
+
+        Cette clé est optionnelle et s'applique uniquement aux expressions régulières.
+
+        Son type est \[Integer\], sinon une tentative de conversion est effectuée.
+
+
+       - Options
+
+        L'expression régulière est créée avec les options spécifiées.
+
+        Sa valeur par défaut est "IgnoreCase" (la correspondance ne respecte pas la casse).
+
+        Si vous spécifiez cette clé, l'option "IgnoreCase" est écrasée par la nouvelle valeur.
+
+        Pour une valeur $null ou une chaîne vide on affecte la valeur par défaut.
+
+        Peut contenir une valeur de type \[Object\], dans ce cas l'objet sera converti en \[String\].
+
+        Si la variable $OFS est déclarée elle sera utilisée lors de cette conversion.
+
+
+        Cette clé est optionnelle et s'applique uniquement aux expressions régulières.
+
+        Son type est \[System.Text.RegularExpressions.RegexOptions\].
+
+
+        Note:
+
+        En lieu et place de cette clé/valeur, il est possible d'utiliser une construction d'options inline dans le corps de l'expression régulière (voir un des exemples).
+
+       Ces options inlines sont prioritaires et complémentaires par rapport à celles définies par cette clé.
+
+
+     Si la hashtable ne contient pas de clé nommée 'Replace', la fonction émet une erreur non-bloquante.
+
+     Si une des clés 'Max','StartAt' et 'Options' est absente, elle est insérée avec sa valeur par défaut.
+
      La présence de noms de clés inconnues ne provoque pas d'erreur.
-.
+
+
      Rappel : Les règles de conversion de .NET s'appliquent.
+
      Par exemple pour :
+
       \[double\] $Start=1,6
+
       $h."a"=@{Replace="X";StartAt=$Start}
-     où $Start contient une valeur de type \[Double\], celle-ci sera
-     arrondie, ici à 2.
+
+     où $Start contient une valeur de type \[Double\], celle-ci sera arrondie, ici à 2.
 
 ```yaml
 Type: IDictionary
@@ -737,21 +746,26 @@ Accept wildcard characters: False
 ```
 
 ### -SimpleReplace
-Utilise une correspondance simple plutôt qu'une correspondance d'expression
-régulière.
-La recherche et le remplacement utilisent la méthode
-String.Replace() en lieu et place d'une expression régulière.
-ATTENTION cette dernière méthode effectue une recherche de mots en
-respectant la casse et tenant compte de la culture.
-.
-L'usage de ce switch ne permet pas d'utiliser toutes les fonctionnalités
-du paramètre -Setting, ex :  @{Replace="X";Max=n;StartAt=n;Options="Compiled"}.
-Si vous couplez ce paramètre avec ce type de hashtable, seule la clé
-'Replace' sera prise en compte.
-Un avertissement est généré, pour l'éviter utiliser le paramétrage
-suivant :
+Utilise une correspondance simple plutôt qu'une correspondance d'expression régulière.
+
+La recherche et le remplacement utilisent la méthode String.Replace() en lieu et place d'une expression régulière.
+
+ATTENTION cette dernière méthode effectue une recherche de mots en respectant la casse et tenant compte de la culture.
+
+
+L'usage de ce switch ne permet pas d'utiliser toutes les fonctionnalités du paramètre -Setting, ex :
+
+ @{Replace="X";Max=n;StartAt=n;Options="Compiled"}
+
+Si vous couplez ce paramètre avec ce type de hashtable, seule la clé 'Replace' sera prise en compte.
+
+
+Un avertissement est généré, pour l'éviter utiliser le paramétrage suivant :
+
  -WarningAction:SilentlyContinue #bug en v2
+
  ou
+
  $WarningPreference="SilentlyContinue"
 
 ```yaml
@@ -768,19 +782,20 @@ Accept wildcard characters: False
 
 ### -Unique
 Pas de recherche/remplacement multiple.
-.
-L'exécution ne concerne qu'une seule opération de recherche et de
-remplacement, la première qui réussit, même si le paramètre -Setting
-contient plusieurs entrées.
-Si le paramètre -Property est précisé, l'opération unique se fera sur
-toutes les propriétés indiquées.
+
+
+L'exécution ne concerne qu'une seule opération de recherche et de remplacement, la première qui réussit, même si le paramètre -Setting contient plusieurs entrées.
+
+Si le paramètre -Property est précisé, l'opération unique se fera sur toutes les propriétés indiquées.
+
 Ce paramètre ne remplace pas l'information précisée par la clé 'Max'.
-.
+
+
 Note : La présence du switch -Whatif influence le comportement du switch
--Unique.
-Puisque -Whatif n'effectue aucun traitement, on ne peut pas
-savoir si un remplacement a eu lieu, dans ce cas le traitement de
-toutes les clés sera simulé.
+
+* -Unique.
+
+Puisque -Whatif n'effectue aucun traitement, on ne peut pas savoir si un remplacement a eu lieu, dans ce cas le traitement de toutes les clés sera simulé.
 
 ```yaml
 Type: SwitchParameter
@@ -796,6 +811,7 @@ Accept wildcard characters: False
 
 ### -WhatIf
 Shows what would happen if the cmdlet runs.
+
 The cmdlet is not run.
 
 ```yaml
@@ -816,8 +832,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### System.Management.Automation.PSObject
- Vous pouvez diriger tout objet ayant une méthode ToString vers
- Edit-String.
+ Vous pouvez diriger tout objet ayant une méthode ToString vers Edit-String.
 
 ## OUTPUTS
 
@@ -828,30 +843,39 @@ System.PSReplaceInfo
  Edit-String retourne tous les objets qu'il soient modifiés ou pas.
 
 ## NOTES
-Vous pouvez consulter la documentation Française sur les expressions
-régulières, via les liens suivants :
-.
 Options des expressions régulières  :
+
  http://msdn.microsoft.com/fr-fr/library/yd1hzczs(v=VS.80).aspx
  http://msdn.microsoft.com/fr-fr/library/yd1hzczs(v=VS.100).aspx
-.
+
+
 Éléments du langage des expressions régulières :
+
  http://msdn.microsoft.com/fr-fr/library/az24scfc(v=VS.80).aspx
-.
+
+
 Compilation et réutilisation de regex :
+
  http://msdn.microsoft.com/fr-fr/library/8zbs0h2f(vs.80).aspx
-.
-.
+
+
+
 Au coeur des dictionnaires en .Net 2.0 :
+
  http://mehdi-fekih.developpez.com/articles/dotnet/dictionnaires
-.
+
+
 Outil de création d'expression régulière, info et Tips
 pour PowerShell :
+
  http://powershell-scripting.com/index.php?option=com_joomlaboard&Itemid=76&func=view&catid=4&id=3731
-.
-.
+
+
+
 Il est possible d'utiliser la librairie de regex du projet PSCX :
+
  "un deux deux trois"|Edit-String @{$PSCX:RegexLib.RepeatedWord="Deux"}
+
  #renvoi
  #un deux trois
 
