@@ -43,7 +43,7 @@ build_script:
          Write-Host "Call Publish task. Target '$Env:MY_APPVEYOR_GalleryName'"
          #$testResultsFile = Join-Path $pwd -ChildPath "TestResults.xml"
 
-         If ($Env:MY_APPVEYOR_GalleryName -eq 'DevMyget')
+         If ($Env:MY_APPVEYOR_GalleryName -eq 'DevMyGet')
          { $RepositoryName='DevOttoMatt' }
          elseIf ($Env:MY_APPVEYOR_GalleryName -eq 'MyGet')
          { $RepositoryName='OttoMatt' }
