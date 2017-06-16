@@ -1,11 +1,11 @@
 ﻿$PathSource="$Env:Temp\RC"
 Write-Host "Create files test" -fore green
-if (Test-Path $PathSource)  
-{ 
+if (Test-Path $PathSource)
+{
   Write-Host "Remove old files test" -fore green
-  Remove-Item $PathSource -rec -force 
+  Remove-Item $PathSource -rec -force
 }
-new-item $PathSource -ItemType Directory > $null 
+new-item $PathSource -ItemType Directory > $null
 
 @'
 #<%UNCOMMENT%>[FunctionalType('PathFile')]
@@ -70,20 +70,20 @@ Write-Debug "B"
 Write-Debug "suite B"
 Write-Debug "suite A"
 Write-Debug "Suite hors define"
-'@ | Set-Content -Path "$PathSource\Test0.newC.ps1" -Force -Encoding UTF8      
+'@ | Set-Content -Path "$PathSource\Test0.newC.ps1" -Force -Encoding UTF8
 
 @'
 # Test principe de base
 Write-Debug "A"
 Write-Debug "suite A"
 Write-Debug "Suite hors define"
-'@ | Set-Content -Path "$PathSource\Test0.newB.ps1" -Force -Encoding UTF8      
+'@ | Set-Content -Path "$PathSource\Test0.newB.ps1" -Force -Encoding UTF8
 
 
 @'
 # Test principe de base
 Write-Debug "Suite hors define"
-'@ | Set-Content -Path "$PathSource\Test0.newA.ps1" -Force -Encoding UTF8      
+'@ | Set-Content -Path "$PathSource\Test0.newA.ps1" -Force -Encoding UTF8
 
 @'
 # Test imbrication DEFINE erronée
@@ -114,8 +114,8 @@ Write-Debug "C"
 Write-Debug "suite B"
 #<UNDEF %C%>
 Write-Debug "suite A"
-#<UNDEF %A%>  
-Write-Debug "Suite hors define" 
+#<UNDEF %A%>
+Write-Debug "Suite hors define"
 '@ > "$PathSource\Test02.ps1"
 
 @'
@@ -126,8 +126,8 @@ Write-Debug "A"
 Write-Debug "B"
 Write-Debug "suite B"
 Write-Debug "suite A"
-#<UNDEF %A%>  
-Write-Debug "Suite hors define" 
+#<UNDEF %A%>
+Write-Debug "Suite hors define"
 '@ > "$PathSource\Test03.ps1"
 
 @'
@@ -139,8 +139,8 @@ Write-Debug "suite A"
 #<DEFINE %B%>
 Write-Debug "B"
 Write-Debug "suite B"
-  
-Write-Debug "Suite hors define" 
+
+Write-Debug "Suite hors define"
 '@ > "$PathSource\Test031.ps1"
 
 @'
@@ -151,8 +151,8 @@ Write-Debug "B"
 Write-Debug "suite B"
 #<UNDEF %B%>
 Write-Debug "suite A"
-#<UNDEF %A%>  
-Write-Debug "Suite hors define" 
+#<UNDEF %A%>
+Write-Debug "Suite hors define"
 '@ > "$PathSource\Test04.ps1"
 
 @'
@@ -164,7 +164,7 @@ Write-Debug "suite A"
 Write-Debug "B"
 Write-Debug "suite B"
 #<UNDEF %B%>
-Write-Debug "Suite hors define" 
+Write-Debug "Suite hors define"
 '@ > "$PathSource\Test041.ps1"
 
 @'
@@ -179,7 +179,7 @@ Write-Debug "C"
 Write-Debug "suite B"
 #<UNDEF %B%>
 Write-Debug "suite A"
-Write-Debug "Suite hors define" 
+Write-Debug "Suite hors define"
 '@ > "$PathSource\Test05.ps1"
 
 @'
@@ -192,7 +192,7 @@ Write-Debug "B"
 Write-Debug "C"
 Write-Debug "suite B"
 Write-Debug "suite A"
-Write-Debug "Suite hors define" 
+Write-Debug "Suite hors define"
 '@ > "$PathSource\Test06.ps1"
 
 @'
@@ -205,7 +205,7 @@ Write-Debug "C"
 #<UNDEF %C%>
 Write-Debug "suite B"
 Write-Debug "suite A"
-Write-Debug "Suite hors define" 
+Write-Debug "Suite hors define"
 '@ > "$PathSource\Test07.ps1"
 
 @'
@@ -223,7 +223,7 @@ Write-Debug "C"
 #<UNDEF %C%>
 Write-Debug "suite B"
 Write-Debug "suite A"
-Write-Debug "Suite hors define" 
+Write-Debug "Suite hors define"
 '@ > "$PathSource\Test08.ps1"
 
 @'
@@ -247,15 +247,15 @@ Write-Debug "Suite hors define"
 
 @'
     Write-Host "Insertion du contenus du fichier FileInclude.ps1"
-'@ | Set-Content -Path "$PathSource\FileInclude.ps1" -Force -Encoding UTF8    
+'@ | Set-Content -Path "$PathSource\FileInclude.ps1" -Force -Encoding UTF8
 
 @"
        Write-Host 'Code avant'
        #<INCLUDE %'$PathSource\FileInclude.ps1'%>
        Write-Host 'Code aprés'
-"@ | Set-Content -Path "$PathSource\TestInclude1.ps1" -Force -Encoding UTF8              
+"@ | Set-Content -Path "$PathSource\TestInclude1.ps1" -Force -Encoding UTF8
 
-@'       
+@'
        Write-Host 'Code avant'
     Write-Host "Insertion du contenus du fichier FileInclude.ps1"
        Write-Host 'Code aprés'
@@ -266,14 +266,14 @@ Write-Debug "Suite hors define"
        Write-Host 'Code avant'
        #<INCLUDE %'$PathSource\NotExist.ps1'%>
        Write-Host 'Code aprés'
-"@ | Set-Content -Path "$PathSource\TestInclude2.ps1" -Force -Encoding UTF8              
+"@ | Set-Content -Path "$PathSource\TestInclude2.ps1" -Force -Encoding UTF8
 
 
 @'
        Write-Host 'Code avant'
        #<INCLUDE %'Z:\FileInclude.ps1'%>
        Write-Host 'Code aprés'
-'@ | Set-Content -Path "$PathSource\TestInclude3.ps1" -Force -Encoding UTF8              
+'@ | Set-Content -Path "$PathSource\TestInclude3.ps1" -Force -Encoding UTF8
 
 
 @'
@@ -286,7 +286,7 @@ Write-Debug "Suite hors define"
        [FunctionalType('PathFile')]
        ...
        Write-Debug 'Test'
-'@ | Set-Content -Path "$PathSource\TestUNCOMMENT.new.ps1" -Force -Encoding UTF8       
+'@ | Set-Content -Path "$PathSource\TestUNCOMMENT.new.ps1" -Force -Encoding UTF8
 
 @'
 #Test Imbrication de directive
@@ -306,7 +306,7 @@ Write-Host "Code de la fonction"
 # Texte 2 de la directive TEST
 #<UNDEF %TEST%>
 } #test
-'@ | Set-Content -Path "$PathSource\Combination1.ps1" -Force -Encoding UTF8  
+'@ | Set-Content -Path "$PathSource\Combination1.ps1" -Force -Encoding UTF8
 
 @'
 #Test Imbrication de directive
@@ -320,7 +320,7 @@ Write-Host "Code de la fonction"
 # Texte de la SECONDE directive Debug
 # Texte 2 de la directive TEST
 } #test
-'@ | Set-Content -Path "$PathSource\Combination1-Clean.ps1" -Force -Encoding UTF8  
+'@ | Set-Content -Path "$PathSource\Combination1-Clean.ps1" -Force -Encoding UTF8
 
 @'
 #Test Imbrication de directive
@@ -359,7 +359,7 @@ Write-Host "Code de la fonction"
 } #test
 '@ | Set-Content -Path "$PathSource\Combination1-Debug+Test.ps1" -Force -Encoding UTF8
 
-#todo : est gérée
+#todo : doublons? revoir la liste des cas
 @'
 #Test erreur : Une directive sans mot clé de fin
 Filter Test {
@@ -369,12 +369,11 @@ param (
 Write-Host "Code de la fonction"
 
 Write-Debug "$TempFile"
-Write-Debug "$FullPath" 
-#<UNDEF %DEBUG%>   
+Write-Debug "$FullPath"
+#<UNDEF %DEBUG%>
 } #test
 '@ | Set-Content -Path "$PathSource\UndefOrphan.ps1" -Force -Encoding UTF8
 
-#todo : est gérée
 @'
 #Test erreur : deux directives. La première directive Debug est associè à la seconde directive Debug.
 Filter Test {
@@ -385,26 +384,25 @@ Write-Host "Code de la fonction"
 
 #<DEFINE %DEBUG%>
 Write-Debug "$TempFile"
-Write-Debug "$FullPath" 
-#<UN DEF %DEBUG%>    
+Write-Debug "$FullPath"
+#<UN DEF %DEBUG%>
 
 #Imbrication de directive
-#<DEFINE %TEST%>     
+#<DEFINE %TEST%>
 Set-Location C:\Temp
 #<DE FINE %DEBUG%>
   Write-Debug "bug"
-#<UNDEF %DEBUG%>     
+#<UNDEF %DEBUG%>
 "Remove-Conditionnal.ps1"|Remove-Conditionnal  "TEST"
-#<UNDEF %TEST%>   
- 
+#<UNDEF %TEST%>
+
 #<DEFINE %DEBUG%>
   Write-Debug "Fin"
-#<UNDEF %DEBUG%>     
-   
+#<UNDEF %DEBUG%>
+
 } #test
 '@ > "$PathSource\Bug3.ps1"
 
-#todo : est gérée
 @'
 #Test erreur : deux directives. La première directive Debug est associè à la seconde directive Debug.
 Filter Test {
@@ -415,21 +413,21 @@ Write-Host "Code de la fonction"
 
 #<DEFINE %DEBUG%>
 Write-Debug "$TempFile"
-Write-Debug "$FullPath" 
-#<UNDEF %DEBUG%>    
+Write-Debug "$FullPath"
+#<UNDEF %DEBUG%>
 
 #Imbrication de directive
-#<DEFINE %TEST%>     
+#<DEFINE %TEST%>
 Set-Location C:\Temp
 #<DEFINE %DEBUG%>
   Write-Debug "bug"
-#<UNDEF %DEBUG%>     
+#<UNDEF %DEBUG%>
 "Remove-Conditionnal.ps1"|Remove-Conditionnal  "TEST"
-#<UNDEF %TEST%>   
- 
+#<UNDEF %TEST%>
+
 #<DEFINE %DEBUG%>
   Write-Debug "Fin"
-#<UNDEF %DEBUG%>     
-   
+#<UNDEF %DEBUG%>
+
 } #test
 '@ > "$PathSource\Bug4.ps1"
