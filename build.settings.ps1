@@ -146,7 +146,10 @@ Function Find-ExternalModuleDependencies {
      $EMD=Find-ExternalModuleDependencies $ModuleNames -Repository $PublishRepository
 #>
   Param(
-      [System.Collections.Hashtable[]] $ModuleSpecification,
+      [ValidateNotNullOrEmpty()]
+     [System.Collections.Hashtable[]] $ModuleSpecification,
+
+       [ValidateNotNullOrEmpty()]
      [String] $Repository
 )
 
@@ -688,11 +691,14 @@ Task BeforePublish -requiredVariables Projectname, OutDir, ModuleName, PublishRe
 
     $ModuleNames=Read-ModuleDependency $ManifestPath -AsHashTable
      #ExternalModuleDependencies
-    $EMD=Find-ExternalModuleDependencies $ModuleNames -Repository $PublishRepository
-    if ($null -ne $EMD)
+    if ($null -ne $ModuleNames)
     {
-      "Update ExternalModuleDependencies with $($EMD.Name) in '$ManifestPath'"
-      Update-ModuleManifest -path $ManifestPath -ExternalModuleDependencies $EMD
+        $EMD=Find-ExternalModuleDependencies $ModuleNames -Repository $PublishRepository
+        if ($null -ne $EMD)
+        {
+          "Update ExternalModuleDependencies with $($EMD.Name) in '$ManifestPath'"
+          Update-ModuleManifest -path $ManifestPath -ExternalModuleDependencies $EMD
+        }
     }
 }
 

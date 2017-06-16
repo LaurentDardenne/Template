@@ -1,6 +1,6 @@
 ---
 external help file: Template-help.xml
-online version:
+online version: 
 schema: 2.0.0
 ---
 
@@ -417,7 +417,7 @@ Il est possible de combiner ce paramètre avec un ou plusieurs des paramètres s
 ```yaml
 Type: SwitchParameter
 Parameter Sets: Clean
-Aliases:
+Aliases: 
 
 Required: False
 Position: Named
@@ -444,7 +444,7 @@ Le nom de directive 'NOM' et distinct de '1NOM',de 'NOM2' ou de 'PRENOM'.
 ```yaml
 Type: String[]
 Parameter Sets: Keyword
-Aliases:
+Aliases: 
 
 Required: False
 Position: 0
@@ -461,7 +461,7 @@ En cas de traitement de la directive INCLUDE, ce paramètre contiendra le nom du
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: Named
@@ -480,7 +480,7 @@ Pour plus de détails sur les type d'encodage disponible, consultez l'aide en li
 ```yaml
 Type: FileSystemCmdletProviderEncoding
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 Accepted values: Unknown, String, Unicode, Byte, BigEndianUnicode, UTF8, UTF7, UTF32, Ascii, Default, Oem, BigEndianUTF32
 
 Required: False
@@ -540,7 +540,7 @@ au lieu de
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: Named
@@ -560,7 +560,7 @@ Si le texte est contenu dans une seule chaîne de caractères l'analyse des dire
 ```yaml
 Type: Object
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: True
 Position: Named
@@ -577,7 +577,7 @@ Il est possible de combiner ce paramètre avec le paramètre -Clean.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: Named
@@ -595,7 +595,7 @@ Il est possible de combiner ce paramètre avec le paramètre -Clean.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: Named

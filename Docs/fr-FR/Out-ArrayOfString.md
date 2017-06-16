@@ -1,6 +1,6 @@
 ---
 external help file: Template-help.xml
-online version:
+online version: 
 schema: 2.0.0
 ---
 
@@ -8,7 +8,6 @@ schema: 2.0.0
 
 ## SYNOPSIS
 Ce filtre scinde une chaine de caractères contenant des retour chariot et ou des 'line feed' en un tableau de chaîne de caractères.
-
 
 ## SYNTAX
 
