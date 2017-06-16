@@ -22,3 +22,10 @@ if (Test-Path env:APPVEYOR)
 else
 { Invoke-Psake ".\Install.psake.ps1" -parameters @{"Mode"="$($PsCmdlet.ParameterSetName)"} -nologo }
 
+#todo  ParameterSetName = "Install"
+# install-Module  PSake
+# IPMO module #remove requires
+# Trusted repo
+# install-module Pester -Force
+
+#change App.yml > remove  install/load
